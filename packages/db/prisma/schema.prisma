@@ -1,0 +1,188 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Country {
+  GEORGIA
+  CYPRUS
+  GREECE
+  LEBANON
+}
+
+enum PropertyStatus {
+  OFF_PLAN
+  NEW_BUILD
+  RESALE
+}
+
+enum InvestmentGoal {
+  HIGH_ROI
+  CAPITAL_GROWTH
+  GOLDEN_VISA
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  firstName       String?
+  lastName        String?
+  phone           String?
+  country         String?
+  role            Role     @default(USER)
+  investmentGoals InvestmentGoal[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  favoriteProperties FavoriteProperty[]
+  propertyInquiries  PropertyInquiry[]
+  ownedProperties    UserOwnedProperty[]
+
+  @@map("users")
+}
+
+model Developer {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  website     String?
+  logo        String?
+  country     Country
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  properties Property[]
+
+  @@map("developers")
+}
+
+model LocationGuide {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  country     Country
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  properties Property[]
+
+  @@map("location_guides")
+}
+
+model Property {
+  id              String         @id @default(cuid())
+  title           String
+  description     String
+  price           Float
+  currency        String         @default("USD")
+  bedrooms        Int
+  bathrooms       Int
+  area            Float
+  country         Country
+  status          PropertyStatus
+  isGoldenVisaEligible Boolean   @default(false)
+  images          String[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  // Foreign Keys
+  developerId     String?
+  locationGuideId String?
+
+  // Relations
+  developer           Developer?           @relation(fields: [developerId], references: [id])
+  locationGuide       LocationGuide?       @relation(fields: [locationGuideId], references: [id])
+  investmentData      PropertyInvestmentData?
+  favoriteProperties  FavoriteProperty[]
+  propertyInquiries   PropertyInquiry[]
+  ownedByUsers        UserOwnedProperty[]
+
+  @@map("properties")
+}
+
+model PropertyInvestmentData {
+  id                    String  @id @default(cuid())
+  propertyId            String  @unique
+  expectedROI           Float?
+  rentalYield           Float?
+  capitalGrowth         Float?
+  isGoldenVisaEligible  Boolean @default(false)
+  minInvestment         Float?
+  maxInvestment         Float?
+  paymentPlan           String?
+  completionDate        DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_investment_data")
+}
+
+model FavoriteProperty {
+  id        String   @id @default(cuid())
+  userId    String
+  propertyId String
+  createdAt DateTime @default(now())
+
+  // Relations
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, propertyId])
+  @@map("favorite_properties")
+}
+
+model PropertyInquiry {
+  id        String   @id @default(cuid())
+  userId    String?
+  propertyId String
+  name      String
+  email     String
+  phone     String?
+  message   String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  property Property  @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@map("property_inquiries")
+}
+
+model UserOwnedProperty {
+  id              String    @id @default(cuid())
+  userId          String
+  propertyId      String?
+  customName      String
+  purchasePrice   Float
+  purchaseDate    DateTime
+  initialMortgage Float?
+  currentRent     Float?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  property Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+
+  @@map("user_owned_properties")
+}

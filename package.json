@@ -1,0 +1,50 @@
+{
+  "name": "smart-investment-portal",
+  "version": "1.0.0",
+  "description": "Smart Investment Portal - A comprehensive real estate investment platform",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter config build && pnpm --filter db build && pnpm --filter ui build && pnpm --filter web build",
+    "start": "pnpm --filter web start",
+    "clean": "pnpm -r exec rm -rf dist node_modules .next .turbo",
+    "clean:install": "pnpm clean && pnpm install",
+    "lint": "pnpm -r exec eslint . --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "pnpm -r exec eslint . --ext .ts,.tsx,.js,.jsx --fix",
+    "type-check": "pnpm -r exec tsc --noEmit",
+    "test": "pnpm -r exec vitest run",
+    "test:watch": "pnpm -r exec vitest",
+    "test:coverage": "pnpm -r exec vitest run --coverage",
+    "db:generate": "pnpm --filter db exec prisma generate",
+    "db:migrate": "pnpm --filter db exec prisma migrate dev",
+    "db:migrate:deploy": "pnpm --filter db exec prisma migrate deploy",
+    "db:studio": "pnpm --filter db exec prisma studio",
+    "db:seed": "pnpm --filter db exec prisma db seed",
+    "db:reset": "pnpm --filter db exec prisma migrate reset",
+    "db:push": "pnpm --filter db exec prisma db push",
+    "setup": "pnpm install && pnpm db:generate && pnpm db:push",
+    "setup:dev": "pnpm setup && pnpm dev",
+    "build:packages": "pnpm --filter config build && pnpm --filter db build && pnpm --filter ui build",
+    "build:web": "pnpm build:packages && pnpm --filter web build",
+    "deploy": "pnpm build && pnpm db:migrate:deploy",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\""
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "prettier": "^3.0.0",
+    "eslint": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0"
+  },
+  "packageManager": "pnpm@8.0.0",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}
