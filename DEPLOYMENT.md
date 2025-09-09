@@ -1,306 +1,295 @@
-# Deployment Guide
+# PropGroup - Backend Infrastructure & Deployment Guide
 
-This guide will help you deploy the Smart Investment Portal to production.
+## Overview
 
-## 🚀 Prerequisites
+PropGroup is a comprehensive real estate investment platform built as a monorepo with the following architecture:
 
-Before deploying, ensure you have:
+- **Frontend**: Next.js web application
+- **Mobile**: Capacitor for iOS/Android apps
+- **Backend**: Supabase (PostgreSQL, Auth, Storage, Edge Functions)
+- **Deployment**: Vercel (Frontend) + Supabase Cloud (Backend)
 
-1. **Supabase Project** - Database and authentication
-2. **Resend Account** - Email service
-3. **Domain** (optional) - Custom domain for production
-4. **GitHub Repository** - Code repository
+## Project Structure
 
-## 📋 Pre-Deployment Checklist
-
-### 1. Environment Variables
-
-Create a `.env.production` file with production values:
-
-```env
-# Database (Production Supabase)
-DATABASE_URL="postgresql://postgres:[PROD-PASSWORD]@db.[PROD-PROJECT-REF].supabase.co:5432/postgres"
-
-# Supabase (Production)
-NEXT_PUBLIC_SUPABASE_URL="https://[PROD-PROJECT-REF].supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="[PROD-ANON-KEY]"
-SUPABASE_SERVICE_ROLE_KEY="[PROD-SERVICE-ROLE-KEY]"
-
-# App (Production)
-NEXT_PUBLIC_APP_URL="https://yourdomain.com"
-
-# Email (Production)
-RESEND_API_KEY="[PROD-RESEND-API-KEY]"
-FROM_EMAIL="noreply@yourdomain.com"
-ADMIN_EMAIL="admin@yourdomain.com"
+```
+propgroup/
+├── apps/
+│   ├── web/                 # Next.js web application
+│   └── mobile-capacitor/     # Capacitor mobile app
+├── packages/
+│   ├── supabase/            # Shared Supabase client & utilities
+│   ├── ui/                  # Shared UI components
+│   └── config/              # Shared configuration
+├── supabase/
+│   ├── migrations/          # Database migrations
+│   ├── functions/           # Edge functions
+│   ├── seed.sql            # Seed data
+│   └── config.toml         # Supabase configuration
+└── package.json            # Root monorepo configuration
 ```
 
-### 2. Database Setup
+## Tech Stack
 
-1. **Create Production Supabase Project**
-   - Go to [supabase.com](https://supabase.com)
-   - Create a new project for production
-   - Note the connection details
+### Backend
+- **Database**: PostgreSQL (via Supabase)
+- **Authentication**: Supabase Auth (Email/Password, OAuth providers)
+- **Storage**: Supabase Storage (for images and documents)
+- **Edge Functions**: Deno-based serverless functions
+- **Real-time**: PostgreSQL real-time subscriptions
+- **API**: RESTful API via Supabase client + Custom Edge Functions
 
-2. **Run Database Migrations**
+### Frontend
+- **Framework**: Next.js 14 (App Router)
+- **UI**: React + TypeScript
+- **State Management**: React hooks + Supabase real-time
+- **Styling**: Tailwind CSS
+- **Mobile**: Capacitor for cross-platform apps
+
+## Database Schema
+
+### Core Tables
+- `profiles` - User profiles with roles (admin, agent, client, investor)
+- `properties` - Property listings with full details
+- `property_analytics` - View counts, favorites, inquiries tracking
+- `favorites` - User saved properties
+- `inquiries` - Property inquiries and leads
+- `transactions` - Purchase/sale/rental transactions
+- `documents` - Property and transaction documents
+- `appointments` - Property viewing appointments
+- `notifications` - User notifications
+- `search_history` - User search tracking
+
+### Key Features
+- Row Level Security (RLS) policies for data protection
+- PostGIS extension for location-based searches
+- Real-time updates via PostgreSQL subscriptions
+- Automatic timestamp management
+- Full-text search capabilities
+
+## Setup Instructions
+
+### 1. Prerequisites
+- Node.js 18+ and npm
+- Supabase account
+- Vercel account (for deployment)
+
+### 2. Local Development Setup
+
+```bash
+# Clone the repository
+git clone [repository-url]
+cd propgroup
+
+# Install dependencies
+npm install
+
+# Copy environment variables
+cp .env.example .env.local
+
+# Configure environment variables in .env.local
+# - Add your Supabase URL and keys
+# - Configure OAuth providers (optional)
+# - Set up other services as needed
+
+# Start Supabase locally (optional)
+npx supabase start
+
+# Run database migrations
+npx supabase db push
+
+# Seed the database (optional)
+npx supabase db seed
+
+# Start development server
+npm run dev
+```
+
+### 3. Supabase Setup
+
+1. **Create a new Supabase project**
+   - Go to https://supabase.com
+   - Create a new project
+   - Note your project URL and anon key
+
+2. **Run migrations**
    ```bash
-   # Set production DATABASE_URL
-   export DATABASE_URL="your-production-database-url"
+   # Link to your Supabase project
+   npx supabase link --project-ref [your-project-ref]
    
-   # Push schema to production
-   pnpm db:push
+   # Push migrations to Supabase
+   npx supabase db push
    ```
 
-3. **Create Admin User**
-   - Sign up through your production app
-   - Go to Supabase Dashboard > Table Editor > `users`
-   - Change your user's `role` from `USER` to `ADMIN`
+3. **Configure Storage Buckets**
+   Create the following buckets in Supabase Dashboard:
+   - `property-images` (public)
+   - `documents` (private)
+   - `user-avatars` (public)
+   - `company-assets` (public)
 
-### 3. Email Configuration
+4. **Deploy Edge Functions**
+   ```bash
+   # Deploy all functions
+   npx supabase functions deploy
+   
+   # Or deploy specific function
+   npx supabase functions deploy property-search
+   npx supabase functions deploy analytics-track
+   ```
 
-1. **Set up Resend**
-   - Verify your domain in Resend dashboard
-   - Update `FROM_EMAIL` to use your verified domain
-   - Test email sending
+5. **Configure Authentication**
+   - Enable Email/Password authentication
+   - Configure OAuth providers (Google, GitHub, etc.)
+   - Set up email templates
+   - Configure redirect URLs
 
-### 4. Supabase Configuration
+### 4. Vercel Deployment
 
-1. **Authentication Settings**
-   - Site URL: `https://yourdomain.com`
-   - Redirect URLs: `https://yourdomain.com/auth/callback`
-   - Email templates (optional)
+1. **Connect GitHub repository to Vercel**
+   - Import your repository in Vercel
+   - Select the monorepo root
 
-2. **Storage Setup**
-   - Create `user_documents` bucket
-   - Set up RLS policies for user-specific access
+2. **Configure build settings**
+   - Framework Preset: None
+   - Build Command: `npm run build`
+   - Output Directory: `apps/web/.next`
+   - Install Command: `npm install`
 
-## 🌐 Deployment Options
-
-### Option 1: Vercel (Recommended)
-
-1. **Connect Repository**
-   - Go to [vercel.com](https://vercel.com)
-   - Import your GitHub repository
-   - Select the `apps/web` directory as root
-
-2. **Configure Environment Variables**
-   - Add all production environment variables
-   - Set `NEXT_PUBLIC_APP_URL` to your domain
-
-3. **Deploy**
-   - Vercel will automatically deploy on push
-   - Monitor deployment logs
-
-4. **Custom Domain** (Optional)
-   - Add your domain in Vercel dashboard
-   - Update DNS records as instructed
-
-### Option 2: Railway
-
-1. **Connect Repository**
-   - Go to [railway.app](https://railway.app)
-   - Connect your GitHub repository
-   - Select the `apps/web` directory
-
-2. **Add Database**
-   - Add PostgreSQL service
-   - Copy connection string to `DATABASE_URL`
-
-3. **Configure Environment**
-   - Add all environment variables
-   - Set `NEXT_PUBLIC_APP_URL`
+3. **Set environment variables in Vercel**
+   ```
+   NEXT_PUBLIC_SUPABASE_URL
+   NEXT_PUBLIC_SUPABASE_ANON_KEY
+   SUPABASE_SERVICE_ROLE_KEY
+   NEXT_PUBLIC_APP_URL
+   # Add other variables as needed
+   ```
 
 4. **Deploy**
-   - Railway will build and deploy automatically
-
-### Option 3: Self-Hosted (VPS)
-
-1. **Server Setup**
    ```bash
-   # Install Node.js 18+
-   curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-   sudo apt-get install -y nodejs
+   # Deploy to production
+   vercel --prod
    
-   # Install pnpm
-   npm install -g pnpm
-   
-   # Install PM2 for process management
-   npm install -g pm2
+   # Deploy to preview
+   vercel
    ```
 
-2. **Clone and Setup**
-   ```bash
-   git clone <your-repo>
-   cd smart-investment-portal
-   pnpm install
-   pnpm build
-   ```
+## API Endpoints
 
-3. **Environment Configuration**
-   ```bash
-   cp env.example .env.production
-   # Edit .env.production with production values
-   ```
+### Supabase Tables (Auto-generated REST API)
+- `GET /rest/v1/properties` - List properties
+- `GET /rest/v1/properties?id=eq.{id}` - Get property by ID
+- `POST /rest/v1/properties` - Create property
+- `PATCH /rest/v1/properties?id=eq.{id}` - Update property
+- `DELETE /rest/v1/properties?id=eq.{id}` - Delete property
 
-4. **Database Setup**
-   ```bash
-   export DATABASE_URL="your-production-database-url"
-   pnpm db:push
-   ```
+### Edge Functions
+- `POST /functions/v1/property-search` - Advanced property search
+- `POST /functions/v1/analytics-track` - Track user interactions
 
-5. **Start Application**
-   ```bash
-   # Using PM2
-   pm2 start "pnpm start" --name "smart-investment-portal"
-   pm2 save
-   pm2 startup
-   ```
+### Next.js API Routes
+- `/api/properties` - Property CRUD operations
+- `/api/auth/*` - Authentication endpoints
+- `/api/upload` - File upload handling
+- `/api/cron/*` - Scheduled tasks
 
-6. **Nginx Configuration** (Optional)
-   ```nginx
-   server {
-       listen 80;
-       server_name yourdomain.com;
-       
-       location / {
-           proxy_pass http://localhost:3000;
-           proxy_http_version 1.1;
-           proxy_set_header Upgrade $http_upgrade;
-           proxy_set_header Connection 'upgrade';
-           proxy_set_header Host $host;
-           proxy_cache_bypass $http_upgrade;
-       }
-   }
-   ```
+## Security
 
-## 🔧 Post-Deployment
+### Row Level Security (RLS)
+All tables have RLS policies configured:
+- Public read access for properties
+- User-specific access for personal data
+- Role-based access for admin operations
 
-### 1. Verify Deployment
+### Authentication
+- JWT-based authentication via Supabase Auth
+- Session management with refresh tokens
+- OAuth integration for social logins
 
-1. **Test Core Features**
-   - User registration/login
-   - Property browsing
-   - Admin dashboard access
-   - Email functionality
+### API Security
+- API key authentication for edge functions
+- CORS configuration for allowed origins
+- Rate limiting on sensitive endpoints
 
-2. **Check Database**
-   - Verify all tables created
-   - Test data insertion
-   - Check user roles
+## Monitoring & Analytics
 
-3. **Monitor Performance**
-   - Check response times
-   - Monitor error logs
-   - Set up monitoring (optional)
+### Database Monitoring
+- Use Supabase Dashboard for query performance
+- Monitor slow queries and optimize indexes
+- Track storage usage
 
-### 2. Security Checklist
+### Application Monitoring
+- Vercel Analytics for performance metrics
+- Google Analytics for user behavior
+- Custom analytics via property_analytics table
 
-- [ ] Environment variables secured
-- [ ] Database access restricted
-- [ ] HTTPS enabled
-- [ ] CORS configured properly
-- [ ] Rate limiting implemented (optional)
+### Error Tracking
+- Vercel logs for application errors
+- Supabase logs for database errors
+- Edge function logs in Supabase Dashboard
 
-### 3. Backup Strategy
+## Maintenance
 
-1. **Database Backups**
-   - Enable Supabase automatic backups
-   - Set up manual backup schedule
+### Database Maintenance
+```bash
+# Create a new migration
+npx supabase migration new [migration_name]
 
-2. **Code Backups**
-   - Regular Git pushes
-   - Tag releases for rollback
+# Run migrations locally
+npx supabase db reset
 
-## 📊 Monitoring & Maintenance
+# Push to production
+npx supabase db push
+```
 
-### 1. Application Monitoring
+### Backup Strategy
+- Automatic daily backups via Supabase
+- Point-in-time recovery available
+- Export data via Supabase Dashboard
 
-Consider setting up:
-- **Error Tracking**: Sentry
-- **Analytics**: Google Analytics
-- **Uptime Monitoring**: UptimeRobot
-- **Performance**: Vercel Analytics
+### Updates
+```bash
+# Update dependencies
+npm update
 
-### 2. Regular Maintenance
+# Update Supabase CLI
+npm install -g supabase@latest
 
-- **Dependency Updates**: Monthly
-- **Security Patches**: As needed
-- **Database Optimization**: Quarterly
-- **Backup Verification**: Weekly
+# Update database types
+npx supabase gen types typescript --project-id [project-id] > packages/supabase/src/types/database.ts
+```
 
-### 3. Scaling Considerations
-
-- **Database**: Supabase auto-scales
-- **CDN**: Vercel provides global CDN
-- **Caching**: Implement Redis for heavy queries
-- **Load Balancing**: For high traffic
-
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
-1. **Database Connection Errors**
-   - Check `DATABASE_URL` format
-   - Verify Supabase project is active
-   - Check network connectivity
+1. **Database connection issues**
+   - Check Supabase project status
+   - Verify environment variables
+   - Check RLS policies
 
-2. **Authentication Issues**
-   - Verify Supabase URL and keys
+2. **Authentication errors**
+   - Verify Supabase Auth configuration
    - Check redirect URLs
-   - Clear browser cache
+   - Validate JWT tokens
 
-3. **Build Failures**
-   - Check Node.js version (18+)
-   - Verify all dependencies installed
-   - Check TypeScript errors
+3. **Storage upload failures**
+   - Check bucket permissions
+   - Verify file size limits
+   - Ensure proper CORS configuration
 
-4. **Email Not Sending**
-   - Verify Resend API key
-   - Check domain verification
-   - Review email templates
+4. **Edge function errors**
+   - Check function logs in Supabase
+   - Verify environment variables
+   - Test locally with `supabase functions serve`
 
-### Getting Help
+## Support
 
-1. Check application logs
-2. Review Supabase logs
-3. Check Vercel deployment logs
-4. Create GitHub issue with details
+For issues or questions:
+1. Check Supabase documentation: https://supabase.com/docs
+2. Check Vercel documentation: https://vercel.com/docs
+3. Review project issues on GitHub
+4. Contact development team
 
-## 🔄 Updates & Rollbacks
+## License
 
-### Deploying Updates
-
-```bash
-# Pull latest changes
-git pull origin main
-
-# Install new dependencies
-pnpm install
-
-# Build and deploy
-pnpm build
-# (Deployment platform will handle the rest)
-```
-
-### Rolling Back
-
-1. **Vercel**: Use deployment history
-2. **Railway**: Use deployment history
-3. **Self-hosted**: 
-   ```bash
-   git checkout <previous-commit>
-   pnpm build
-   pm2 restart smart-investment-portal
-   ```
-
----
-
-## 📞 Support
-
-For deployment issues:
-1. Check this guide first
-2. Review platform-specific documentation
-3. Create GitHub issue with deployment logs
-4. Contact platform support if needed
-
-Remember to keep your production credentials secure and never commit them to version control!
+[Your License Here]

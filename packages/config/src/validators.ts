@@ -1,13 +1,35 @@
 import { z } from 'zod';
 import { SUPPORTED_COUNTRIES, PROPERTY_STATUSES, INVESTMENT_GOALS } from './constants';
 
+// Authentication schemas
+export const authSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+export const signupSchema = authSchema.extend({
+  confirmPassword: z.string().min(6, 'Password must be at least 6 characters'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
 // Contact form validation
 export const contactFormSchema = z.object({
   email: z.string().email('Invalid email address'),
   name: z.string().min(2, 'Name must be at least 2 characters'),
   phone: z.string().optional(),
-  propertyId: z.string().cuid('Invalid property ID'),
+  propertyId: z.string().optional(),
   message: z.string().optional()
+});
+
+// Investment matchmaker schema
+export const investmentMatchmakerSchema = z.object({
+  goal: z.enum(['HIGH_ROI', 'CAPITAL_GROWTH', 'GOLDEN_VISA'], {
+    errorMap: () => ({ message: 'Please select an investment goal' })
+  }),
+  budget: z.number().min(10000, 'Minimum budget is $10,000'),
+  country: z.enum(['georgia', 'cyprus', 'greece', 'lebanon', 'any']).optional(),
 });
 
 // Investment calculator validation
@@ -50,11 +72,15 @@ export const propertySchema = z.object({
   area: z.number().min(0, 'Area must be positive'),
   country: z.enum(['georgia', 'cyprus', 'greece', 'lebanon']),
   status: z.enum(['OFF_PLAN', 'NEW_BUILD', 'RESALE']),
-  developerId: z.string().cuid('Invalid developer ID').optional(),
-  locationGuideId: z.string().cuid('Invalid location guide ID').optional()
+  developerId: z.string().optional(),
+  locationGuideId: z.string().optional()
 });
 
+// Export types
+export type AuthData = z.infer<typeof authSchema>;
+export type SignupData = z.infer<typeof signupSchema>;
 export type ContactFormData = z.infer<typeof contactFormSchema>;
+export type InvestmentMatchmakerData = z.infer<typeof investmentMatchmakerSchema>;
 export type InvestmentCalculatorData = z.infer<typeof investmentCalculatorSchema>;
 export type PropertySearchData = z.infer<typeof propertySearchSchema>;
 export type UserProfileData = z.infer<typeof userProfileSchema>;

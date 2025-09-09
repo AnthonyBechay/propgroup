@@ -1,250 +1,245 @@
-# Smart Investment Portal
+# PropGroup - Real Estate Investment Platform
 
-A comprehensive real estate investment platform built with Next.js, Supabase, and Prisma. This monorepo contains a web application, shared packages, and admin dashboard for managing real estate investments.
+## 🏗️ Architecture Overview
 
-## 🏗️ Architecture
+PropGroup is a modern real estate investment platform built with:
 
-This is a pnpm monorepo with the following structure:
+- **Frontend**: Next.js 14 with App Router, React, TypeScript
+- **Mobile**: Capacitor for iOS/Android native apps
+- **Backend**: Supabase (PostgreSQL, Auth, Storage, Edge Functions)
+- **Infrastructure**: Vercel (Frontend) + Supabase Cloud (Backend)
+- **Package Manager**: npm workspaces (monorepo)
+
+## 📁 Project Structure
 
 ```
-smart-investment-portal/
+propgroup/
 ├── apps/
-│   └── web/                 # Next.js web application
+│   ├── web/                 # Next.js web application
+│   └── mobile-capacitor/     # Capacitor mobile app
 ├── packages/
-│   ├── config/             # Shared configuration and utilities
-│   ├── db/                 # Prisma database schema and client
-│   └── ui/                 # Shared UI components
-└── package.json            # Root package.json with workspace scripts
+│   ├── supabase/            # Shared Supabase client & utilities
+│   ├── ui/                  # Shared UI components
+│   └── config/              # Shared configuration
+├── supabase/
+│   ├── migrations/          # Database migrations
+│   ├── functions/           # Edge functions
+│   ├── seed.sql            # Seed data
+│   └── config.toml         # Supabase configuration
+├── scripts/                 # Utility scripts
+└── package.json            # Root monorepo configuration
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ 
-- pnpm 8+
-- Supabase account
-- Resend account (for email)
+- Node.js 18+ and npm 9+
+- Supabase account (free tier available)
+- Vercel account (for deployment)
 
-### 1. Clone and Install
-
-```bash
-git clone <your-repo-url>
-cd smart-investment-portal
-pnpm install
-```
-
-### 2. Environment Setup
-
-Copy the environment template and fill in your values:
+### Initial Setup
 
 ```bash
-cp env.example .env
+# Clone the repository
+git clone <repository-url>
+cd propgroup
+
+# Run the setup wizard
+npm run setup:wizard
+
+# Or manual setup
+cp .env.example .env.local
+npm install
+npm run supabase:setup
 ```
-
-Required environment variables:
-
-```env
-# Database (Supabase PostgreSQL)
-DATABASE_URL="postgresql://postgres:[PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres"
-
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL="https://[PROJECT-REF].supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="[ANON-KEY]"
-SUPABASE_SERVICE_ROLE_KEY="[SERVICE-ROLE-KEY]"
-
-# App
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-
-# Email (Resend)
-RESEND_API_KEY="[RESEND-API-KEY]"
-```
-
-### 3. Database Setup
-
-```bash
-# Generate Prisma client
-pnpm db:generate
-
-# Push schema to database
-pnpm db:push
-
-# (Optional) Open Prisma Studio
-pnpm db:studio
-```
-
-### 4. Start Development
-
-```bash
-pnpm dev
-```
-
-Visit `http://localhost:3000` to see the application.
-
-## 📋 Available Scripts
 
 ### Development
-- `pnpm dev` - Start development server
-- `pnpm setup:dev` - Full setup + dev server
-
-### Building
-- `pnpm build` - Build all packages and web app
-- `pnpm build:packages` - Build shared packages only
-- `pnpm build:web` - Build web app with packages
-
-### Database
-- `pnpm db:generate` - Generate Prisma client
-- `pnpm db:push` - Push schema changes to database
-- `pnpm db:migrate` - Create and run migrations
-- `pnpm db:studio` - Open Prisma Studio
-- `pnpm db:reset` - Reset database (⚠️ destructive)
-
-### Testing
-- `pnpm test` - Run all tests
-- `pnpm test:watch` - Run tests in watch mode
-- `pnpm test:coverage` - Run tests with coverage
-
-### Code Quality
-- `pnpm lint` - Run ESLint
-- `pnpm lint:fix` - Fix ESLint issues
-- `pnpm type-check` - Run TypeScript type checking
-- `pnpm format` - Format code with Prettier
-
-### Utilities
-- `pnpm clean` - Clean all build artifacts
-- `pnpm clean:install` - Clean + fresh install
-- `pnpm setup` - Install + generate + push schema
-
-## 🗄️ Database Setup
-
-### 1. Create Supabase Project
-
-1. Go to [supabase.com](https://supabase.com)
-2. Create a new project
-3. Note your project URL and API keys
-
-### 2. Configure Database
-
-1. Copy your PostgreSQL connection string from Supabase
-2. Add it to your `.env` file as `DATABASE_URL`
-3. Run `pnpm db:push` to create tables
-
-### 3. Set Up Authentication
-
-1. In Supabase Dashboard > Authentication > Settings
-2. Configure your site URL: `http://localhost:3000`
-3. Add redirect URLs for production
-
-### 4. Create Admin User
-
-After setting up the database, you'll need to manually promote a user to admin:
-
-1. Sign up through the app
-2. Go to Supabase Dashboard > Table Editor > `users`
-3. Find your user and change `role` from `USER` to `ADMIN`
-
-## 📧 Email Setup (Resend)
-
-1. Sign up at [resend.com](https://resend.com)
-2. Get your API key from the dashboard
-3. Add it to your `.env` file as `RESEND_API_KEY`
-4. Verify your domain (for production)
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-
-1. Connect your GitHub repository to Vercel
-2. Add environment variables in Vercel dashboard
-3. Deploy automatically on push
-
-### Manual Deployment
 
 ```bash
-# Build the application
-pnpm build
+# Start all services
+npm run dev
 
-# Run database migrations
-pnpm db:migrate:deploy
+# Start specific services
+npm run supabase:start    # Start local Supabase
+npm run dev:web           # Start web app only
+npm run dev:mobile        # Start mobile app
 
-# Start production server
-pnpm start
+# Health check
+npm run health            # Check all services status
 ```
 
-## 🏗️ Project Structure
+## 🗄️ Database Management
 
-### Apps
+### Migrations
 
-#### `/apps/web`
-- Next.js 15 with App Router
-- TypeScript + Tailwind CSS
-- Supabase authentication
-- Server and client components
+```bash
+# Create a new migration
+npm run migration:new
 
-### Packages
+# Run migrations locally
+npm run supabase:reset    # Reset and re-run all migrations
+npm run supabase:push     # Push changes to remote
 
-#### `/packages/config`
-- Shared constants and enums
-- Zod validation schemas
-- Investment calculation utilities
-- Type definitions
+# Generate TypeScript types
+npm run types:generate
+```
 
-#### `/packages/db`
-- Prisma schema
-- Database client
-- Migrations
-- Seed scripts
+### Database Schema
 
-#### `/packages/ui`
-- Shared React components
-- Reusable UI elements
-- Property cards and forms
+Key tables:
+- `profiles` - User profiles and roles
+- `properties` - Real estate listings
+- `property_analytics` - Tracking and metrics
+- `transactions` - Purchase/sale records
+- `favorites` - User saved properties
+- `inquiries` - Lead management
+- `appointments` - Property viewings
+- `notifications` - User notifications
 
-## 🔐 Authentication & Authorization
+## 🔐 Authentication
 
-- **Supabase Auth** for user management
-- **Role-based access** (USER/ADMIN)
-- **Protected routes** with middleware
-- **Server-side auth** in components
+Supabase Auth supports:
+- Email/Password authentication
+- OAuth providers (Google, GitHub, Facebook)
+- Magic links
+- Phone authentication (SMS)
 
-## 📊 Features
+### User Roles
 
-### Public Features
-- Property browsing and search
-- Investment calculator
-- Contact forms
-- User registration/login
+- `admin` - Full system access
+- `agent` - Property management
+- `investor` - Investment tools access
+- `client` - Standard user
+- `viewer` - Read-only access
 
-### User Portal
-- Personal dashboard
-- Property favorites
-- Portfolio tracking
-- Performance simulation
-- Document vault
-- Settings management
+## 📡 API Endpoints
 
-### Admin Dashboard
-- Property management (CRUD)
-- User management
-- Analytics and statistics
-- Role management
+### REST API (Auto-generated)
+
+```
+GET    /rest/v1/properties
+POST   /rest/v1/properties
+PATCH  /rest/v1/properties?id=eq.{id}
+DELETE /rest/v1/properties?id=eq.{id}
+```
+
+### Edge Functions
+
+```
+POST /functions/v1/property-search    # Advanced search
+POST /functions/v1/analytics-track    # Event tracking
+```
+
+### Next.js API Routes
+
+```
+/api/properties/*         # Property operations
+/api/auth/*              # Authentication
+/api/upload/*            # File uploads
+/api/cron/*              # Scheduled tasks
+```
+
+## 🚢 Deployment
+
+### Vercel Deployment
+
+```bash
+# Deploy to production
+npm run deploy:web
+
+# Deploy preview
+npm run deploy:preview
+```
+
+### Supabase Deployment
+
+```bash
+# Link to remote project
+npm run supabase:link
+
+# Deploy database changes
+npm run supabase:push
+
+# Deploy edge functions
+npm run supabase:functions:deploy
+```
+
+## 📊 Monitoring
+
+```bash
+# Check logs
+npm run supabase:logs         # Edge function logs
+vercel logs                    # Application logs
+
+# Database monitoring
+# Use Supabase Dashboard for:
+# - Query performance
+# - Storage usage
+# - Auth metrics
+# - Real-time connections
+```
 
 ## 🧪 Testing
 
-The project uses Vitest for testing:
-
 ```bash
-# Run all tests
-pnpm test
-
-# Run tests for specific package
-pnpm --filter config test
-
-# Run tests in watch mode
-pnpm test:watch
+# Run tests
+npm test                # Run all tests
+npm run test:watch     # Watch mode
+npm run test:coverage  # Coverage report
 ```
 
-## 📝 Contributing
+## 🛠️ Utility Scripts
+
+```bash
+npm run clean          # Clean all build artifacts
+npm run format         # Format code with Prettier
+npm run lint           # Lint code
+npm run type-check     # TypeScript validation
+npm run health         # Health check all services
+```
+
+## 📱 Mobile Development
+
+```bash
+# Sync web code to mobile
+npm run mobile:sync
+
+# Run on iOS
+npm run mobile:ios
+
+# Run on Android
+npm run mobile:android
+```
+
+## 🔒 Security
+
+- Row Level Security (RLS) on all tables
+- JWT-based authentication
+- API rate limiting
+- CORS configuration
+- Environment variable protection
+
+## 📝 Environment Variables
+
+Required variables in `.env.local`:
+
+```env
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Application
+NEXT_PUBLIC_APP_URL=
+
+# Optional services
+SENDGRID_API_KEY=
+NEXT_PUBLIC_GA_MEASUREMENT_ID=
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
+```
+
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -252,29 +247,40 @@ pnpm test:watch
 4. Run tests and linting
 5. Submit a pull request
 
-## 📄 License
+## 📚 Documentation
 
-This project is private and proprietary.
+- [Deployment Guide](./DEPLOYMENT.md)
+- [API Documentation](./docs/api.md)
+- [Database Schema](./docs/schema.md)
 
-## 🆘 Support
+## 🆘 Troubleshooting
 
-For issues and questions:
-1. Check the documentation
-2. Search existing issues
-3. Create a new issue with details
+### Common Issues
 
-## 🔄 Updates
-
-To update dependencies:
-
+**Database connection failed**
 ```bash
-# Update all dependencies
-pnpm update
-
-# Update specific package
-pnpm --filter web update [package-name]
+npm run health          # Check service status
+npm run supabase:start  # Restart local Supabase
 ```
 
----
+**Types out of sync**
+```bash
+npm run types:generate  # Regenerate TypeScript types
+```
 
-Built with ❤️ using Next.js, Supabase, and Prisma.
+**Migration errors**
+```bash
+npm run supabase:reset  # Reset database
+```
+
+## 📄 License
+
+[Your License]
+
+## 🙏 Acknowledgments
+
+Built with:
+- [Next.js](https://nextjs.org)
+- [Supabase](https://supabase.com)
+- [Vercel](https://vercel.com)
+- [Capacitor](https://capacitorjs.com)

@@ -3,39 +3,39 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
-import { investmentCalculatorSchema } from '@propgroup/config'
+import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ArrowRight, TrendingUp, DollarSign, Target } from 'lucide-react'
 
-type MatchmakerFormData = {
-  goal: string
-  budget: number
-  country: string
-}
+// Define schema locally to avoid import issues
+const investmentMatchmakerSchema = z.object({
+  goal: z.enum(['HIGH_ROI', 'CAPITAL_GROWTH', 'GOLDEN_VISA'], {
+    errorMap: () => ({ message: 'Please select an investment goal' })
+  }),
+  budget: z.number().min(10000, 'Minimum budget is $10,000'),
+  country: z.enum(['georgia', 'cyprus', 'greece', 'lebanon', 'any']).optional(),
+});
 
-const matchmakerSchema = investmentCalculatorSchema.pick({ propertyPrice: true }).extend({
-  goal: investmentCalculatorSchema.shape.propertyPrice, // Using as placeholder
-  country: investmentCalculatorSchema.shape.propertyPrice,
-})
+type InvestmentMatchmakerData = z.infer<typeof investmentMatchmakerSchema>;
 
 export function InvestmentMatchmaker() {
   const router = useRouter()
-  const { register, handleSubmit, formState: { errors } } = useForm<MatchmakerFormData>({
-    resolver: zodResolver(matchmakerSchema),
+  const { register, handleSubmit, formState: { errors } } = useForm<InvestmentMatchmakerData>({
+    resolver: zodResolver(investmentMatchmakerSchema),
     defaultValues: {
-      goal: '',
-      budget: 0,
-      country: '',
+      goal: 'HIGH_ROI',
+      budget: 100000,
+      country: 'any',
     },
   })
 
-  const onSubmit = (data: MatchmakerFormData) => {
+  const onSubmit = (data: InvestmentMatchmakerData) => {
     const params = new URLSearchParams({
       goal: data.goal,
       budget: data.budget.toString(),
-      country: data.country,
+      ...(data.country && data.country !== 'any' && { country: data.country }),
     })
     router.push(`/properties?${params.toString()}`)
   }
@@ -67,10 +67,9 @@ export function InvestmentMatchmaker() {
                 {...register('goal')}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="">Select your goal</option>
-                <option value="HIGH_ROI">High ROI</option>
+                <option value="HIGH_ROI">High ROI (10%+ Annual)</option>
                 <option value="CAPITAL_GROWTH">Capital Growth</option>
-                <option value="GOLDEN_VISA">Golden Visa</option>
+                <option value="GOLDEN_VISA">Golden Visa Eligibility</option>
               </select>
               {errors.goal && (
                 <p className="text-sm text-red-600">{errors.goal.message}</p>
@@ -90,6 +89,8 @@ export function InvestmentMatchmaker() {
                 placeholder="Enter your budget"
                 {...register('budget', { valueAsNumber: true })}
                 className="p-3 text-lg"
+                min="10000"
+                step="1000"
               />
               {errors.budget && (
                 <p className="text-sm text-red-600">{errors.budget.message}</p>
@@ -108,7 +109,7 @@ export function InvestmentMatchmaker() {
                 {...register('country')}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="">Any country</option>
+                <option value="any">Any country</option>
                 <option value="georgia">Georgia</option>
                 <option value="cyprus">Cyprus</option>
                 <option value="greece">Greece</option>

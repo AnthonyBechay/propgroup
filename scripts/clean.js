@@ -1,30 +1,64 @@
+// Clean script - removes all node_modules and build artifacts
 const fs = require('fs');
 const path = require('path');
 
-const directoriesToClean = [
+const dirsToClean = [
   'node_modules',
-  'dist',
   '.next',
+  'dist',
+  'build',
   '.turbo',
-  'packages/config/dist',
-  'packages/db/dist',
-  'packages/ui/dist',
-  'apps/web/.next',
-  'apps/web/dist'
+  '.cache',
+  'coverage'
 ];
 
-function removeDirectory(dirPath) {
+function cleanDirectory(dirPath) {
   if (fs.existsSync(dirPath)) {
-    console.log(`Removing ${dirPath}...`);
+    console.log(`Cleaning ${dirPath}...`);
     fs.rmSync(dirPath, { recursive: true, force: true });
   }
 }
 
-console.log('🧹 Cleaning project...');
+function cleanProject(projectPath) {
+  console.log(`Cleaning project at ${projectPath}`);
+  
+  dirsToClean.forEach(dir => {
+    cleanDirectory(path.join(projectPath, dir));
+  });
 
-directoriesToClean.forEach(dir => {
-  const fullPath = path.resolve(dir);
-  removeDirectory(fullPath);
-});
+  // Clean package-lock.json if not in root
+  if (projectPath !== process.cwd()) {
+    const lockFile = path.join(projectPath, 'package-lock.json');
+    if (fs.existsSync(lockFile)) {
+      console.log(`Removing ${lockFile}`);
+      fs.unlinkSync(lockFile);
+    }
+  }
+}
 
-console.log('✅ Clean completed!');
+// Clean root
+cleanProject(process.cwd());
+
+// Clean apps
+const appsDir = path.join(process.cwd(), 'apps');
+if (fs.existsSync(appsDir)) {
+  fs.readdirSync(appsDir).forEach(app => {
+    const appPath = path.join(appsDir, app);
+    if (fs.statSync(appPath).isDirectory()) {
+      cleanProject(appPath);
+    }
+  });
+}
+
+// Clean packages
+const packagesDir = path.join(process.cwd(), 'packages');
+if (fs.existsSync(packagesDir)) {
+  fs.readdirSync(packagesDir).forEach(pkg => {
+    const pkgPath = path.join(packagesDir, pkg);
+    if (fs.statSync(pkgPath).isDirectory()) {
+      cleanProject(pkgPath);
+    }
+  });
+}
+
+console.log('Clean completed!');

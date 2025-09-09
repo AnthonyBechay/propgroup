@@ -1,8 +1,14 @@
-import { PropertyCard } from '@propgroup/ui';
+import { PropertyCard } from '@/components/PropertyCard';
 import { InvestmentMatchmaker } from '@/components/InvestmentMatchmaker';
 import { prisma } from '@/lib/prisma';
+import { getFavoriteStatus } from '@/actions/favorite-actions';
+import { createClient } from '@/lib/supabase/server';
 
 export default async function Home() {
+  // Get current user to check favorites
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   // Fetch featured properties from the database
   const featuredProperties = await prisma.property.findMany({
     where: { 
@@ -11,7 +17,12 @@ export default async function Home() {
     },
     include: { 
       investmentData: true,
-      developer: true 
+      developer: true,
+      favoriteProperties: user ? {
+        where: {
+          userId: user.id
+        }
+      } : false
     },
     take: 6,
   });
@@ -59,8 +70,7 @@ export default async function Home() {
                     rentalYield: property.investmentData?.rentalYield,
                     capitalGrowth: property.investmentData?.capitalGrowth,
                   }}
-                  onFavorite={(id: string) => console.log('Favorited property:', id)}
-                  onInquiry={(id: string) => console.log('Inquiry for property:', id)}
+                  isFavorited={property.favoriteProperties?.length > 0}
                 />
               ))}
             </div>

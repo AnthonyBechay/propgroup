@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { createClient } from '@/lib/supabase/client'
-import { contactFormSchema } from '@propgroup/config'
 import {
   Dialog,
   DialogContent,
@@ -23,28 +23,25 @@ import {
   Label,
 } from '@/components/ui/label'
 
+// Define schemas locally to avoid import issues
+const authSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+});
+
+const signupSchema = authSchema.extend({
+  confirmPassword: z.string().min(6, 'Password must be at least 6 characters'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+type AuthData = z.infer<typeof authSchema>;
+type SignupData = z.infer<typeof signupSchema>;
+
 interface AuthModalProps {
   children: React.ReactNode
 }
-
-type LoginFormData = {
-  email: string
-  password: string
-}
-
-type SignupFormData = {
-  email: string
-  password: string
-  confirmPassword: string
-}
-
-const loginSchema = contactFormSchema.pick({ email: true }).extend({
-  password: contactFormSchema.shape.email, // Using email validation as placeholder
-})
-
-const signupSchema = loginSchema.extend({
-  confirmPassword: contactFormSchema.shape.email,
-})
 
 export function AuthModal({ children }: AuthModalProps) {
   const [isOpen, setIsOpen] = useState(false)
@@ -55,15 +52,15 @@ export function AuthModal({ children }: AuthModalProps) {
 
   const supabase = createClient()
 
-  const loginForm = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  const loginForm = useForm<AuthData>({
+    resolver: zodResolver(authSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   })
 
-  const signupForm = useForm<SignupFormData>({
+  const signupForm = useForm<SignupData>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       email: '',
@@ -72,7 +69,7 @@ export function AuthModal({ children }: AuthModalProps) {
     },
   })
 
-  const handleLogin = async (data: LoginFormData) => {
+  const handleLogin = async (data: AuthData) => {
     setIsLoading(true)
     setError(null)
     setSuccess(null)
@@ -87,8 +84,12 @@ export function AuthModal({ children }: AuthModalProps) {
         setError(error.message)
       } else {
         setSuccess('Login successful!')
-        setIsOpen(false)
-        loginForm.reset()
+        setTimeout(() => {
+          setIsOpen(false)
+          loginForm.reset()
+          // Reload the page to update the auth state
+          window.location.reload()
+        }, 1000)
       }
     } catch (err) {
       setError('An unexpected error occurred')
@@ -97,12 +98,7 @@ export function AuthModal({ children }: AuthModalProps) {
     }
   }
 
-  const handleSignup = async (data: SignupFormData) => {
-    if (data.password !== data.confirmPassword) {
-      setError('Passwords do not match')
-      return
-    }
-
+  const handleSignup = async (data: SignupData) => {
     setIsLoading(true)
     setError(null)
     setSuccess(null)
@@ -111,14 +107,19 @@ export function AuthModal({ children }: AuthModalProps) {
       const { error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        }
       })
 
       if (error) {
         setError(error.message)
       } else {
         setSuccess('Check your email for verification link!')
-        setIsOpen(false)
-        signupForm.reset()
+        setTimeout(() => {
+          setIsOpen(false)
+          signupForm.reset()
+        }, 3000)
       }
     } catch (err) {
       setError('An unexpected error occurred')
@@ -127,9 +128,26 @@ export function AuthModal({ children }: AuthModalProps) {
     }
   }
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    setSuccess('Logged out successfully!')
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        }
+      })
+      
+      if (error) {
+        setError(error.message)
+      }
+    } catch (err) {
+      setError('An unexpected error occurred')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -171,6 +189,7 @@ export function AuthModal({ children }: AuthModalProps) {
                 type="email"
                 {...loginForm.register('email')}
                 placeholder="Enter your email"
+                autoComplete="email"
               />
               {loginForm.formState.errors.email && (
                 <p className="text-sm text-red-600">
@@ -186,6 +205,7 @@ export function AuthModal({ children }: AuthModalProps) {
                 type="password"
                 {...loginForm.register('password')}
                 placeholder="Enter your password"
+                autoComplete="current-password"
               />
               {loginForm.formState.errors.password && (
                 <p className="text-sm text-red-600">
@@ -202,6 +222,16 @@ export function AuthModal({ children }: AuthModalProps) {
               <Button
                 type="button"
                 variant="outline"
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
+                className="w-full"
+              >
+                Sign in with Google
+              </Button>
+              
+              <Button
+                type="button"
+                variant="ghost"
                 onClick={() => setIsLogin(false)}
                 className="w-full"
               >
@@ -218,6 +248,7 @@ export function AuthModal({ children }: AuthModalProps) {
                 type="email"
                 {...signupForm.register('email')}
                 placeholder="Enter your email"
+                autoComplete="email"
               />
               {signupForm.formState.errors.email && (
                 <p className="text-sm text-red-600">
@@ -232,7 +263,8 @@ export function AuthModal({ children }: AuthModalProps) {
                 id="signup-password"
                 type="password"
                 {...signupForm.register('password')}
-                placeholder="Enter your password"
+                placeholder="Enter your password (min 6 characters)"
+                autoComplete="new-password"
               />
               {signupForm.formState.errors.password && (
                 <p className="text-sm text-red-600">
@@ -248,6 +280,7 @@ export function AuthModal({ children }: AuthModalProps) {
                 type="password"
                 {...signupForm.register('confirmPassword')}
                 placeholder="Confirm your password"
+                autoComplete="new-password"
               />
               {signupForm.formState.errors.confirmPassword && (
                 <p className="text-sm text-red-600">
@@ -264,6 +297,16 @@ export function AuthModal({ children }: AuthModalProps) {
               <Button
                 type="button"
                 variant="outline"
+                onClick={handleGoogleSignIn}
+                disabled={isLoading}
+                className="w-full"
+              >
+                Sign up with Google
+              </Button>
+              
+              <Button
+                type="button"
+                variant="ghost"
                 onClick={() => setIsLogin(true)}
                 className="w-full"
               >
