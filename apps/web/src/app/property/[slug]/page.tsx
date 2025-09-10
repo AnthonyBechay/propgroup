@@ -5,16 +5,19 @@ import { Button } from '@/components/ui/button'
 import { MapPin, Building, Calendar, DollarSign, TrendingUp, Shield } from 'lucide-react'
 
 interface PropertyPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export default async function PropertyPage({ params }: PropertyPageProps) {
+  // Await params as it's now a Promise in Next.js 15
+  const { slug } = await params;
+  
   // For now, we'll use the slug as the property ID
   // In a real app, you'd have a slug field in your database
   const property = await prisma.property.findUnique({
-    where: { id: params.slug },
+    where: { id: slug },
     include: {
       investmentData: true,
       developer: true,

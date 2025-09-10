@@ -3,29 +3,48 @@ import { prisma } from '@/lib/prisma';
 import { SearchParams } from '@/types/search';
 
 interface PropertiesPageProps {
-  searchParams: SearchParams;
+  searchParams: Promise<SearchParams>;
 }
 
 export default async function PropertiesPage({ searchParams }: PropertiesPageProps) {
+  // Await searchParams as it's now a Promise in Next.js 15
+  const params = await searchParams;
+  
   // Build the where clause based on search parameters
   const where: any = {};
   
-  if (searchParams.country) {
-    where.country = searchParams.country.toUpperCase();
+  if (params.country) {
+    where.country = params.country.toUpperCase();
   }
   
-  if (searchParams.status) {
-    where.status = searchParams.status.toUpperCase();
+  if (params.status) {
+    where.status = params.status.toUpperCase();
   }
   
-  if (searchParams.minPrice || searchParams.maxPrice) {
+  if (params.minPrice || params.maxPrice) {
     where.price = {};
-    if (searchParams.minPrice) {
-      where.price.gte = parseInt(searchParams.minPrice);
+    if (params.minPrice) {
+      where.price.gte = parseInt(params.minPrice);
     }
-    if (searchParams.maxPrice) {
-      where.price.lte = parseInt(searchParams.maxPrice);
+    if (params.maxPrice) {
+      where.price.lte = parseInt(params.maxPrice);
     }
+  }
+
+  // Handle budget parameter from investment matchmaker
+  if (params.budget) {
+    where.price = {
+      ...where.price,
+      lte: parseInt(params.budget)
+    };
+  }
+
+  // Handle goal parameter
+  if (params.goal === 'HIGH_ROI') {
+    // You might want to filter or sort by ROI here
+    // For now, we'll just include all properties
+  } else if (params.goal === 'GOLDEN_VISA') {
+    where.isGoldenVisaEligible = true;
   }
 
   // Fetch properties from the database
@@ -57,9 +76,14 @@ export default async function PropertiesPage({ searchParams }: PropertiesPagePro
               <span className="text-lg font-semibold text-gray-900">
                 {properties.length} properties found
               </span>
-              {searchParams.goal && (
+              {params.goal && (
                 <span className="ml-2 text-sm text-gray-600">
-                  for {searchParams.goal.replace('_', ' ').toLowerCase()} goal
+                  for {params.goal.replace('_', ' ').toLowerCase()} goal
+                </span>
+              )}
+              {params.budget && (
+                <span className="ml-2 text-sm text-gray-600">
+                  under ${parseInt(params.budget).toLocaleString()}
                 </span>
               )}
             </div>
