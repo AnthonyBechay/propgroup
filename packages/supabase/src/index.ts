@@ -30,13 +30,17 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 })
 
 // Export auth helpers
-export const signUp = async (email: string, password: string, metadata?: any) => {
+export const signUp = async (
+  email: string, 
+  password: string, 
+  metadata?: Record<string, any>
+) => {
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: metadata,
-      emailRedirectTo: `${window.location.origin}/auth/callback`
+      emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : ''
     }
   })
   return { data, error }
@@ -54,7 +58,7 @@ export const signInWithOAuth = async (provider: 'google' | 'github' | 'facebook'
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${window.location.origin}/auth/callback`
+      redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : ''
     }
   })
   return { data, error }
@@ -67,7 +71,7 @@ export const signOut = async () => {
 
 export const resetPassword = async (email: string) => {
   const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/auth/reset-password`
+    redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/reset-password` : ''
   })
   return { data, error }
 }
@@ -90,7 +94,7 @@ export const getUser = async () => {
   return { user, error }
 }
 
-// Profile management
+// Profile management - Simplified to avoid TypeScript issues
 export const getProfile = async (userId: string) => {
   const { data, error } = await supabase
     .from('profiles')
@@ -100,7 +104,7 @@ export const getProfile = async (userId: string) => {
   return { data, error }
 }
 
-export const updateProfile = async (userId: string, updates: any) => {
+export const updateProfile = async (userId: string, updates: Record<string, any>) => {
   const { data, error } = await supabase
     .from('profiles')
     .update(updates)
@@ -115,7 +119,11 @@ export const uploadFile = async (
   bucket: string,
   path: string,
   file: File,
-  options?: any
+  options?: {
+    cacheControl?: string
+    contentType?: string
+    upsert?: boolean
+  }
 ) => {
   const { data, error } = await supabase.storage
     .from(bucket)
@@ -141,21 +149,21 @@ export const deleteFile = async (bucket: string, paths: string[]) => {
 export const subscribeToTable = (
   table: string,
   callback: (payload: any) => void,
-  filter?: any
+  filter?: Record<string, string>
 ) => {
-  const channel = supabase
-    .channel(`public:${table}`)
-    .on(
-      'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table,
-        filter
-      },
-      callback
-    )
-    .subscribe()
+  const channel = supabase.channel(`public-${table}`)
+  
+  const subscription = channel.on(
+    // @ts-ignore - Type compatibility issue with Supabase client
+    'postgres_changes',
+    {
+      event: '*',
+      schema: 'public',
+      table,
+      filter
+    },
+    callback
+  ).subscribe()
 
   return channel
 }
@@ -163,8 +171,11 @@ export const subscribeToTable = (
 // Edge function invocation
 export const invokeFunction = async (
   functionName: string,
-  payload?: any,
-  options?: any
+  payload?: Record<string, any>,
+  options?: {
+    headers?: Record<string, string>
+    method?: 'POST' | 'GET' | 'PUT' | 'DELETE'
+  }
 ) => {
   const { data, error } = await supabase.functions.invoke(functionName, {
     body: payload,

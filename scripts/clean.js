@@ -1,64 +1,90 @@
-// Clean script - removes all node_modules and build artifacts
+#!/usr/bin/env node
+
+/**
+ * Clean script for PropGroup
+ * Removes node_modules, build artifacts, and temporary files
+ */
+
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
+console.log('🧹 Cleaning PropGroup project...\n');
+
+// Directories to clean
 const dirsToClean = [
+  // Root
   'node_modules',
   '.next',
   'dist',
   'build',
   '.turbo',
   '.cache',
-  'coverage'
+  
+  // Apps
+  'apps/web/node_modules',
+  'apps/web/.next',
+  'apps/web/dist',
+  'apps/mobile-capacitor/node_modules',
+  'apps/mobile-capacitor/dist',
+  
+  // Packages
+  'packages/ui/node_modules',
+  'packages/ui/dist',
+  'packages/supabase/node_modules',
+  'packages/supabase/dist',
+  'packages/db/node_modules',
+  'packages/db/dist',
+  'packages/config/node_modules',
+  'packages/config/dist',
 ];
 
-function cleanDirectory(dirPath) {
-  if (fs.existsSync(dirPath)) {
-    console.log(`Cleaning ${dirPath}...`);
-    fs.rmSync(dirPath, { recursive: true, force: true });
-  }
-}
+// Files to clean
+const filesToClean = [
+  'package-lock.json',
+  'yarn.lock',
+  'pnpm-lock.yaml',
+  'apps/web/package-lock.json',
+  'apps/mobile-capacitor/package-lock.json',
+];
 
-function cleanProject(projectPath) {
-  console.log(`Cleaning project at ${projectPath}`);
-  
-  dirsToClean.forEach(dir => {
-    cleanDirectory(path.join(projectPath, dir));
-  });
-
-  // Clean package-lock.json if not in root
-  if (projectPath !== process.cwd()) {
-    const lockFile = path.join(projectPath, 'package-lock.json');
-    if (fs.existsSync(lockFile)) {
-      console.log(`Removing ${lockFile}`);
-      fs.unlinkSync(lockFile);
+// Function to remove directory
+function removeDir(dirPath) {
+  const fullPath = path.join(__dirname, '..', dirPath);
+  if (fs.existsSync(fullPath)) {
+    try {
+      if (process.platform === 'win32') {
+        execSync(`rmdir /s /q "${fullPath}"`, { stdio: 'ignore' });
+      } else {
+        execSync(`rm -rf "${fullPath}"`, { stdio: 'ignore' });
+      }
+      console.log(`✅ Removed: ${dirPath}`);
+    } catch (error) {
+      console.log(`⚠️  Could not remove: ${dirPath}`);
     }
   }
 }
 
-// Clean root
-cleanProject(process.cwd());
-
-// Clean apps
-const appsDir = path.join(process.cwd(), 'apps');
-if (fs.existsSync(appsDir)) {
-  fs.readdirSync(appsDir).forEach(app => {
-    const appPath = path.join(appsDir, app);
-    if (fs.statSync(appPath).isDirectory()) {
-      cleanProject(appPath);
+// Function to remove file
+function removeFile(filePath) {
+  const fullPath = path.join(__dirname, '..', filePath);
+  if (fs.existsSync(fullPath)) {
+    try {
+      fs.unlinkSync(fullPath);
+      console.log(`✅ Removed: ${filePath}`);
+    } catch (error) {
+      console.log(`⚠️  Could not remove: ${filePath}`);
     }
-  });
+  }
 }
 
-// Clean packages
-const packagesDir = path.join(process.cwd(), 'packages');
-if (fs.existsSync(packagesDir)) {
-  fs.readdirSync(packagesDir).forEach(pkg => {
-    const pkgPath = path.join(packagesDir, pkg);
-    if (fs.statSync(pkgPath).isDirectory()) {
-      cleanProject(pkgPath);
-    }
-  });
-}
+// Clean directories
+console.log('Cleaning directories...\n');
+dirsToClean.forEach(removeDir);
 
-console.log('Clean completed!');
+// Clean files
+console.log('\nCleaning files...\n');
+filesToClean.forEach(removeFile);
+
+console.log('\n✨ Cleanup complete!\n');
+console.log('Run "npm install" to reinstall dependencies');

@@ -15,7 +15,13 @@ import {
   Star,
   Clock,
   Eye,
-  ArrowRight
+  ArrowRight,
+  Sparkles,
+  DollarSign,
+  BarChart3,
+  Shield,
+  Award,
+  Camera
 } from 'lucide-react'
 import { toggleFavorite } from '@/actions/favorite-actions'
 import { submitInquiry } from '@/actions/inquiry-actions'
@@ -28,7 +34,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -84,6 +89,7 @@ export function PropertyCard({
   const [showInquiryModal, setShowInquiryModal] = useState(false)
   const [isSubmittingInquiry, setIsSubmittingInquiry] = useState(false)
   const [imageError, setImageError] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   const {
     register,
@@ -181,24 +187,27 @@ export function PropertyCard({
 
   const statusConfig = {
     OFF_PLAN: { 
-      bg: 'bg-gradient-to-r from-purple-500 to-purple-600', 
+      bg: 'from-purple-500 to-pink-600', 
       text: 'text-white',
-      label: 'Off Plan'
+      label: 'Off Plan',
+      icon: Sparkles
     },
     NEW_BUILD: { 
-      bg: 'bg-gradient-to-r from-green-500 to-green-600', 
+      bg: 'from-green-500 to-emerald-600', 
       text: 'text-white',
-      label: 'New Build'
+      label: 'New Build',
+      icon: Award
     },
     RESALE: { 
-      bg: 'bg-gradient-to-r from-blue-500 to-blue-600', 
+      bg: 'from-blue-500 to-cyan-600', 
       text: 'text-white',
-      label: 'Resale'
+      label: 'Resale',
+      icon: Shield
     },
-  }[status] || { bg: 'bg-gray-500', text: 'text-white', label: status }
+  }[status] || { bg: 'from-gray-500 to-gray-600', text: 'text-white', label: status, icon: Home }
 
   const defaultImage = '/placeholder-property.jpg'
-  const mainImage = images && images.length > 0 ? images[0] : defaultImage
+  const mainImage = images && images.length > 0 ? images[currentImageIndex] : defaultImage
 
   // Calculate best metric to highlight
   const bestMetric = investmentData ? 
@@ -208,51 +217,70 @@ export function PropertyCard({
       investmentData.capitalGrowth || 0
     ) : 0
 
+  const StatusIcon = statusConfig.icon
+
   return (
     <>
-      <div className={`group bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 ${className} ${featured ? 'ring-2 ring-blue-500' : ''}`}>
+      <div className={`group relative bg-white dark:bg-gray-800 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 ${className} ${featured ? 'ring-2 ring-blue-500 ring-offset-2' : ''}`}>
+        {/* Featured ribbon */}
+        {featured && (
+          <div className="absolute top-4 -right-8 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold py-1 px-12 rotate-45 z-20 shadow-lg">
+            FEATURED
+          </div>
+        )}
+
         {/* Image Container */}
-        <div className="relative h-48 sm:h-56 md:h-64 overflow-hidden">
+        <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
           <Link href={`/property/${id}`}>
             <div className="relative w-full h-full">
               {(mainImage === defaultImage || imageError) ? (
-                <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                  <Home className="w-12 h-12 text-gray-400" />
+                <div className="w-full h-full flex items-center justify-center">
+                  <Home className="w-16 h-16 text-gray-400 dark:text-gray-600" />
                 </div>
               ) : (
-                <Image
-                  src={mainImage}
-                  alt={title}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  onError={() => setImageError(true)}
-                />
+                <>
+                  <Image
+                    src={mainImage}
+                    alt={title}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    onError={() => setImageError(true)}
+                  />
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                </>
               )}
-              {/* Overlay gradient on hover */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
           </Link>
 
-          {/* Top badges */}
-          <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
-            <div className="flex flex-col gap-2">
-              <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${statusConfig.bg} ${statusConfig.text} shadow-lg`}>
-                {statusConfig.label}
-              </span>
-              {featured && (
-                <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-lg flex items-center gap-1">
-                  <Star className="w-3 h-3 fill-current" />
-                  Featured
-                </span>
-              )}
+          {/* Image counter */}
+          {images && images.length > 1 && (
+            <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full text-white text-xs font-medium flex items-center gap-1.5">
+              <Camera className="w-3.5 h-3.5" />
+              {images.length} photos
             </div>
+          )}
+
+          {/* Top badges */}
+          <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+            <span className={`px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r ${statusConfig.bg} ${statusConfig.text} shadow-lg backdrop-blur-sm flex items-center gap-1`}>
+              <StatusIcon className="w-3 h-3" />
+              {statusConfig.label}
+            </span>
             
             {isGoldenVisaEligible && (
-              <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-yellow-900 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg">
+              <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-amber-500 text-white shadow-lg backdrop-blur-sm flex items-center gap-1">
                 <BadgeCheck className="w-3 h-3" />
                 Golden Visa
-              </div>
+              </span>
+            )}
+
+            {bestMetric > 15 && (
+              <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg backdrop-blur-sm flex items-center gap-1">
+                <TrendingUp className="w-3 h-3" />
+                High ROI
+              </span>
             )}
           </div>
 
@@ -260,106 +288,118 @@ export function PropertyCard({
           <button
             onClick={handleFavorite}
             disabled={isLoadingFavorite}
-            className="absolute bottom-4 right-4 bg-white/90 backdrop-blur p-2.5 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110"
+            className="absolute top-4 right-4 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-2.5 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 group/fav"
             aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
           >
             <Heart
-              className={`w-5 h-5 transition-colors ${
-                isFavorited ? 'fill-red-500 text-red-500' : 'text-gray-600 hover:text-red-500'
+              className={`w-5 h-5 transition-all ${
+                isFavorited ? 'fill-red-500 text-red-500' : 'text-gray-600 dark:text-gray-400 group-hover/fav:text-red-500'
               } ${isLoadingFavorite ? 'animate-pulse' : ''}`}
             />
           </button>
-
-          {/* View count (mock data) */}
-          <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur px-2.5 py-1.5 rounded-full text-xs font-medium text-gray-700 flex items-center gap-1">
-            <Eye className="w-3 h-3" />
-            {Math.floor(Math.random() * 500 + 100)} views
-          </div>
         </div>
 
         {/* Content */}
-        <div className="p-5 space-y-4">
+        <div className="p-6 space-y-4">
           {/* Title and Location */}
           <div>
             <Link href={`/property/${id}`}>
-              <h3 className="text-lg font-bold text-gray-900 hover:text-blue-600 transition-colors line-clamp-1 mb-1">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors line-clamp-1 mb-1">
                 {title}
               </h3>
             </Link>
-            <div className="flex items-center text-gray-500 text-sm">
-              <MapPin className="w-4 h-4 mr-1 text-gray-400" />
+            <div className="flex items-center text-gray-500 dark:text-gray-400 text-sm">
+              <MapPin className="w-4 h-4 mr-1.5 text-gray-400" />
               {country.charAt(0).toUpperCase() + country.slice(1).toLowerCase()}
             </div>
           </div>
 
           {/* Description */}
-          <p className="text-gray-600 text-sm line-clamp-2 leading-relaxed">{description}</p>
+          <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 leading-relaxed">
+            {description}
+          </p>
 
           {/* Features */}
-          <div className="flex items-center gap-4 text-gray-600 text-sm bg-gray-50 rounded-lg p-3">
-            <div className="flex items-center gap-1.5">
-              <Bed className="w-4 h-4 text-gray-400" />
-              <span className="font-medium">{bedrooms} Bed</span>
+          <div className="flex items-center gap-4 text-gray-600 dark:text-gray-400 text-sm">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <Bed className="w-4 h-4 text-blue-500" />
+              <span className="font-medium">{bedrooms}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Bath className="w-4 h-4 text-gray-400" />
-              <span className="font-medium">{bathrooms} Bath</span>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <Bath className="w-4 h-4 text-blue-500" />
+              <span className="font-medium">{bathrooms}</span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Square className="w-4 h-4 text-gray-400" />
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <Square className="w-4 h-4 text-blue-500" />
               <span className="font-medium">{area} m²</span>
             </div>
           </div>
 
           {/* Investment Metrics */}
           {investmentData && bestMetric > 0 && (
-            <div className="grid grid-cols-3 gap-2 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
-              {investmentData.expectedROI && (
-                <div className="text-center">
-                  <div className="text-xs text-gray-600 font-medium">ROI</div>
-                  <div className="text-base font-bold text-green-600">
-                    {investmentData.expectedROI}%
+            <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                  Investment Metrics
+                </span>
+                <BarChart3 className="w-4 h-4 text-blue-500" />
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                {investmentData.expectedROI && (
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      {investmentData.expectedROI}%
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">ROI</div>
                   </div>
-                </div>
-              )}
-              {investmentData.rentalYield && (
-                <div className="text-center">
-                  <div className="text-xs text-gray-600 font-medium">Rental</div>
-                  <div className="text-base font-bold text-blue-600">
-                    {investmentData.rentalYield}%
+                )}
+                {investmentData.rentalYield && (
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      {investmentData.rentalYield}%
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Rental</div>
                   </div>
-                </div>
-              )}
-              {investmentData.capitalGrowth && (
-                <div className="text-center">
-                  <div className="text-xs text-gray-600 font-medium">Growth</div>
-                  <div className="text-base font-bold text-purple-600">
-                    {investmentData.capitalGrowth}%
+                )}
+                {investmentData.capitalGrowth && (
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                      {investmentData.capitalGrowth}%
+                    </div>
+                    <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">Growth</div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           )}
 
           {/* Price and Actions */}
-          <div className="flex items-center justify-between pt-4 border-t">
-            <div>
-              <div className="text-2xl font-bold text-gray-900">
-                {formatPrice(price)}
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-end justify-between mb-4">
+              <div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white">
+                  {formatPrice(price)}
+                </div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {area > 0 ? `${formatPrice(Math.round(price / area))}/m²` : ''}
+                </div>
               </div>
-              <div className="text-xs text-gray-500 mt-0.5">
-                {area > 0 ? `${formatPrice(Math.round(price / area))}/m²` : ''}
+              <div className="flex items-center gap-1 text-yellow-500">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+                <span className="text-xs text-gray-600 dark:text-gray-400 ml-1">(4.8)</span>
               </div>
             </div>
-            <div className="flex gap-2">
-              <Link href={`/property/${id}`}>
+            
+            <div className="flex gap-3">
+              <Link href={`/property/${id}`} className="flex-1">
                 <Button
                   variant="outline"
-                  size="sm"
-                  className="group/btn hover:bg-gray-50"
+                  className="w-full group/btn hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
-                  View
-                  <ArrowRight className="w-3 h-3 ml-1 group-hover/btn:translate-x-0.5 transition-transform" />
+                  View Details
+                  <ArrowRight className="w-4 h-4 ml-2 group-hover/btn:translate-x-1 transition-transform" />
                 </Button>
               </Link>
               <Button
@@ -367,13 +407,18 @@ export function PropertyCard({
                   e.stopPropagation()
                   setShowInquiryModal(true)
                 }}
-                size="sm"
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-md"
+                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md"
               >
-                Inquire
+                <DollarSign className="w-4 h-4 mr-2" />
+                Inquire Now
               </Button>
             </div>
           </div>
+        </div>
+
+        {/* Hover shine effect */}
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
         </div>
       </div>
 
@@ -386,20 +431,21 @@ export function PropertyCard({
 
       {/* Inquiry Modal */}
       <Dialog open={showInquiryModal} onOpenChange={setShowInquiryModal}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Property Inquiry</DialogTitle>
-            <DialogDescription>
-              Send us your inquiry about "{title}" and we'll get back to you within 24-48 hours.
+            <DialogTitle className="text-2xl font-bold">Property Inquiry</DialogTitle>
+            <DialogDescription className="text-base">
+              Interested in "{title}"? Fill out the form below and our team will contact you within 24 hours.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit(onInquirySubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onInquirySubmit)} className="space-y-4 mt-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
+              <Label htmlFor="name">Full Name *</Label>
               <Input
                 id="name"
                 {...register('name', { required: 'Name is required' })}
-                placeholder="Your full name"
+                placeholder="John Doe"
+                className="h-11"
               />
               {errors.name && (
                 <p className="text-sm text-red-600">{errors.name.message}</p>
@@ -407,7 +453,7 @@ export function PropertyCard({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
+              <Label htmlFor="email">Email Address *</Label>
               <Input
                 id="email"
                 type="email"
@@ -418,7 +464,8 @@ export function PropertyCard({
                     message: 'Invalid email address',
                   },
                 })}
-                placeholder="your@email.com"
+                placeholder="john@example.com"
+                className="h-11"
               />
               {errors.email && (
                 <p className="text-sm text-red-600">{errors.email.message}</p>
@@ -426,35 +473,49 @@ export function PropertyCard({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">Phone Number</Label>
               <Input
                 id="phone"
                 type="tel"
                 {...register('phone')}
-                placeholder="+1 234 567 8900"
+                placeholder="+1 (555) 000-0000"
+                className="h-11"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
+              <Label htmlFor="message">Message (Optional)</Label>
               <Textarea
                 id="message"
                 {...register('message')}
-                placeholder="Tell us what you'd like to know..."
+                placeholder="Tell us about your investment goals or any specific questions..."
                 rows={4}
+                className="resize-none"
               />
             </div>
 
-            <div className="flex justify-end space-x-2">
+            <div className="flex gap-3 pt-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => setShowInquiryModal(false)}
+                className="flex-1"
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmittingInquiry}>
-                {isSubmittingInquiry ? 'Sending...' : 'Send Inquiry'}
+              <Button 
+                type="submit" 
+                disabled={isSubmittingInquiry}
+                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              >
+                {isSubmittingInquiry ? (
+                  <span className="flex items-center gap-2">
+                    <span className="animate-spin h-4 w-4 border-2 border-white/30 border-t-white rounded-full" />
+                    Sending...
+                  </span>
+                ) : (
+                  'Send Inquiry'
+                )}
               </Button>
             </div>
           </form>
