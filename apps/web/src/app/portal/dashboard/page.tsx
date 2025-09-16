@@ -305,7 +305,7 @@ function StatCard({ icon, title, value, change, trend, color }: any) {
 
 // Quick Action Card Component
 function QuickActionCard({ href, icon, title, description, color }: any) {
-  const colorClasses = {
+  const colorClasses: Record<string, string> = {
     blue: 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
     green: 'from-green-500 to-green-600 hover:from-green-600 hover:to-green-700',
     purple: 'from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700',
@@ -317,7 +317,7 @@ function QuickActionCard({ href, icon, title, description, color }: any) {
       href={href}
       className="group bg-white rounded-xl shadow-sm p-6 hover:shadow-lg transition-all transform hover:-translate-y-1"
     >
-      <div className={`bg-gradient-to-br ${colorClasses[color]} p-4 rounded-lg text-white mb-4 group-hover:scale-110 transition-transform inline-block`}>
+      <div className={`bg-gradient-to-br ${colorClasses[color] || colorClasses.blue} p-4 rounded-lg text-white mb-4 group-hover:scale-110 transition-transform inline-block`}>
         {icon}
       </div>
       <h3 className="font-semibold text-gray-900 mb-1">{title}</h3>

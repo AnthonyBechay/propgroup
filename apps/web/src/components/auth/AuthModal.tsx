@@ -39,7 +39,7 @@ const signupSchema = authSchema.extend({
 type AuthData = z.infer<typeof authSchema>;
 type SignupData = z.infer<typeof signupSchema>;
 
-interface AuthModalProps {
+type AuthModalProps = {
   children: React.ReactNode
 }
 
