@@ -1,7 +1,7 @@
 {
   "buildCommand": "npm run build:packages && cd apps/web && npm run build",
   "installCommand": "npm install",
-  "framework": null,
+  "framework": "nextjs",
   "outputDirectory": "apps/web/.next",
   "regions": ["iad1"],
   "functions": {
