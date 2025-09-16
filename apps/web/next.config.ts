@@ -28,8 +28,7 @@ const nextConfig: NextConfig = {
   },
   // Enable strict mode for better debugging
   reactStrictMode: true,
-  // Optimize production builds
-  swcMinify: true,
+  // Optimize production builds (swcMinify is deprecated in Next.js 15)
   // Output standalone for better deployment
   output: 'standalone',
   // Environment variables validation
