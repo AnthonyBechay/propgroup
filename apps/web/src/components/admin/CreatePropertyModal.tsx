@@ -57,19 +57,19 @@ const propertySchema = z.object({
 
 type PropertyFormData = z.infer<typeof propertySchema>
 
-interface Developer {
+type Developer = {
   id: string
   name: string
   country: string
 }
 
-interface LocationGuide {
+type LocationGuide = {
   id: string
   title: string
   country: string
 }
 
-interface CreatePropertyModalProps {
+type CreatePropertyModalProps = {
   children: React.ReactNode
   developers: Developer[]
   locationGuides: LocationGuide[]

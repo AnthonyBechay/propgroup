@@ -266,7 +266,7 @@ export function useFavorites() {
           .eq('user_id', user.id)
 
         if (error) throw error
-        setFavorites(data?.map(f => f.property).filter(Boolean) as Property[] || [])
+        setFavorites(data?.map((f: any) => f.property).filter(Boolean) as Property[] || [])
       } catch (err) {
         setError(err as Error)
       } finally {
@@ -353,7 +353,7 @@ export function useNotifications() {
 
         if (error) throw error
         setNotifications(data || [])
-        setUnreadCount(data?.filter(n => !n.is_read).length || 0)
+        setUnreadCount(data?.filter((n: any) => !n.is_read).length || 0)
       } catch (err) {
         setError(err as Error)
       } finally {

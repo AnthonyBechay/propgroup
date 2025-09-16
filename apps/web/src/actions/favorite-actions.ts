@@ -105,7 +105,7 @@ export async function getUserFavorites() {
 
     return { 
       success: true, 
-      favorites: favorites.map(f => f.property) 
+      favorites: favorites.map((f: any) => f.property) 
     }
   } catch (error) {
     console.error('Error fetching favorites:', error)

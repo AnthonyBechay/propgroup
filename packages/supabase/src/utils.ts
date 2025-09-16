@@ -196,7 +196,7 @@ export async function canEditProperty(
   if (!property) return false
   
   // Check if user is the agent or owner
-  if (property.agent_id === userId || property.owner_id === userId) {
+  if ((property as any).agent_id === userId || (property as any).owner_id === userId) {
     return true
   }
   
@@ -207,7 +207,7 @@ export async function canEditProperty(
     .eq('id', userId)
     .single()
   
-  return profile?.role === 'admin'
+  return (profile as any)?.role === 'admin'
 }
 
 // Generate random color for avatar

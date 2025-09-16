@@ -122,7 +122,7 @@ export default async function AdminDashboard() {
             <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Properties</h3>
             <div className="flow-root">
               <ul className="-my-5 divide-y divide-gray-200">
-                {recentProperties.map((property) => (
+                {recentProperties.map((property: any) => (
                   <li key={property.id} className="py-4">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
@@ -155,7 +155,7 @@ export default async function AdminDashboard() {
             <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Users</h3>
             <div className="flow-root">
               <ul className="-my-5 divide-y divide-gray-200">
-                {recentUsers.map((user) => (
+                {recentUsers.map((user: any) => (
                   <li key={user.id} className="py-4">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">

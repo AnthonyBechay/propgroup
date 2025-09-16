@@ -4,7 +4,7 @@ import { RoiCalculator } from '@/components/RoiCalculator'
 import { Button } from '@/components/ui/button'
 import { MapPin, Building, Calendar, DollarSign, TrendingUp, Shield } from 'lucide-react'
 
-interface PropertyPageProps {
+type PropertyPageProps = {
   params: Promise<{
     slug: string
   }>

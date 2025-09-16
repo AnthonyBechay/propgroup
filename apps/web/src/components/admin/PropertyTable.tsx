@@ -26,7 +26,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-interface Property {
+type Property = {
   id: string
   title: string
   price: number
@@ -53,7 +53,7 @@ interface Property {
   }
 }
 
-interface PropertyTableProps {
+type PropertyTableProps = {
   properties: Property[]
 }
 

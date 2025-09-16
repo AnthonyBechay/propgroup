@@ -28,7 +28,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-interface User {
+type User = {
   id: string
   email: string
   firstName?: string | null
@@ -44,7 +44,7 @@ interface User {
   }
 }
 
-interface UserTableProps {
+type UserTableProps = {
   users: User[]
 }
 

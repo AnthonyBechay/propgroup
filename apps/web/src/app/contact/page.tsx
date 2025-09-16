@@ -21,7 +21,7 @@ type ContactFormData = {
   email: string
   name: string
   phone?: string
-  message: string
+  message?: string
   propertyId?: string
 }
 

@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { createClient } from '@/lib/supabase/server';
 import { SearchParams } from '@/types/search';
 
-interface PropertiesPageProps {
+type PropertiesPageProps = {
   searchParams: Promise<SearchParams>;
 }
 

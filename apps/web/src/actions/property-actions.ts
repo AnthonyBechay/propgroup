@@ -33,7 +33,7 @@ export async function createProperty(data: z.infer<typeof propertySchema>) {
     const validatedData = propertySchema.parse(data)
 
     // Create the property with investment data in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       // Create the property
       const property = await tx.property.create({
         data: {
@@ -98,7 +98,7 @@ export async function updateProperty(id: string, data: Partial<z.infer<typeof pr
   try {
     const validatedData = propertySchema.partial().parse(data)
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       // Update the property
       const property = await tx.property.update({
         where: { id },

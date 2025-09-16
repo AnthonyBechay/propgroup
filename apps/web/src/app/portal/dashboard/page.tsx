@@ -275,7 +275,7 @@ export default function DashboardPage() {
 
 // Stat Card Component
 function StatCard({ icon, title, value, change, trend, color }: any) {
-  const colorClasses = {
+  const colorClasses: Record<string, string> = {
     blue: 'from-blue-500 to-blue-600',
     green: 'from-green-500 to-green-600',
     purple: 'from-purple-500 to-purple-600',
@@ -285,7 +285,7 @@ function StatCard({ icon, title, value, change, trend, color }: any) {
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between mb-4">
-        <div className={`bg-gradient-to-br ${colorClasses[color]} p-3 rounded-lg text-white`}>
+        <div className={`bg-gradient-to-br ${colorClasses[color] || colorClasses.blue} p-3 rounded-lg text-white`}>
           {icon}
         </div>
         {trend === 'up' && <ArrowUpRight className="w-5 h-5 text-green-500" />}
