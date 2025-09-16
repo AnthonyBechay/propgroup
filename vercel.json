@@ -3,7 +3,6 @@
   "installCommand": "npm install",
   "framework": null,
   "outputDirectory": "apps/web/.next",
-  "ignoreCommand": "git diff HEAD^ HEAD --quiet .",
   "regions": ["iad1"],
   "functions": {
     "apps/web/app/api/properties/route.ts": {
