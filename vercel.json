@@ -19,15 +19,6 @@
       "schedule": "0 0 * * *"
     }
   ],
-  "env": {
-    "NEXT_PUBLIC_SUPABASE_URL": "@supabase_url",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase_anon_key",
-    "SUPABASE_SERVICE_ROLE_KEY": "@supabase_service_role_key",
-    "NEXT_PUBLIC_APP_URL": "@app_url",
-    "SENDGRID_API_KEY": "@sendgrid_api_key",
-    "NEXT_PUBLIC_GA_MEASUREMENT_ID": "@ga_measurement_id",
-    "NEXT_PUBLIC_GOOGLE_MAPS_API_KEY": "@google_maps_api_key"
-  },
   "headers": [
     {
       "source": "/api/(.*)",
