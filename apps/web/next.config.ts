@@ -31,6 +31,8 @@ const nextConfig: NextConfig = {
   // Optimize production builds (swcMinify is deprecated in Next.js 15)
   // Output standalone for better deployment
   output: 'standalone',
+  // Transpile packages for better compatibility
+  transpilePackages: ['@propgroup/config', '@propgroup/db', '@propgroup/supabase', '@propgroup/ui'],
   // Environment variables validation
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL!,

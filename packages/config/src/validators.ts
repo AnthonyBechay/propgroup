@@ -26,7 +26,7 @@ export const contactFormSchema = z.object({
 // Investment matchmaker schema
 export const investmentMatchmakerSchema = z.object({
   goal: z.enum(['HIGH_ROI', 'CAPITAL_GROWTH', 'GOLDEN_VISA'], {
-    errorMap: () => ({ message: 'Please select an investment goal' })
+    message: 'Please select an investment goal'
   }),
   budget: z.number().min(10000, 'Minimum budget is $10,000'),
   country: z.enum(['georgia', 'cyprus', 'greece', 'lebanon', 'any']).optional(),

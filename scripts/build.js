@@ -15,7 +15,7 @@ console.log('🔨 Building PropGroup packages...\n');
 const packages = [
   { name: 'config', path: 'packages/config', required: true },
   { name: 'db', path: 'packages/db', required: false },
-  { name: 'supabase', path: 'packages/supabase', required: true },
+  { name: 'supabase', path: 'packages/supabase', required: false },
   { name: 'ui', path: 'packages/ui', required: true },
 ];
 

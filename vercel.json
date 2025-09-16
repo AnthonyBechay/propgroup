@@ -1,8 +1,9 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run build:packages && cd apps/web && npm run build",
   "installCommand": "npm install",
   "framework": null,
   "outputDirectory": "apps/web/.next",
+  "rootDirectory": ".",
   "regions": ["iad1"],
   "functions": {
     "apps/web/app/api/properties/route.ts": {
