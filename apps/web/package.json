@@ -11,7 +11,9 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "vercel-build": "cd ../.. && npm run build:packages && cd apps/web && npm run build"
+    "vercel-build": "cd ../.. && npm run build:packages && cd apps/web && npm run build",
+    "build:test": "rm -rf .next && npm run build",
+    "build:clean": "cd ../.. && npm run build:packages && cd apps/web && rm -rf .next && npm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
