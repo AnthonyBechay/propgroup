@@ -1,10 +1,18 @@
+import { getCurrentUser } from '@/lib/auth/rbac'
+import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { PropertyTable } from '@/components/admin/PropertyTable'
 import { CreatePropertyModal } from '@/components/admin/CreatePropertyModal'
 import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
+import { Plus, Building2 } from 'lucide-react'
 
 export default async function AdminPropertiesPage() {
+  // Check if user is admin
+  const currentUser = await getCurrentUser()
+  
+  if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPER_ADMIN')) {
+    redirect('/unauthorized')
+  }
   // Fetch all properties with related data
   const properties = await prisma.property.findMany({
     include: {
@@ -35,7 +43,10 @@ export default async function AdminPropertiesPage() {
     <div>
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-2xl font-bold text-gray-900">Properties</h1>
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <Building2 className="h-6 w-6" />
+            Properties
+          </h1>
           <p className="mt-2 text-sm text-gray-700">
             Manage all properties in your platform. Create, edit, and delete property listings.
           </p>

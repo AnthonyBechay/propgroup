@@ -1,21 +1,22 @@
+import { getCurrentUser } from '@/lib/auth/rbac'
+import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
-import { createClient } from '@/lib/supabase/server'
 import { 
   Building2, 
   Users, 
   Heart, 
   DollarSign,
   TrendingUp,
-  FileText
+  FileText,
+  Shield
 } from 'lucide-react'
 
 export default async function AdminDashboard() {
-  // Get the authenticated user
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return <div>Not authenticated</div>
+  // Check if user is admin
+  const currentUser = await getCurrentUser()
+  
+  if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPER_ADMIN')) {
+    redirect('/unauthorized')
   }
 
   // Fetch dashboard statistics
@@ -79,8 +80,21 @@ export default async function AdminDashboard() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Welcome back! Here's what's happening with your platform.</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-600">Welcome back! Here's what's happening with your platform.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+              ${currentUser.role === 'SUPER_ADMIN' 
+                ? 'bg-purple-100 text-purple-800' 
+                : 'bg-blue-100 text-blue-800'}`}>
+              <Shield className="h-4 w-4 mr-1" />
+              {currentUser.role.replace('_', ' ')}
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Stats Grid */}

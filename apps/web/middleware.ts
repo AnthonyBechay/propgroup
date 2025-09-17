@@ -27,29 +27,88 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Refresh session if expired - required for Server Components
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Refresh session if expired
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  const { pathname } = request.nextUrl
+  
+  // Define protected routes
+  const isAdminRoute = pathname.startsWith('/admin')
+  const isSuperAdminRoute = pathname.startsWith('/admin/users/manage')
+  const isPortalRoute = pathname.startsWith('/portal')
+  const isAuthRoute = pathname.startsWith('/auth')
+  
+  // If accessing auth routes while logged in, redirect to appropriate dashboard
+  if (isAuthRoute && user) {
+    // Get user role from database
+    const { data: userData } = await supabase
+      .from('users')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    
+    if (userData) {
+      // Redirect based on role
+      if (userData.role === 'SUPER_ADMIN' || userData.role === 'ADMIN') {
+        return NextResponse.redirect(new URL('/admin', request.url))
+      }
+      return NextResponse.redirect(new URL('/portal', request.url))
+    }
+  }
 
-  // Protect /portal/* routes
-  if (request.nextUrl.pathname.startsWith('/portal')) {
+  // Protect /portal/* routes - for regular users
+  if (isPortalRoute) {
     if (!user) {
-      // Redirect to home page if not authenticated
-      return NextResponse.redirect(new URL('/', request.url))
+      const redirectUrl = new URL('/auth/login', request.url)
+      redirectUrl.searchParams.set('next', pathname)
+      return NextResponse.redirect(redirectUrl)
+    }
+    
+    // Check if user is active and not banned
+    const { data: userData } = await supabase
+      .from('users')
+      .select('is_active, banned_at')
+      .eq('id', user.id)
+      .single()
+    
+    if (userData && (!userData.is_active || userData.banned_at)) {
+      return NextResponse.redirect(new URL('/auth/banned', request.url))
     }
   }
 
   // Protect /admin/* routes with role-based access
-  if (request.nextUrl.pathname.startsWith('/admin')) {
+  if (isAdminRoute) {
     if (!user) {
-      // Redirect to home page if not authenticated
-      return NextResponse.redirect(new URL('/', request.url))
+      const redirectUrl = new URL('/auth/login', request.url)
+      redirectUrl.searchParams.set('next', pathname)
+      return NextResponse.redirect(redirectUrl)
     }
 
-    // For now, we'll handle role checking in the admin pages themselves
-    // This avoids the Prisma import issue in middleware
-    // TODO: Implement proper role checking in middleware once Prisma is properly configured
+    // Get user role and status from database
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('role, is_active, banned_at')
+      .eq('id', user.id)
+      .single()
+    
+    if (userError || !userData) {
+      return NextResponse.redirect(new URL('/auth/login', request.url))
+    }
+    
+    // Check if user is banned or inactive
+    if (!userData.is_active || userData.banned_at) {
+      return NextResponse.redirect(new URL('/auth/banned', request.url))
+    }
+    
+    // Check if user is admin or super admin
+    if (userData.role !== 'ADMIN' && userData.role !== 'SUPER_ADMIN') {
+      return NextResponse.redirect(new URL('/unauthorized', request.url))
+    }
+    
+    // Check super admin specific routes
+    if (isSuperAdminRoute && userData.role !== 'SUPER_ADMIN') {
+      return NextResponse.redirect(new URL('/unauthorized', request.url))
+    }
   }
 
   return supabaseResponse
@@ -62,7 +121,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
+     * - public assets
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],

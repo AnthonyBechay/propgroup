@@ -2,29 +2,57 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { 
   Home, 
   Building2, 
-  Users, 
+  Users,
+  Shield, 
   FileText, 
   Settings,
   BarChart3,
   LogOut
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-
-const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: Home },
-  { name: 'Properties', href: '/admin/properties', icon: Building2 },
-  { name: 'Users', href: '/admin/users', icon: Users },
-  { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
-  { name: 'Documents', href: '/admin/documents', icon: FileText },
-  { name: 'Settings', href: '/admin/settings', icon: Settings },
-]
+import { createClient } from '@/lib/supabase/client'
 
 export function Sidebar() {
   const pathname = usePathname()
   const { signOut } = useAuth()
+  const [userRole, setUserRole] = useState<string | null>(null)
+  
+  useEffect(() => {
+    const getUserRole = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        const { data: userData } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        
+        if (userData) {
+          setUserRole(userData.role)
+        }
+      }
+    }
+    
+    getUserRole()
+  }, [])
+
+  const navigation = [
+    { name: 'Dashboard', href: '/admin', icon: Home },
+    { name: 'Properties', href: '/admin/properties', icon: Building2 },
+    { name: 'Users', href: '/admin/users', icon: Users },
+    ...(userRole === 'SUPER_ADMIN' ? [
+      { name: 'User Management', href: '/admin/users/manage', icon: Shield }
+    ] : []),
+    { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+    { name: 'Documents', href: '/admin/documents', icon: FileText },
+    { name: 'Settings', href: '/admin/settings', icon: Settings },
+  ]
 
   return (
     <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
@@ -34,9 +62,16 @@ export function Sidebar() {
             <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">A</span>
             </div>
-            <span className="font-bold text-xl text-gray-900">
-              Admin Panel
-            </span>
+            <div>
+              <span className="font-bold text-xl text-gray-900">
+                Admin Panel
+              </span>
+              {userRole === 'SUPER_ADMIN' && (
+                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                  Super Admin
+                </span>
+              )}
+            </div>
           </div>
         </div>
         <nav className="flex flex-1 flex-col">
@@ -44,7 +79,8 @@ export function Sidebar() {
             <li>
               <ul role="list" className="-mx-2 space-y-1">
                 {navigation.map((item) => {
-                  const isActive = pathname === item.href
+                  const isActive = pathname === item.href || 
+                    (item.href === '/admin/users/manage' && pathname.startsWith('/admin/users/manage'))
                   return (
                     <li key={item.name}>
                       <Link
@@ -62,6 +98,11 @@ export function Sidebar() {
                           aria-hidden="true"
                         />
                         {item.name}
+                        {item.name === 'User Management' && (
+                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                            Super
+                          </span>
+                        )}
                       </Link>
                     </li>
                   )

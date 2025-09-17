@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { createProperty } from '@/actions/property-actions'
+import { Upload, X, Image as ImageIcon } from 'lucide-react'
 
 const propertySchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -53,6 +54,11 @@ const propertySchema = z.object({
   maxInvestment: z.number().optional(),
   paymentPlan: z.string().optional(),
   completionDate: z.string().optional(),
+  // Additional details
+  propertyType: z.string().optional(),
+  location: z.string().optional(),
+  amenities: z.string().optional(),
+  nearbyFacilities: z.string().optional(),
 })
 
 type PropertyFormData = z.infer<typeof propertySchema>
@@ -82,6 +88,8 @@ export function CreatePropertyModal({
 }: CreatePropertyModalProps) {
   const [open, setOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [currentImageUrl, setCurrentImageUrl] = useState('')
 
   const form = useForm<PropertyFormData>({
     resolver: zodResolver(propertySchema),
@@ -103,14 +111,36 @@ export function CreatePropertyModal({
       maxInvestment: undefined,
       paymentPlan: '',
       completionDate: '',
+      propertyType: '',
+      location: '',
+      amenities: '',
+      nearbyFacilities: '',
     },
   })
+
+  const addImageUrl = () => {
+    if (currentImageUrl && currentImageUrl.trim()) {
+      setImageUrls([...imageUrls, currentImageUrl.trim()])
+      setCurrentImageUrl('')
+    }
+  }
+
+  const removeImageUrl = (index: number) => {
+    setImageUrls(imageUrls.filter((_, i) => i !== index))
+  }
 
   const onSubmit = async (data: PropertyFormData) => {
     setIsSubmitting(true)
     try {
-      await createProperty(data)
+      // Include images in the property data
+      const propertyData = {
+        ...data,
+        images: imageUrls,
+      }
+      
+      await createProperty(propertyData as any)
       form.reset()
+      setImageUrls([])
       setOpen(false)
       // Refresh the page or update the table
       window.location.reload()
@@ -126,7 +156,7 @@ export function CreatePropertyModal({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900">
         <DialogHeader>
           <DialogTitle>Create New Property</DialogTitle>
           <DialogDescription>
@@ -146,9 +176,37 @@ export function CreatePropertyModal({
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Title</FormLabel>
+                      <FormLabel>Title *</FormLabel>
                       <FormControl>
                         <Input placeholder="Property title" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="propertyType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Property Type</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Apartment, Villa, Penthouse" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., City Center, Beach Front, Mountain View" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -160,7 +218,7 @@ export function CreatePropertyModal({
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>Description *</FormLabel>
                       <FormControl>
                         <Textarea 
                           placeholder="Property description" 
@@ -179,7 +237,7 @@ export function CreatePropertyModal({
                     name="price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Price</FormLabel>
+                        <FormLabel>Price *</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
@@ -198,7 +256,7 @@ export function CreatePropertyModal({
                     name="currency"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Currency</FormLabel>
+                        <FormLabel>Currency *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -209,6 +267,7 @@ export function CreatePropertyModal({
                             <SelectItem value="USD">USD</SelectItem>
                             <SelectItem value="EUR">EUR</SelectItem>
                             <SelectItem value="GBP">GBP</SelectItem>
+                            <SelectItem value="AED">AED</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -223,7 +282,7 @@ export function CreatePropertyModal({
                     name="bedrooms"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Bedrooms</FormLabel>
+                        <FormLabel>Bedrooms *</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
@@ -242,7 +301,7 @@ export function CreatePropertyModal({
                     name="bathrooms"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Bathrooms</FormLabel>
+                        <FormLabel>Bathrooms *</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
@@ -261,7 +320,7 @@ export function CreatePropertyModal({
                     name="area"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Area (sq ft)</FormLabel>
+                        <FormLabel>Area (m²) *</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
@@ -282,7 +341,7 @@ export function CreatePropertyModal({
                     name="country"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Country</FormLabel>
+                        <FormLabel>Country *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -306,7 +365,7 @@ export function CreatePropertyModal({
                     name="status"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Status</FormLabel>
+                        <FormLabel>Status *</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -324,9 +383,28 @@ export function CreatePropertyModal({
                     )}
                   />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="isGoldenVisaEligible"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center gap-2">
+                      <FormControl>
+                        <input
+                          type="checkbox"
+                          checked={field.value}
+                          onChange={field.onChange}
+                          className="h-4 w-4"
+                        />
+                      </FormControl>
+                      <FormLabel className="!mt-0">Golden Visa Eligible</FormLabel>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
 
-              {/* Investment Data */}
+              {/* Investment Data & Additional Details */}
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Investment Data</h3>
                 
@@ -434,6 +512,79 @@ export function CreatePropertyModal({
 
                 <FormField
                   control={form.control}
+                  name="paymentPlan"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Payment Plan</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="e.g., 30% down payment, 70% on completion" 
+                          rows={2}
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="completionDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Completion Date</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="date" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <h3 className="text-lg font-medium pt-4">Additional Details</h3>
+
+                <FormField
+                  control={form.control}
+                  name="amenities"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Amenities</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="e.g., Swimming pool, Gym, Parking, Security, Garden" 
+                          rows={2}
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="nearbyFacilities"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nearby Facilities</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="e.g., Schools, Hospitals, Shopping centers, Public transport" 
+                          rows={2}
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="developerId"
                   render={({ field }) => (
                     <FormItem>
@@ -484,7 +635,61 @@ export function CreatePropertyModal({
               </div>
             </div>
 
-            <div className="flex justify-end space-x-4">
+            {/* Image URLs Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Property Images</h3>
+              
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter image URL"
+                  value={currentImageUrl}
+                  onChange={(e) => setCurrentImageUrl(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      addImageUrl()
+                    }
+                  }}
+                />
+                <Button type="button" onClick={addImageUrl} variant="outline">
+                  <Upload className="h-4 w-4 mr-2" />
+                  Add
+                </Button>
+              </div>
+
+              {imageUrls.length > 0 && (
+                <div className="grid grid-cols-2 gap-4">
+                  {imageUrls.map((url, index) => (
+                    <div key={index} className="relative group">
+                      <div className="aspect-video rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                        {url.startsWith('http') ? (
+                          <img 
+                            src={url} 
+                            alt={`Property ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none'
+                            }}
+                          />
+                        ) : (
+                          <ImageIcon className="h-8 w-8 text-gray-400" />
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeImageUrl(index)}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                      <p className="text-xs text-gray-500 mt-1 truncate">{url}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end space-x-4 pt-4 border-t">
               <Button 
                 type="button" 
                 variant="outline" 

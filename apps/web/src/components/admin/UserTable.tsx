@@ -53,10 +53,12 @@ export function UserTable({ users }: UserTableProps) {
 
   const getRoleColor = (role: string) => {
     switch (role) {
+      case 'SUPER_ADMIN':
+        return 'bg-purple-100 text-purple-800'
       case 'ADMIN':
-        return 'bg-red-100 text-red-800'
-      case 'USER':
         return 'bg-blue-100 text-blue-800'
+      case 'USER':
+        return 'bg-gray-100 text-gray-800'
       default:
         return 'bg-gray-100 text-gray-800'
     }
@@ -137,11 +139,14 @@ export function UserTable({ users }: UserTableProps) {
                 <TableCell>
                   <div className="flex items-center space-x-2">
                     <Badge className={getRoleColor(user.role)}>
-                      {user.role}
+                      {user.role === 'SUPER_ADMIN' && (
+                        <Shield className="h-3 w-3 mr-1" />
+                      )}
+                      {user.role === 'ADMIN' && (
+                        <Shield className="h-3 w-3 mr-1" />
+                      )}
+                      {user.role.replace('_', ' ')}
                     </Badge>
-                    {user.role === 'ADMIN' && (
-                      <Shield className="h-4 w-4 text-red-600" />
-                    )}
                   </div>
                 </TableCell>
                 <TableCell>

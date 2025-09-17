@@ -33,6 +33,7 @@ enum InvestmentGoal {
 enum Role {
   USER
   ADMIN
+  SUPER_ADMIN
 }
 
 model User {
@@ -44,6 +45,21 @@ model User {
   country         String?
   role            Role     @default(USER)
   investmentGoals InvestmentGoal[]
+  
+  // Account status
+  isActive        Boolean  @default(true)
+  emailVerifiedAt DateTime?
+  lastLoginAt     DateTime?
+  
+  // Ban management
+  bannedAt        DateTime?
+  bannedBy        String?
+  bannedReason    String?
+  
+  // Admin invitation tracking
+  invitedBy       String?  // ID of admin who invited this user
+  invitationAcceptedAt DateTime?
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -51,7 +67,15 @@ model User {
   favoriteProperties FavoriteProperty[]
   propertyInquiries  PropertyInquiry[]
   ownedProperties    UserOwnedProperty[]
+  auditLogs         AdminAuditLog[] @relation("AdminAuditLogs")
+  bannedUsers       User[] @relation("BannedByAdmin")
+  bannedByAdmin     User? @relation("BannedByAdmin", fields: [bannedBy], references: [id])
+  invitedUsers      User[] @relation("InvitedByAdmin")
+  invitedByAdmin    User? @relation("InvitedByAdmin", fields: [invitedBy], references: [id])
 
+  @@index([role])
+  @@index([isActive])
+  @@index([email])
   @@map("users")
 }
 
@@ -186,4 +210,24 @@ model UserOwnedProperty {
   property Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
 
   @@map("user_owned_properties")
+}
+
+model AdminAuditLog {
+  id          String   @id @default(cuid())
+  adminId     String
+  action      String   // 'CREATE_USER', 'BAN_USER', 'UNBAN_USER', 'UPDATE_ROLE', 'DELETE_PROPERTY', etc.
+  targetType  String?  // 'user', 'property', 'admin', etc.
+  targetId    String?
+  details     Json?    // Additional details about the action
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  admin User @relation("AdminAuditLogs", fields: [adminId], references: [id])
+
+  @@index([adminId])
+  @@index([createdAt])
+  @@index([action])
+  @@map("admin_audit_logs")
 }
