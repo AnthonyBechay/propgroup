@@ -13,8 +13,6 @@ console.log('🚀 Starting Vercel build...\n');
 console.log('Environment:', process.env.NODE_ENV || 'production');
 console.log('Vercel:', process.env.VERCEL ? 'Yes' : 'No');
 console.log('Working directory:', process.cwd());
-console.log('Build directory structure:');
-execSync('ls -la', { stdio: 'inherit' });
 
 const rootDir = process.cwd();
 
@@ -288,17 +286,10 @@ async function build() {
         console.error('⚠️  routes-manifest.json not found!');
       }
       
-      // For Vercel monorepo deployment, we might need to copy the .next folder to root
+      // Verify we're keeping .next in apps/web for Vercel
       if (process.env.VERCEL) {
-        console.log('\n📦 Configuring for Vercel deployment...');
-        
-        // Check if we need to move the .next folder
-        const rootNext = path.join(rootDir, '.next');
-        if (!fs.existsSync(rootNext)) {
-          console.log('Moving .next folder to root for Vercel...');
-          fs.renameSync(nextDir, rootNext);
-          console.log('✅ .next folder moved to root');
-        }
+        console.log('\n📦 Vercel deployment detected');
+        console.log('✅ .next folder is correctly located at:', nextDir);
       }
     } else {
       console.error('❌ Next.js build output not found!');
