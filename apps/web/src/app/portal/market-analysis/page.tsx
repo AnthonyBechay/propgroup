@@ -100,8 +100,10 @@ const comparisonMetrics = [
   { metric: 'Golden Visa Threshold', key: 'goldenVisa', format: 'currency' },
 ]
 
+type CountryKey = keyof typeof marketData;
+
 export default function MarketAnalysisPage() {
-  const [selectedCountry, setSelectedCountry] = useState<string | null>('cyprus')
+  const [selectedCountry, setSelectedCountry] = useState<CountryKey>('cyprus')
   const [compareMode, setCompareMode] = useState(false)
   const [selectedMetric, setSelectedMetric] = useState('avgROI')
   const [timeRange, setTimeRange] = useState('1y')
@@ -169,7 +171,7 @@ export default function MarketAnalysisPage() {
           {Object.entries(marketData).map(([key, data]) => (
             <div
               key={key}
-              onClick={() => setSelectedCountry(key)}
+              onClick={() => setSelectedCountry(key as CountryKey)}
               className={`bg-white rounded-xl shadow-sm p-6 cursor-pointer transition-all hover:shadow-lg ${
                 selectedCountry === key ? 'ring-2 ring-blue-500' : ''
               }`}
@@ -210,7 +212,7 @@ export default function MarketAnalysisPage() {
         </div>
 
         {/* Detailed Analysis Section */}
-        {selectedCountry && (
+        {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             {/* Country Deep Dive */}
             <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm p-6">
@@ -313,7 +315,7 @@ export default function MarketAnalysisPage() {
               </div>
             </div>
           </div>
-        )}
+        }
 
         {/* Comparison Table */}
         <div className="bg-white rounded-2xl shadow-sm p-6">
@@ -348,17 +350,21 @@ export default function MarketAnalysisPage() {
                   {comparisonMetrics.map((metric) => (
                     <tr key={metric.key} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4 text-gray-700 font-medium">{metric.metric}</td>
-                      {Object.entries(marketData).map(([key, data]) => (
-                        <td key={key} className="text-center py-3 px-4">
-                          <span className={`font-medium ${
-                            metric.key === 'priceChange' && data[metric.key] > 0 ? 'text-green-600' :
-                            metric.key === 'priceChange' && data[metric.key] < 0 ? 'text-red-600' :
-                            'text-gray-900'
-                          }`}>
-                            {formatValue(data[metric.key], metric.format)}
-                          </span>
-                        </td>
-                      ))}
+                      {Object.entries(marketData).map(([key, data]) => {
+                        const metricKey = metric.key as keyof typeof data;
+                        const metricValue = data[metricKey] as number;
+                        return (
+                          <td key={key} className="text-center py-3 px-4">
+                            <span className={`font-medium ${
+                              metric.key === 'priceChange' && metricValue > 0 ? 'text-green-600' :
+                              metric.key === 'priceChange' && metricValue < 0 ? 'text-red-600' :
+                              'text-gray-900'
+                            }`}>
+                              {formatValue(metricValue, metric.format)}
+                            </span>
+                          </td>
+                        )
+                      })}
                     </tr>
                   ))}
                 </tbody>

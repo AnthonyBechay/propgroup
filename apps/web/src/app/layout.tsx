@@ -19,6 +19,7 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://propgroup.com'),
   title: {
     default: "PropGroup - Smart Real Estate Investment Platform",
     template: "%s | PropGroup"
