@@ -30,7 +30,7 @@
     "test:coverage": "npm run --prefix apps/web test:coverage",
     "build:web": "npm run build:packages && npm run --prefix apps/web build",
     "build:mobile": "npm run build:packages && npm run --prefix apps/mobile-capacitor build",
-    "vercel-build": "node scripts/vercel-build-new.js",
+    "vercel-build": "node scripts/vercel-build-monorepo.js",
     "deploy": "npm run build && npm run supabase:deploy",
     "deploy:web": "vercel --prod",
     "deploy:preview": "vercel",
