@@ -258,9 +258,12 @@ async function build() {
     const webPath = path.join(rootDir, 'apps/web');
     
     // Use existing environment variables, don't override them
+    // Add a dummy RESEND_API_KEY if not present to avoid build errors
     const buildEnv = { 
       ...process.env, 
-      NODE_ENV: process.env.NODE_ENV || 'production'
+      NODE_ENV: process.env.NODE_ENV || 'production',
+      // Provide a dummy Resend key for build if not set (won't be used for actual sending)
+      RESEND_API_KEY: process.env.RESEND_API_KEY || 're_dummy_build_key'
     };
     
     // Build the Next.js app
