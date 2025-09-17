@@ -68,8 +68,8 @@ for (const pkg of packages) {
       }
     }
     
-    // Build the package
-    execSync('npm run build', { 
+    // Build the package using root TypeScript
+    execSync('npx tsc', { 
       cwd: pkgPath, 
       stdio: 'inherit',
       env: { ...process.env, NODE_ENV: 'production' }
