@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { sendEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
   try {
@@ -14,46 +13,25 @@ export async function POST(request: Request) {
       );
     }
 
-    // Prepare email content
-    const emailHtml = `
-      <h2>New Contact Form Submission</h2>
-      <p><strong>Name:</strong> ${name}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      ${phone ? `<p><strong>Phone:</strong> ${phone}</p>` : ''}
-      ${propertyId ? `<p><strong>Property ID:</strong> ${propertyId}</p>` : ''}
-      ${message ? `<p><strong>Message:</strong><br>${message.replace(/\n/g, '<br>')}</p>` : ''}
-    `;
-
-    const emailText = `
-New Contact Form Submission
-
-Name: ${name}
-Email: ${email}
-${phone ? `Phone: ${phone}` : ''}
-${propertyId ? `Property ID: ${propertyId}` : ''}
-${message ? `Message:\n${message}` : ''}
-    `.trim();
-
-    // Try to send email if configured
-    const emailResult = await sendEmail({
-      to: process.env.CONTACT_EMAIL || 'info@propgroup.com',
-      subject: `New Contact from ${name}`,
-      html: emailHtml,
-      text: emailText,
-      from: 'PropGroup Contact <noreply@propgroup.com>'
+    // For now, just log the contact form submission
+    // You could save this to Supabase instead
+    console.log('Contact form submission:', {
+      email,
+      name, 
+      phone,
+      message,
+      propertyId,
+      timestamp: new Date().toISOString()
     });
 
-    if (!emailResult.success) {
-      // Log the error but don't fail the request
-      console.warn('Email send failed, but contact form submission accepted:', emailResult.error);
-    }
+    // TODO: Save to Supabase database if you want to track contacts
+    // const { data, error } = await supabase
+    //   .from('contacts')
+    //   .insert({ email, name, phone, message, propertyId });
 
-    // You could also save to database here if needed
-    // For now, just return success
     return NextResponse.json({
       success: true,
-      message: 'Contact form submitted successfully',
-      emailSent: emailResult.success
+      message: 'Contact form submitted successfully'
     });
 
   } catch (error) {
