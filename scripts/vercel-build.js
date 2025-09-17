@@ -69,7 +69,8 @@ for (const pkg of packages) {
     }
     
     // Build the package using root TypeScript
-    execSync('npx tsc', { 
+    const tscPath = path.join(rootDir, 'node_modules', '.bin', 'tsc');
+    execSync(`"${tscPath}"`, { 
       cwd: pkgPath, 
       stdio: 'inherit',
       env: { ...process.env, NODE_ENV: 'production' }
