@@ -257,13 +257,10 @@ async function build() {
     
     const webPath = path.join(rootDir, 'apps/web');
     
-    // Set environment to production for the build
+    // Use existing environment variables, don't override them
     const buildEnv = { 
       ...process.env, 
-      NODE_ENV: 'production',
-      // Provide defaults for required env vars during build
-      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
+      NODE_ENV: process.env.NODE_ENV || 'production'
     };
     
     // Build the Next.js app

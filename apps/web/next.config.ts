@@ -46,11 +46,7 @@ const nextConfig: NextConfig = {
     // We're using this because we have proper type checking in CI/CD
     ignoreBuildErrors: true,
   },
-  // Don't require all env vars at build time (they'll be checked at runtime)
-  env: {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-  },
+  // Don't hardcode environment variables - let them be resolved at runtime
 };
 
 export default nextConfig;

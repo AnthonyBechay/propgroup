@@ -18,8 +18,22 @@ const plusJakarta = Plus_Jakarta_Sans({
   weight: ["300", "400", "500", "600", "700", "800"],
 });
 
+// Determine the base URL for metadata
+const getMetadataBase = () => {
+  // In production on Vercel, use VERCEL_URL
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  // For local development
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000';
+  }
+  // Fallback
+  return 'https://localhost:3000';
+};
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://propgroup.com'),
+  metadataBase: new URL(getMetadataBase()),
   title: {
     default: "PropGroup - Smart Real Estate Investment Platform",
     template: "%s | PropGroup"
