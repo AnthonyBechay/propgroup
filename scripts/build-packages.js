@@ -49,6 +49,16 @@ function buildPackage(name, pkgPath) {
   }
   
   try {
+    // Generate Prisma client for db package
+    if (name === 'db') {
+      console.log(`  Generating Prisma client...`);
+      execSync('npx prisma generate', {
+        cwd: fullPath,
+        stdio: 'inherit',
+        env: { ...process.env, NODE_ENV: 'production' }
+      });
+    }
+    
     // Build using TypeScript
     execSync('npx tsc', {
       cwd: fullPath,

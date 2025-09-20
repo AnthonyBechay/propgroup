@@ -87,6 +87,15 @@ function buildPackage(name, pkgPath) {
   
   // Try to build with TypeScript
   try {
+    // Generate Prisma client if this is the db package
+    if (name === 'db') {
+      console.log(`  Generating Prisma client for ${name}...`);
+      exec('npx prisma generate', {
+        cwd: fullPath,
+        env: { ...process.env, NODE_ENV: 'production' }
+      });
+    }
+    
     // Use npx to ensure we use the local TypeScript
     exec('npx tsc', { 
       cwd: fullPath,
@@ -225,6 +234,12 @@ export declare const prisma: PrismaClient;
 // Main build process
 async function build() {
   try {
+    // Step 0: Setup environment variables for Vercel
+    if (process.env.VERCEL) {
+      console.log('🔧 Setting up Vercel environment...');
+      require('./setup-vercel-env.js');
+      console.log('');
+    }
     // Step 1: Install dependencies if needed
     if (!fs.existsSync(path.join(rootDir, 'node_modules'))) {
       console.log('📦 Installing dependencies...');
