@@ -29,7 +29,7 @@ try {
 console.log('🔨 Building packages...');
 const packages = [
   { name: 'config', path: 'packages/config', required: true },
-  { name: 'db', path: 'packages/db', required: false }, // Make db optional since using Supabase
+  { name: 'db', path: 'packages/db', required: true }, // Make db required for Prisma
   { name: 'supabase', path: 'packages/supabase', required: false }, // Make supabase optional due to type issues
   { name: 'ui', path: 'packages/ui', required: true },
 ];
@@ -65,6 +65,21 @@ for (const pkg of packages) {
         } catch {
           // Ignore errors
         }
+      }
+    }
+    
+    // Special handling for db package - run prisma generate first
+    if (pkg.name === 'db') {
+      console.log(`Running Prisma generate for @propgroup/${pkg.name}...`);
+      try {
+        execSync('npx prisma generate', { 
+          cwd: pkgPath, 
+          stdio: 'inherit',
+          env: { ...process.env, NODE_ENV: 'production' }
+        });
+        console.log(`✅ Prisma client generated for @propgroup/${pkg.name}`);
+      } catch (prismaError) {
+        console.warn(`⚠️  Prisma generate failed for @propgroup/${pkg.name}, continuing with TypeScript build...`);
       }
     }
     

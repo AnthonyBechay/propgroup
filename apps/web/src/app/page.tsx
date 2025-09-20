@@ -13,24 +13,32 @@ export default async function Home() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Fetch featured properties from the database
-  const featuredProperties = await prisma.property.findMany({
-    where: { 
-      // For now, we'll get the first 6 properties as featured
-      // In a real app, you'd have an isFeatured field
-    },
-    include: { 
-      investmentData: true,
-      developer: true,
-      favoriteProperties: user ? {
-        where: {
-          userId: user.id
-        }
-      } : false
-    },
-    take: 6,
-    orderBy: { createdAt: 'desc' },
-  });
+  // Fetch featured properties from the database with error handling
+  let featuredProperties: any[] = [];
+  
+  try {
+    featuredProperties = await prisma.property.findMany({
+      where: { 
+        // For now, we'll get the first 6 properties as featured
+        // In a real app, you'd have an isFeatured field
+      },
+      include: { 
+        investmentData: true,
+        developer: true,
+        favoriteProperties: user ? {
+          where: {
+            userId: user.id
+          }
+        } : false
+      },
+      take: 6,
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch (error) {
+    console.warn('Failed to fetch properties from database:', error);
+    // Use empty array as fallback - the UI will show loading state
+    featuredProperties = [];
+  }
 
   return (
     <div className="min-h-screen">

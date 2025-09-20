@@ -52,20 +52,28 @@ export default async function PropertiesPage({ searchParams }: PropertiesPagePro
     where.isGoldenVisaEligible = true;
   }
 
-  // Fetch properties from the database
-  const properties = await prisma.property.findMany({
-    where,
-    include: { 
-      investmentData: true,
-      developer: true,
-      favoriteProperties: user ? {
-        where: {
-          userId: user.id
-        }
-      } : false
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+  // Fetch properties from the database with error handling
+  let properties: any[] = [];
+  
+  try {
+    properties = await prisma.property.findMany({
+      where,
+      include: { 
+        investmentData: true,
+        developer: true,
+        favoriteProperties: user ? {
+          where: {
+            userId: user.id
+          }
+        } : false
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch (error) {
+    console.warn('Failed to fetch properties from database:', error);
+    // Use empty array as fallback
+    properties = [];
+  }
 
   return <PropertiesClient initialProperties={properties} searchParams={params} />;
 }
