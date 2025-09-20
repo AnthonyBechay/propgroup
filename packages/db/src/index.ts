@@ -17,3 +17,23 @@ if (process.env.NODE_ENV !== 'production') {
 // Export both named and default exports
 export { PrismaClient }
 export default prisma
+
+// Re-export all types and enums from Prisma client
+export type {
+  User,
+  Developer,
+  LocationGuide,
+  Property,
+  PropertyInvestmentData,
+  FavoriteProperty,
+  PropertyInquiry,
+  UserOwnedProperty,
+  AdminAuditLog,
+} from '@prisma/client'
+
+export {
+  Country,
+  PropertyStatus,
+  InvestmentGoal,
+  Role,
+} from '@prisma/client'

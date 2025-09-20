@@ -8,8 +8,11 @@ import {
   DollarSign,
   TrendingUp,
   FileText,
-  Shield
+  Shield,
+  Database,
+  RefreshCw
 } from 'lucide-react'
+import { SeedDataButton } from '@/components/admin/SeedDataButton'
 
 // Force dynamic rendering for admin pages
 export const dynamic = 'force-dynamic'
@@ -89,7 +92,8 @@ export default async function AdminDashboard() {
             <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
             <p className="text-gray-600">Welcome back! Here's what's happening with your platform.</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <SeedDataButton />
             <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
               ${currentUser.role === 'SUPER_ADMIN' 
                 ? 'bg-purple-100 text-purple-800' 

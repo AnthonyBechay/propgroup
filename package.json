@@ -49,6 +49,7 @@
     "db:migrate": "node packages/db/migrate.js",
     "db:check": "node packages/db/check-database.js",
     "db:fix": "fix-all-database-issues.bat",
+    "setup:super-admin": "node scripts/create-super-admin.js",
     "supabase:types": "supabase gen types typescript --project-id $SUPABASE_PROJECT_ID > packages/supabase/src/types/database.ts",
     "supabase:functions:serve": "supabase functions serve",
     "supabase:functions:deploy": "supabase functions deploy",
