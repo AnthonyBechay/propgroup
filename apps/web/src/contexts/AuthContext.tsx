@@ -24,9 +24,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get initial session
     const getInitialSession = async () => {
       try {
+        // Debug: Log Supabase connection info
+        console.log('🔍 Supabase Auth Debug:', {
+          url: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'Missing',
+          anonKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'Set' : 'Missing',
+          environment: process.env.NODE_ENV
+        })
+        
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
         if (sessionError) {
+          console.warn('Supabase session error:', sessionError)
           // Handle refresh token errors silently
           if (isRefreshTokenError(sessionError)) {
             // Clear invalid session silently
@@ -37,6 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setError(sessionError)
           }
         } else {
+          console.log('Supabase session loaded:', session ? 'User logged in' : 'No user')
           setUser(session?.user ?? null)
           setError(null)
         }
