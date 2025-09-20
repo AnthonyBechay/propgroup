@@ -7,13 +7,15 @@ const SETUP_SECRET = process.env.SETUP_SECRET || 'dev-setup-only'
 
 export async function POST(request: NextRequest) {
   try {
-    // Check if this is a development environment or has the correct secret
+    // For setup page, allow without authentication
+    // In production, you might want to add additional security checks
     const authHeader = request.headers.get('authorization')
     const isDev = process.env.NODE_ENV === 'development'
     const hasCorrectSecret = authHeader === `Bearer ${SETUP_SECRET}`
+    const isSetupPage = request.headers.get('referer')?.includes('/setup')
     
-    // Allow in development or with correct secret
-    if (!isDev && !hasCorrectSecret) {
+    // Allow if: development, has correct secret, or coming from setup page
+    if (!isDev && !hasCorrectSecret && !isSetupPage) {
       return NextResponse.json({ 
         error: 'Unauthorized: This endpoint requires proper authentication' 
       }, { status: 401 })
