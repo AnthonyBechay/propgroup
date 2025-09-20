@@ -1,0 +1,324 @@
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { z } from 'zod';
+import { prisma } from '@propgroup/db';
+import { authenticateToken, logAdminAction } from '../middleware/auth.js';
+
+const router = express.Router();
+
+// Validation schemas
+const registerSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  phone: z.string().optional(),
+  country: z.string().optional(),
+  investmentGoals: z.array(z.enum(['HIGH_ROI', 'CAPITAL_GROWTH', 'GOLDEN_VISA'])).optional()
+});
+
+const loginSchema = z.object({
+  email: z.string().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required')
+});
+
+// Helper function to create JWT token
+const createToken = (userId) => {
+  return jwt.sign(
+    { userId },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+  );
+};
+
+// Helper function to set secure cookie
+const setTokenCookie = (res, token) => {
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  });
+};
+
+// Register new user
+router.post('/register', async (req, res) => {
+  try {
+    const validatedData = registerSchema.parse(req.body);
+    
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email: validatedData.email }
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        error: 'User already exists',
+        message: 'An account with this email already exists'
+      });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(validatedData.password, 12);
+
+    // Create user
+    const user = await prisma.user.create({
+      data: {
+        email: validatedData.email,
+        password: hashedPassword,
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName,
+        phone: validatedData.phone,
+        country: validatedData.country,
+        investmentGoals: validatedData.investmentGoals || [],
+        isActive: true
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        country: true,
+        role: true,
+        investmentGoals: true,
+        isActive: true,
+        createdAt: true
+      }
+    });
+
+    // Create token
+    const token = createToken(user.id);
+    setTokenCookie(res, token);
+
+    res.status(201).json({
+      success: true,
+      message: 'User registered successfully',
+      user
+    });
+
+  } catch (error) {
+    if (error.name === 'ZodError') {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Invalid input data',
+        details: error.errors
+      });
+    }
+
+    console.error('Registration error:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to register user'
+    });
+  }
+});
+
+// Login user
+router.post('/login', async (req, res) => {
+  try {
+    const validatedData = loginSchema.parse(req.body);
+
+    // Find user
+    const user = await prisma.user.findUnique({
+      where: { email: validatedData.email }
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        error: 'Invalid credentials',
+        message: 'Email or password is incorrect'
+      });
+    }
+
+    // Check if account is active
+    if (!user.isActive || user.bannedAt) {
+      return res.status(401).json({
+        error: 'Account inactive',
+        message: 'Your account is inactive or has been banned'
+      });
+    }
+
+    // Verify password
+    const isValidPassword = await bcrypt.compare(validatedData.password, user.password);
+
+    if (!isValidPassword) {
+      return res.status(401).json({
+        error: 'Invalid credentials',
+        message: 'Email or password is incorrect'
+      });
+    }
+
+    // Update last login
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() }
+    });
+
+    // Create token
+    const token = createToken(user.id);
+    setTokenCookie(res, token);
+
+    // Return user data (excluding password)
+    const { password, ...userWithoutPassword } = user;
+
+    res.json({
+      success: true,
+      message: 'Login successful',
+      user: userWithoutPassword
+    });
+
+  } catch (error) {
+    if (error.name === 'ZodError') {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Invalid input data',
+        details: error.errors
+      });
+    }
+
+    console.error('Login error:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to login'
+    });
+  }
+});
+
+// Get current user
+router.get('/me', authenticateToken, async (req, res) => {
+  try {
+    res.json({
+      success: true,
+      user: req.user
+    });
+  } catch (error) {
+    console.error('Get current user error:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to get user data'
+    });
+  }
+});
+
+// Logout user
+router.post('/logout', (req, res) => {
+  res.clearCookie('token');
+  res.json({
+    success: true,
+    message: 'Logged out successfully'
+  });
+});
+
+// Update user profile
+router.put('/profile', authenticateToken, async (req, res) => {
+  try {
+    const updateSchema = z.object({
+      firstName: z.string().optional(),
+      lastName: z.string().optional(),
+      phone: z.string().optional(),
+      country: z.string().optional(),
+      investmentGoals: z.array(z.enum(['HIGH_ROI', 'CAPITAL_GROWTH', 'GOLDEN_VISA'])).optional()
+    });
+
+    const validatedData = updateSchema.parse(req.body);
+
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user.id },
+      data: validatedData,
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        phone: true,
+        country: true,
+        role: true,
+        investmentGoals: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      user: updatedUser
+    });
+
+  } catch (error) {
+    if (error.name === 'ZodError') {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Invalid input data',
+        details: error.errors
+      });
+    }
+
+    console.error('Update profile error:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to update profile'
+    });
+  }
+});
+
+// Change password
+router.put('/change-password', authenticateToken, async (req, res) => {
+  try {
+    const changePasswordSchema = z.object({
+      currentPassword: z.string().min(1, 'Current password is required'),
+      newPassword: z.string().min(8, 'New password must be at least 8 characters')
+    });
+
+    const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
+
+    // Get user with password
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id }
+    });
+
+    // Verify current password
+    const isValidPassword = await bcrypt.compare(currentPassword, user.password);
+
+    if (!isValidPassword) {
+      return res.status(400).json({
+        error: 'Invalid password',
+        message: 'Current password is incorrect'
+      });
+    }
+
+    // Hash new password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 12);
+
+    // Update password
+    await prisma.user.update({
+      where: { id: req.user.id },
+      data: { password: hashedNewPassword }
+    });
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+
+  } catch (error) {
+    if (error.name === 'ZodError') {
+      return res.status(400).json({
+        error: 'Validation Error',
+        message: 'Invalid input data',
+        details: error.errors
+      });
+    }
+
+    console.error('Change password error:', error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+      message: 'Failed to change password'
+    });
+  }
+});
+
+export default router;

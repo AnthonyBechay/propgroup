@@ -1,6 +1,6 @@
 'use server'
 
-import { prisma } from '@/lib/prisma'
+import { apiClient } from '@/lib/api/client'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
@@ -32,62 +32,18 @@ export async function createProperty(data: z.infer<typeof propertySchema>) {
     // Validate the input
     const validatedData = propertySchema.parse(data)
 
-    // Create the property with investment data in a transaction
-    const result = await prisma.$transaction(async (tx: any) => {
-      // Create the property
-      const property = await tx.property.create({
-        data: {
-          title: validatedData.title,
-          description: validatedData.description,
-          price: validatedData.price,
-          currency: validatedData.currency,
-          bedrooms: validatedData.bedrooms,
-          bathrooms: validatedData.bathrooms,
-          area: validatedData.area,
-          country: validatedData.country,
-          status: validatedData.status,
-          isGoldenVisaEligible: validatedData.isGoldenVisaEligible,
-          developerId: validatedData.developerId || null,
-          locationGuideId: validatedData.locationGuideId || null,
-          images: [], // Default empty array, can be updated later
-        },
-      })
+    // Create the property using the API client
+    const response = await apiClient.createProperty(validatedData)
 
-      // Create investment data if any investment fields are provided
-      if (
-        validatedData.expectedROI ||
-        validatedData.rentalYield ||
-        validatedData.capitalGrowth ||
-        validatedData.minInvestment ||
-        validatedData.maxInvestment ||
-        validatedData.paymentPlan ||
-        validatedData.completionDate
-      ) {
-        await tx.propertyInvestmentData.create({
-          data: {
-            propertyId: property.id,
-            expectedROI: validatedData.expectedROI || null,
-            rentalYield: validatedData.rentalYield || null,
-            capitalGrowth: validatedData.capitalGrowth || null,
-            isGoldenVisaEligible: validatedData.isGoldenVisaEligible,
-            minInvestment: validatedData.minInvestment || null,
-            maxInvestment: validatedData.maxInvestment || null,
-            paymentPlan: validatedData.paymentPlan || null,
-            completionDate: validatedData.completionDate 
-              ? new Date(validatedData.completionDate) 
-              : null,
-          },
-        })
-      }
+    if (response.success) {
+      // Revalidate the properties page
+      revalidatePath('/admin/properties')
+      revalidatePath('/properties')
 
-      return property
-    })
-
-    // Revalidate the properties page
-    revalidatePath('/admin/properties')
-    revalidatePath('/properties')
-
-    return { success: true, property: result }
+      return { success: true, property: response.data }
+    } else {
+      throw new Error(response.message || 'Failed to create property')
+    }
   } catch (error) {
     console.error('Error creating property:', error)
     throw new Error('Failed to create property')
@@ -98,74 +54,18 @@ export async function updateProperty(id: string, data: Partial<z.infer<typeof pr
   try {
     const validatedData = propertySchema.partial().parse(data)
 
-    const result = await prisma.$transaction(async (tx: any) => {
-      // Update the property
-      const property = await tx.property.update({
-        where: { id },
-        data: {
-          title: validatedData.title,
-          description: validatedData.description,
-          price: validatedData.price,
-          currency: validatedData.currency,
-          bedrooms: validatedData.bedrooms,
-          bathrooms: validatedData.bathrooms,
-          area: validatedData.area,
-          country: validatedData.country,
-          status: validatedData.status,
-          isGoldenVisaEligible: validatedData.isGoldenVisaEligible,
-          developerId: validatedData.developerId || null,
-          locationGuideId: validatedData.locationGuideId || null,
-        },
-      })
+    // Update the property using the API client
+    const response = await apiClient.updateProperty(id, validatedData)
 
-      // Update or create investment data
-      if (
-        validatedData.expectedROI !== undefined ||
-        validatedData.rentalYield !== undefined ||
-        validatedData.capitalGrowth !== undefined ||
-        validatedData.minInvestment !== undefined ||
-        validatedData.maxInvestment !== undefined ||
-        validatedData.paymentPlan !== undefined ||
-        validatedData.completionDate !== undefined
-      ) {
-        await tx.propertyInvestmentData.upsert({
-          where: { propertyId: id },
-          update: {
-            expectedROI: validatedData.expectedROI || null,
-            rentalYield: validatedData.rentalYield || null,
-            capitalGrowth: validatedData.capitalGrowth || null,
-            isGoldenVisaEligible: validatedData.isGoldenVisaEligible || false,
-            minInvestment: validatedData.minInvestment || null,
-            maxInvestment: validatedData.maxInvestment || null,
-            paymentPlan: validatedData.paymentPlan || null,
-            completionDate: validatedData.completionDate 
-              ? new Date(validatedData.completionDate) 
-              : null,
-          },
-          create: {
-            propertyId: id,
-            expectedROI: validatedData.expectedROI || null,
-            rentalYield: validatedData.rentalYield || null,
-            capitalGrowth: validatedData.capitalGrowth || null,
-            isGoldenVisaEligible: validatedData.isGoldenVisaEligible || false,
-            minInvestment: validatedData.minInvestment || null,
-            maxInvestment: validatedData.maxInvestment || null,
-            paymentPlan: validatedData.paymentPlan || null,
-            completionDate: validatedData.completionDate 
-              ? new Date(validatedData.completionDate) 
-              : null,
-          },
-        })
-      }
+    if (response.success) {
+      revalidatePath('/admin/properties')
+      revalidatePath('/properties')
+      revalidatePath(`/property/${id}`)
 
-      return property
-    })
-
-    revalidatePath('/admin/properties')
-    revalidatePath('/properties')
-    revalidatePath(`/property/${id}`)
-
-    return { success: true, property: result }
+      return { success: true, property: response.data }
+    } else {
+      throw new Error(response.message || 'Failed to update property')
+    }
   } catch (error) {
     console.error('Error updating property:', error)
     throw new Error('Failed to update property')
@@ -174,14 +74,17 @@ export async function updateProperty(id: string, data: Partial<z.infer<typeof pr
 
 export async function deleteProperty(id: string) {
   try {
-    await prisma.property.delete({
-      where: { id },
-    })
+    // Delete the property using the API client
+    const response = await apiClient.deleteProperty(id)
 
-    revalidatePath('/admin/properties')
-    revalidatePath('/properties')
+    if (response.success) {
+      revalidatePath('/admin/properties')
+      revalidatePath('/properties')
 
-    return { success: true }
+      return { success: true }
+    } else {
+      throw new Error(response.message || 'Failed to delete property')
+    }
   } catch (error) {
     console.error('Error deleting property:', error)
     throw new Error('Failed to delete property')

@@ -1,7 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { cookies } from 'next/headers'
+import { apiClient } from '@/lib/api/client'
 
 export type UserRole = 'USER' | 'ADMIN' | 'SUPER_ADMIN'
 
@@ -15,32 +14,24 @@ export interface AuthUser {
 }
 
 /**
- * Get the current authenticated user with role information from Supabase metadata
+ * Get the current authenticated user with role information from JWT token
  */
 export async function getCurrentUser(): Promise<AuthUser | null> {
   try {
-    const cookieStore = await cookies()
-    const supabase = await createClient(cookieStore)
+    const response = await apiClient.getCurrentUser()
     
-    const { data: { user }, error } = await supabase.auth.getUser()
-    
-    if (error || !user) {
-      return null
+    if (response.success && response.user) {
+      return {
+        id: response.user.id,
+        email: response.user.email,
+        role: response.user.role,
+        isActive: response.user.isActive,
+        bannedAt: response.user.bannedAt,
+        emailVerifiedAt: response.user.emailVerifiedAt,
+      }
     }
     
-    // Get user role from Supabase user metadata
-    const userRole = user.user_metadata?.role || 'USER'
-    const isActive = user.user_metadata?.is_active !== false // Default to true
-    const bannedAt = user.user_metadata?.banned_at ? new Date(user.user_metadata.banned_at) : null
-    
-    return {
-      id: user.id,
-      email: user.email || '',
-      role: userRole as UserRole,
-      isActive,
-      bannedAt,
-      emailVerifiedAt: user.email_confirmed_at ? new Date(user.email_confirmed_at) : null,
-    }
+    return null
   } catch (error) {
     console.error('Error getting current user:', error)
     return null
@@ -136,26 +127,9 @@ export async function logAdminAction(
       throw new Error('Unauthorized to log admin action')
     }
     
-    const cookieStore = await cookies()
-    const supabase = await createClient(cookieStore)
-    
-    const auditLog = {
-      admin_id: user.id,
-      action,
-      target_type: targetType,
-      target_id: targetId,
-      details,
-      ip_address: request?.headers.get('x-forwarded-for') || request?.headers.get('x-real-ip'),
-      user_agent: request?.headers.get('user-agent'),
-    }
-    
-    const { error } = await supabase
-      .from('admin_audit_logs')
-      .insert(auditLog)
-    
-    if (error) {
-      console.error('Failed to log admin action:', error)
-    }
+    // The audit logging is now handled by the backend middleware
+    // This function is kept for compatibility but doesn't need to do anything
+    // as the backend automatically logs admin actions
   } catch (error) {
     console.error('Error logging admin action:', error)
   }
@@ -166,13 +140,9 @@ export async function logAdminAction(
  */
 export async function updateLastLogin(userId: string) {
   try {
-    const cookieStore = await cookies()
-    const supabase = await createClient(cookieStore)
-    
-    await supabase
-      .from('users')
-      .update({ last_login_at: new Date().toISOString() })
-      .eq('id', userId)
+    // The last login is now automatically updated by the backend
+    // when users log in through the /api/auth/login endpoint
+    // This function is kept for compatibility
   } catch (error) {
     console.error('Error updating last login:', error)
   }

@@ -2,8 +2,7 @@
 
 /**
  * Start script for PropGroup development environment
- * This script starts the Next.js development server
- * Attempts to build packages but continues even if build fails
+ * This script starts both the backend API server and the Next.js frontend
  */
 
 const { spawn, exec } = require('child_process');
@@ -20,7 +19,7 @@ const isWindows = os.platform() === 'win32';
 function checkPackagesBuilt() {
   const packagesToCheck = [
     'packages/config/dist',
-    'packages/supabase/dist',
+    'packages/db/dist',
     'packages/ui/dist'
   ];
   
@@ -55,42 +54,63 @@ function attemptBuildPackages() {
   });
 }
 
-// Function to start Next.js
-function startNextJS() {
-  console.log('🌐 Starting Next.js development server...\n');
+// Function to start backend API server
+function startBackend() {
+  console.log('🔧 Starting Backend API server...\n');
   
   const npmCmd = isWindows ? 'npm.cmd' : 'npm';
-  const next = spawn(npmCmd, ['run', 'dev'], {
-    cwd: path.resolve(__dirname, '..', 'apps', 'web'),
+  const backend = spawn(npmCmd, ['run', 'dev'], {
+    cwd: path.resolve(__dirname, '..', 'apps', 'backend'),
     stdio: 'inherit',
-    shell: true,  // Critical for Windows
+    shell: true,
     env: { ...process.env, NODE_ENV: 'development' }
   });
 
-  next.on('error', (err) => {
-    console.error('❌ Failed to start Next.js:', err.message);
-    console.log('\nTry running: npm run dev:quick');
+  backend.on('error', (err) => {
+    console.error('❌ Failed to start Backend API:', err.message);
+    console.log('\nMake sure you have installed backend dependencies:');
+    console.log('  cd apps/backend && npm install');
     process.exit(1);
   });
 
-  next.on('close', (code) => {
-    console.log(`\n📍 Next.js process exited with code ${code}`);
-    process.exit(code || 0);
+  return backend;
+}
+
+// Function to start Next.js frontend
+function startFrontend() {
+  console.log('🌐 Starting Next.js frontend...\n');
+  
+  const npmCmd = isWindows ? 'npm.cmd' : 'npm';
+  const frontend = spawn(npmCmd, ['run', 'dev'], {
+    cwd: path.resolve(__dirname, '..', 'apps', 'web'),
+    stdio: 'inherit',
+    shell: true,
+    env: { ...process.env, NODE_ENV: 'development' }
   });
 
-  // Handle graceful shutdown
-  process.on('SIGINT', () => {
+  frontend.on('error', (err) => {
+    console.error('❌ Failed to start Next.js:', err.message);
+    console.log('\nMake sure you have installed frontend dependencies:');
+    console.log('  cd apps/web && npm install');
+    process.exit(1);
+  });
+
+  return frontend;
+}
+
+// Function to handle graceful shutdown
+function setupGracefulShutdown(backend, frontend) {
+  const shutdown = () => {
     console.log('\n🛑 Shutting down gracefully...');
-    next.kill('SIGTERM');
+    if (backend) backend.kill('SIGTERM');
+    if (frontend) frontend.kill('SIGTERM');
     setTimeout(() => {
       process.exit(0);
-    }, 1000);
-  });
+    }, 2000);
+  };
 
-  process.on('SIGTERM', () => {
-    next.kill('SIGTERM');
-    process.exit(0);
-  });
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 }
 
 // Main execution
@@ -106,19 +126,43 @@ async function main() {
       console.log('✅ Packages already built\n');
     }
     
-    // Always start Next.js regardless of build status
-    startNextJS();
+    // Start backend first
+    const backend = startBackend();
+    
+    // Wait a moment for backend to start
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    // Start frontend
+    const frontend = startFrontend();
+    
+    // Setup graceful shutdown
+    setupGracefulShutdown(backend, frontend);
+    
+    // Handle process exits
+    backend.on('close', (code) => {
+      console.log(`\n📍 Backend process exited with code ${code}`);
+      if (code !== 0) {
+        frontend.kill('SIGTERM');
+        process.exit(code);
+      }
+    });
+
+    frontend.on('close', (code) => {
+      console.log(`\n📍 Frontend process exited with code ${code}`);
+      if (code !== 0) {
+        backend.kill('SIGTERM');
+        process.exit(code);
+      }
+    });
     
   } catch (error) {
     console.error('❌ Error during startup:', error);
-    console.log('\nTrying to start anyway...\n');
-    startNextJS();
+    process.exit(1);
   }
 }
 
 // Run the main function
 main().catch((error) => {
   console.error('❌ Critical error:', error);
-  console.log('\nTry running: cd apps/web && npm run dev');
   process.exit(1);
 });

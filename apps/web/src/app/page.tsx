@@ -4,41 +4,12 @@ import { FeaturesSection } from '@/components/home/FeaturesSection';
 import { StatsSection } from '@/components/home/StatsSection';
 import { TestimonialsSection } from '@/components/home/TestimonialsSection';
 import { CTASection } from '@/components/home/CTASection';
-import { prisma } from '@/lib/prisma';
-import { createClient } from '@/lib/supabase/server';
 import { Sparkles } from 'lucide-react';
 
 export default async function Home() {
-  // Get current user to check favorites
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // Fetch featured properties from the database with error handling
-  let featuredProperties: any[] = [];
-  
-  try {
-    featuredProperties = await prisma.property.findMany({
-      where: { 
-        // For now, we'll get the first 6 properties as featured
-        // In a real app, you'd have an isFeatured field
-      },
-      include: { 
-        investmentData: true,
-        developer: true,
-        favoriteProperties: user ? {
-          where: {
-            userId: user.id
-          }
-        } : false
-      },
-      take: 6,
-      orderBy: { createdAt: 'desc' },
-    });
-  } catch (error) {
-    console.warn('Failed to fetch properties from database:', error);
-    // Use empty array as fallback - the UI will show loading state
-    featuredProperties = [];
-  }
+  // For now, we'll fetch properties on the client side
+  // This will be updated to use the new API client
+  const featuredProperties: any[] = [];
 
   return (
     <div className="min-h-screen">

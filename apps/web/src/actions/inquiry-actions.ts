@@ -1,7 +1,7 @@
 'use server'
 
-import { prisma } from '@/lib/prisma'
-import { createClient } from '@/lib/supabase/server'
+import { apiClient } from '@/lib/api/client'
+import { getCurrentUser } from '@/lib/auth/rbac'
 import { z } from 'zod'
 
 const inquirySchema = z.object({
@@ -16,37 +16,28 @@ export async function submitInquiry(data: z.infer<typeof inquirySchema>) {
   try {
     const validatedData = inquirySchema.parse(data)
     
-    // Get current user if logged in
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    // Submit the inquiry using the API client
+    const response = await apiClient.createInquiry(validatedData)
 
-    // Create the inquiry
-    const inquiry = await prisma.propertyInquiry.create({
-      data: {
-        propertyId: validatedData.propertyId,
-        userId: user?.id || null,
-        name: validatedData.name,
-        email: validatedData.email,
-        phone: validatedData.phone || null,
-        message: validatedData.message || null,
-      },
-      include: {
-        property: true,
-      },
-    })
+    if (response.success) {
+      // Log the inquiry for now (you could store this in a separate table for admin review)
+      console.log('New property inquiry:', {
+        property: response.data.property.title,
+        name: response.data.name,
+        email: response.data.email,
+        date: response.data.createdAt
+      })
 
-    // Log the inquiry for now (you could store this in a separate table for admin review)
-    console.log('New property inquiry:', {
-      property: inquiry.property.title,
-      name: inquiry.name,
-      email: inquiry.email,
-      date: inquiry.createdAt
-    })
-
-    return { 
-      success: true, 
-      inquiry,
-      message: 'Your inquiry has been submitted successfully! We will get back to you soon.'
+      return { 
+        success: true, 
+        inquiry: response.data,
+        message: 'Your inquiry has been submitted successfully! We will get back to you soon.'
+      }
+    } else {
+      return { 
+        success: false, 
+        error: response.message || 'Failed to submit inquiry. Please try again.' 
+      }
     }
   } catch (error) {
     console.error('Error submitting inquiry:', error)
@@ -65,31 +56,21 @@ export async function submitInquiry(data: z.infer<typeof inquirySchema>) {
 
 export async function getUserInquiries() {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getCurrentUser()
 
     if (!user) {
       return { success: false, error: 'You must be logged in to view inquiries' }
     }
 
-    const inquiries = await prisma.propertyInquiry.findMany({
-      where: {
-        OR: [
-          { userId: user.id },
-          { email: user.email }
-        ]
-      },
-      include: {
-        property: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    })
-
-    return { 
-      success: true, 
-      inquiries 
+    const response = await apiClient.getMyInquiries()
+    
+    if (response.success) {
+      return { 
+        success: true, 
+        inquiries: response.data 
+      }
+    } else {
+      return { success: false, error: response.message || 'Failed to fetch inquiries' }
     }
   } catch (error) {
     console.error('Error fetching inquiries:', error)
@@ -99,18 +80,15 @@ export async function getUserInquiries() {
 
 export async function getPropertyInquiries(propertyId: string) {
   try {
-    const inquiries = await prisma.propertyInquiry.findMany({
-      where: {
-        propertyId,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    })
-
-    return { 
-      success: true, 
-      inquiries 
+    const response = await apiClient.getInquiries({ propertyId })
+    
+    if (response.success) {
+      return { 
+        success: true, 
+        inquiries: response.data 
+      }
+    } else {
+      return { success: false, error: response.message || 'Failed to fetch inquiries' }
     }
   } catch (error) {
     console.error('Error fetching property inquiries:', error)

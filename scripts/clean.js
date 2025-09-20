@@ -25,14 +25,15 @@ const dirsToClean = [
   'apps/web/node_modules',
   'apps/web/.next',
   'apps/web/dist',
+  'apps/web/build',
+  'apps/backend/node_modules',
+  'apps/backend/dist',
   'apps/mobile-capacitor/node_modules',
   'apps/mobile-capacitor/dist',
   
   // Packages
   'packages/ui/node_modules',
   'packages/ui/dist',
-  'packages/supabase/node_modules',
-  'packages/supabase/dist',
   'packages/db/node_modules',
   'packages/db/dist',
   'packages/config/node_modules',
@@ -45,7 +46,11 @@ const filesToClean = [
   'yarn.lock',
   'pnpm-lock.yaml',
   'apps/web/package-lock.json',
+  'apps/backend/package-lock.json',
   'apps/mobile-capacitor/package-lock.json',
+  'packages/ui/package-lock.json',
+  'packages/db/package-lock.json',
+  'packages/config/package-lock.json',
 ];
 
 // Function to remove directory

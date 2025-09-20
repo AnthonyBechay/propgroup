@@ -1,50 +1,40 @@
 'use server'
 
-import { prisma } from '@/lib/prisma'
-import { createClient } from '@/lib/supabase/server'
-import { cookies } from 'next/headers'
+import { apiClient } from '@/lib/api/client'
+import { getCurrentUser } from '@/lib/auth/rbac'
 import { revalidatePath } from 'next/cache'
 
 export async function toggleFavorite(propertyId: string) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getCurrentUser()
 
     if (!user) {
       return { success: false, error: 'You must be logged in to favorite properties' }
     }
 
-    // Check if favorite already exists
-    const existingFavorite = await prisma.favoriteProperty.findUnique({
-      where: {
-        userId_propertyId: {
-          userId: user.id,
-          propertyId,
-        },
-      },
-    })
-
-    if (existingFavorite) {
+    // Check current favorite status
+    const statusResponse = await apiClient.checkFavorite(propertyId)
+    
+    if (statusResponse.isFavorited) {
       // Remove favorite
-      await prisma.favoriteProperty.delete({
-        where: {
-          id: existingFavorite.id,
-        },
-      })
-
-      revalidatePath('/portal/favorites')
-      return { success: true, isFavorited: false }
+      const response = await apiClient.removeFavorite(propertyId)
+      
+      if (response.success) {
+        revalidatePath('/portal/favorites')
+        return { success: true, isFavorited: false }
+      } else {
+        return { success: false, error: response.message || 'Failed to remove favorite' }
+      }
     } else {
       // Add favorite
-      await prisma.favoriteProperty.create({
-        data: {
-          userId: user.id,
-          propertyId,
-        },
-      })
-
-      revalidatePath('/portal/favorites')
-      return { success: true, isFavorited: true }
+      const response = await apiClient.addFavorite(propertyId)
+      
+      if (response.success) {
+        revalidatePath('/portal/favorites')
+        return { success: true, isFavorited: true }
+      } else {
+        return { success: false, error: response.message || 'Failed to add favorite' }
+      }
     }
   } catch (error) {
     console.error('Error toggling favorite:', error)
@@ -54,23 +44,14 @@ export async function toggleFavorite(propertyId: string) {
 
 export async function getFavoriteStatus(propertyId: string) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getCurrentUser()
 
     if (!user) {
       return { isFavorited: false }
     }
 
-    const favorite = await prisma.favoriteProperty.findUnique({
-      where: {
-        userId_propertyId: {
-          userId: user.id,
-          propertyId,
-        },
-      },
-    })
-
-    return { isFavorited: !!favorite }
+    const response = await apiClient.checkFavorite(propertyId)
+    return { isFavorited: response.isFavorited }
   } catch (error) {
     console.error('Error checking favorite status:', error)
     return { isFavorited: false }
@@ -79,33 +60,21 @@ export async function getFavoriteStatus(propertyId: string) {
 
 export async function getUserFavorites() {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const user = await getCurrentUser()
 
     if (!user) {
       return { success: false, error: 'You must be logged in to view favorites' }
     }
 
-    const favorites = await prisma.favoriteProperty.findMany({
-      where: {
-        userId: user.id,
-      },
-      include: {
-        property: {
-          include: {
-            investmentData: true,
-            developer: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    })
-
-    return { 
-      success: true, 
-      favorites: favorites.map((f: any) => f.property) 
+    const response = await apiClient.getFavorites()
+    
+    if (response.success) {
+      return { 
+        success: true, 
+        favorites: response.data.map((f: any) => f.property) 
+      }
+    } else {
+      return { success: false, error: response.message || 'Failed to fetch favorites' }
     }
   } catch (error) {
     console.error('Error fetching favorites:', error)

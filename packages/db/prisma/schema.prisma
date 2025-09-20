@@ -39,6 +39,7 @@ enum Role {
 model User {
   id              String   @id @default(cuid())
   email           String   @unique
+  password        String?  // Hashed password for JWT auth (optional for existing users)
   firstName       String?
   lastName        String?
   phone           String?

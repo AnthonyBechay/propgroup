@@ -1,6 +1,6 @@
 'use server'
 
-import { prisma } from '@/lib/prisma'
+import { apiClient } from '@/lib/api/client'
 import { getCurrentUser, isSuperAdmin, logAdminAction } from '@/lib/auth/rbac'
 import { revalidatePath } from 'next/cache'
 import { UserRole } from '@/lib/auth/rbac'
@@ -17,36 +17,15 @@ export async function updateUserRole(userId: string, newRole: UserRole) {
   }
   
   try {
-    // Get the target user's current role
-    const targetUser = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { role: true, email: true }
-    })
+    // Update the user's role using the API client
+    const response = await apiClient.updateUserRole(userId, newRole)
     
-    if (!targetUser) {
-      throw new Error('User not found')
+    if (response.success) {
+      revalidatePath('/admin/users/manage')
+      return { success: true, user: response.data }
+    } else {
+      throw new Error(response.message || 'Failed to update user role')
     }
-    
-    // Update the user's role
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: { role: newRole }
-    })
-    
-    // Log the action
-    await logAdminAction(
-      'UPDATE_ROLE',
-      'user',
-      userId,
-      {
-        oldRole: targetUser.role,
-        newRole: newRole,
-        userEmail: targetUser.email
-      }
-    )
-    
-    revalidatePath('/admin/users/manage')
-    return { success: true, user: updatedUser }
   } catch (error) {
     console.error('Error updating user role:', error)
     throw new Error('Failed to update user role')
@@ -65,47 +44,16 @@ export async function banUser(userId: string, reason: string) {
   }
   
   try {
-    // Get the target user
-    const targetUser = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { role: true, email: true }
-    })
+    // Ban the user using the API client
+    const response = await apiClient.banUser(userId, reason)
     
-    if (!targetUser) {
-      throw new Error('User not found')
+    if (response.success) {
+      revalidatePath('/admin/users')
+      revalidatePath('/admin/users/manage')
+      return { success: true, user: response.data }
+    } else {
+      throw new Error(response.message || 'Failed to ban user')
     }
-    
-    // Only super admins can ban other admins
-    if ((targetUser.role === 'ADMIN' || targetUser.role === 'SUPER_ADMIN') && currentUser.role !== 'SUPER_ADMIN') {
-      throw new Error('Only super admins can ban other admins')
-    }
-    
-    // Ban the user
-    const bannedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        isActive: false,
-        bannedAt: new Date(),
-        bannedBy: currentUser.id,
-        bannedReason: reason
-      }
-    })
-    
-    // Log the action
-    await logAdminAction(
-      'BAN_USER',
-      'user',
-      userId,
-      {
-        reason: reason,
-        userEmail: targetUser.email,
-        userRole: targetUser.role
-      }
-    )
-    
-    revalidatePath('/admin/users')
-    revalidatePath('/admin/users/manage')
-    return { success: true, user: bannedUser }
   } catch (error) {
     console.error('Error banning user:', error)
     throw new Error('Failed to ban user')
@@ -120,47 +68,16 @@ export async function unbanUser(userId: string) {
   }
   
   try {
-    // Get the target user
-    const targetUser = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { role: true, email: true, bannedReason: true }
-    })
+    // Unban the user using the API client
+    const response = await apiClient.unbanUser(userId)
     
-    if (!targetUser) {
-      throw new Error('User not found')
+    if (response.success) {
+      revalidatePath('/admin/users')
+      revalidatePath('/admin/users/manage')
+      return { success: true, user: response.data }
+    } else {
+      throw new Error(response.message || 'Failed to unban user')
     }
-    
-    // Only super admins can unban other admins
-    if ((targetUser.role === 'ADMIN' || targetUser.role === 'SUPER_ADMIN') && currentUser.role !== 'SUPER_ADMIN') {
-      throw new Error('Only super admins can unban other admins')
-    }
-    
-    // Unban the user
-    const unbannedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        isActive: true,
-        bannedAt: null,
-        bannedBy: null,
-        bannedReason: null
-      }
-    })
-    
-    // Log the action
-    await logAdminAction(
-      'UNBAN_USER',
-      'user',
-      userId,
-      {
-        previousBanReason: targetUser.bannedReason,
-        userEmail: targetUser.email,
-        userRole: targetUser.role
-      }
-    )
-    
-    revalidatePath('/admin/users')
-    revalidatePath('/admin/users/manage')
-    return { success: true, user: unbannedUser }
   } catch (error) {
     console.error('Error unbanning user:', error)
     throw new Error('Failed to unban user')
@@ -179,35 +96,16 @@ export async function deleteUser(userId: string) {
   }
   
   try {
-    // Get the target user
-    const targetUser = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { role: true, email: true }
-    })
+    // Delete the user using the API client
+    const response = await apiClient.deleteUser(userId)
     
-    if (!targetUser) {
-      throw new Error('User not found')
+    if (response.success) {
+      revalidatePath('/admin/users')
+      revalidatePath('/admin/users/manage')
+      return { success: true }
+    } else {
+      throw new Error(response.message || 'Failed to delete user')
     }
-    
-    // Delete the user
-    await prisma.user.delete({
-      where: { id: userId }
-    })
-    
-    // Log the action
-    await logAdminAction(
-      'DELETE_USER',
-      'user',
-      userId,
-      {
-        userEmail: targetUser.email,
-        userRole: targetUser.role
-      }
-    )
-    
-    revalidatePath('/admin/users')
-    revalidatePath('/admin/users/manage')
-    return { success: true }
   } catch (error) {
     console.error('Error deleting user:', error)
     throw new Error('Failed to delete user')
@@ -222,43 +120,15 @@ export async function inviteAdmin(email: string, role: 'ADMIN' | 'SUPER_ADMIN') 
   }
   
   try {
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-      select: { id: true }
-    })
+    // Invite admin using the API client
+    const response = await apiClient.inviteAdmin(email, role)
     
-    if (existingUser) {
-      throw new Error('User with this email already exists')
+    if (response.success) {
+      revalidatePath('/admin/users/manage')
+      return { success: true, user: response.data }
+    } else {
+      throw new Error(response.message || 'Failed to invite admin')
     }
-    
-    // Create user with admin role (they'll need to set password on first login)
-    const newAdmin = await prisma.user.create({
-      data: {
-        email,
-        role,
-        invitedBy: currentUser.id,
-        isActive: true
-      }
-    })
-    
-    // Log the action
-    await logAdminAction(
-      'INVITE_ADMIN',
-      'user',
-      newAdmin.id,
-      {
-        email,
-        role,
-        invitedBy: currentUser.email
-      }
-    )
-    
-    // TODO: Send invitation email with magic link
-    // await sendAdminInvitationEmail(email, role)
-    
-    revalidatePath('/admin/users/manage')
-    return { success: true, user: newAdmin }
   } catch (error) {
     console.error('Error inviting admin:', error)
     throw new Error('Failed to invite admin')
