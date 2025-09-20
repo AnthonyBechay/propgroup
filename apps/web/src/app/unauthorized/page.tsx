@@ -1,8 +1,13 @@
+'use client'
+
 import { ShieldOff, Home, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
 
 export default function UnauthorizedPage() {
+  const router = useRouter()
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8">
@@ -18,13 +23,13 @@ export default function UnauthorizedPage() {
           </h1>
           
           <p className="mt-4 text-gray-600">
-            You don't have permission to access this page. 
+            You don&apos;t have permission to access this page. 
             This area is restricted to authorized personnel only.
           </p>
           
           <div className="mt-8 space-y-4">
             <Button 
-              onClick={() => window.history.back()} 
+              onClick={() => router.back()} 
               variant="outline" 
               className="w-full"
             >
