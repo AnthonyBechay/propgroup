@@ -11,6 +11,10 @@ import {
   Shield
 } from 'lucide-react'
 
+// Force dynamic rendering for admin pages
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function AdminDashboard() {
   // Check if user is admin
   const currentUser = await getCurrentUser()

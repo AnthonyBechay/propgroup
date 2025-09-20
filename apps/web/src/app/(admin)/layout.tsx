@@ -4,6 +4,10 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 
+// Force dynamic rendering for all admin pages
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function AdminLayout({
   children,
 }: {
