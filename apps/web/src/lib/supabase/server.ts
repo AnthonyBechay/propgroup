@@ -7,10 +7,6 @@ export async function createClient(cookieStore?: any) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    console.error('❌ Supabase environment variables are missing in server:', {
-      url: !!supabaseUrl,
-      anonKey: !!supabaseAnonKey
-    })
     throw new Error('Supabase environment variables are not configured')
   }
 

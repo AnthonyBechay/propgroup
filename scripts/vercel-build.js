@@ -68,18 +68,30 @@ for (const pkg of packages) {
       }
     }
     
-    // Special handling for db package - run prisma generate first
+    // Special handling for db package - run prisma generate and migrate
     if (pkg.name === 'db') {
-      console.log(`Running Prisma generate for @propgroup/${pkg.name}...`);
+      console.log(`Setting up Prisma for @propgroup/${pkg.name}...`);
       try {
+        // Generate Prisma client
+        console.log(`Generating Prisma client...`);
         execSync('npx prisma generate', { 
           cwd: pkgPath, 
           stdio: 'inherit',
           env: { ...process.env, NODE_ENV: 'production' }
         });
-        console.log(`✅ Prisma client generated for @propgroup/${pkg.name}`);
+        console.log(`✅ Prisma client generated`);
+
+        // Run production migration
+        console.log(`Running production migration...`);
+        execSync('node migrate-production.js', { 
+          cwd: pkgPath, 
+          stdio: 'inherit',
+          env: { ...process.env, NODE_ENV: 'production' }
+        });
+        console.log(`✅ Database migration completed`);
       } catch (prismaError) {
-        console.warn(`⚠️  Prisma generate failed for @propgroup/${pkg.name}, continuing with TypeScript build...`);
+        console.warn(`⚠️  Prisma setup failed for @propgroup/${pkg.name}:`, prismaError.message);
+        console.log(`Continuing with TypeScript build...`);
       }
     }
     
