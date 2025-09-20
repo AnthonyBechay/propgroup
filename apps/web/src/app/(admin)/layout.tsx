@@ -1,8 +1,6 @@
 import { Sidebar } from '@/components/admin/Sidebar'
 import { AdminHeader } from '@/components/admin/AdminHeader'
-import { createClient } from '@/lib/supabase/server'
-import { prisma } from '@/lib/prisma'
-import { redirect } from 'next/navigation'
+import { requireAdmin } from '@/lib/auth/rbac'
 
 // Force dynamic rendering for all admin pages
 export const dynamic = 'force-dynamic'
@@ -13,28 +11,8 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  // Check authentication and role
-  const supabase = await createClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
-
-  if (error || !user) {
-    redirect('/')
-  }
-
-  // Check if user has admin role
-  try {
-    const userProfile = await prisma.user.findUnique({
-      where: { email: user.email! },
-      select: { role: true }
-    })
-
-    if (!userProfile || userProfile.role !== 'ADMIN') {
-      redirect('/portal/dashboard')
-    }
-  } catch (error) {
-    console.error('Error checking user role:', error)
-    redirect('/')
-  }
+  // Check authentication and admin role using Supabase
+  await requireAdmin()
 
   return (
     <div className="min-h-screen bg-gray-50">

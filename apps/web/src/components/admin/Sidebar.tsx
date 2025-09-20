@@ -27,15 +27,9 @@ export function Sidebar() {
       const { data: { user } } = await supabase.auth.getUser()
       
       if (user) {
-        const { data: userData } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', user.id)
-          .single()
-        
-        if (userData) {
-          setUserRole(userData.role)
-        }
+        // Get role from user metadata instead of database
+        const role = user.user_metadata?.role || 'USER'
+        setUserRole(role)
       }
     }
     
@@ -45,10 +39,7 @@ export function Sidebar() {
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: Home },
     { name: 'Properties', href: '/admin/properties', icon: Building2 },
-    { name: 'Users', href: '/admin/users', icon: Users },
-    ...(userRole === 'SUPER_ADMIN' ? [
-      { name: 'User Management', href: '/admin/users/manage', icon: Shield }
-    ] : []),
+    { name: 'User Management', href: '/admin/users', icon: Users },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
     { name: 'Documents', href: '/admin/documents', icon: FileText },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
@@ -80,7 +71,7 @@ export function Sidebar() {
               <ul role="list" className="-mx-2 space-y-1">
                 {navigation.map((item) => {
                   const isActive = pathname === item.href || 
-                    (item.href === '/admin/users/manage' && pathname.startsWith('/admin/users/manage'))
+                    (item.href === '/admin/users' && pathname.startsWith('/admin/users'))
                   return (
                     <li key={item.name}>
                       <Link
@@ -98,11 +89,6 @@ export function Sidebar() {
                           aria-hidden="true"
                         />
                         {item.name}
-                        {item.name === 'User Management' && (
-                          <span className="ml-auto inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                            Super
-                          </span>
-                        )}
                       </Link>
                     </li>
                   )

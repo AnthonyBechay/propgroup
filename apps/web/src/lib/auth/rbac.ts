@@ -15,7 +15,7 @@ export interface AuthUser {
 }
 
 /**
- * Get the current authenticated user with role information
+ * Get the current authenticated user with role information from Supabase metadata
  */
 export async function getCurrentUser(): Promise<AuthUser | null> {
   try {
@@ -28,24 +28,18 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
       return null
     }
     
-    // Fetch user role and status from database
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('id, email, role, is_active, banned_at, email_verified_at')
-      .eq('id', user.id)
-      .single()
-    
-    if (userError || !userData) {
-      return null
-    }
+    // Get user role from Supabase user metadata
+    const userRole = user.user_metadata?.role || 'USER'
+    const isActive = user.user_metadata?.is_active !== false // Default to true
+    const bannedAt = user.user_metadata?.banned_at ? new Date(user.user_metadata.banned_at) : null
     
     return {
-      id: userData.id,
-      email: userData.email,
-      role: userData.role as UserRole,
-      isActive: userData.is_active,
-      bannedAt: userData.banned_at,
-      emailVerifiedAt: userData.email_verified_at,
+      id: user.id,
+      email: user.email || '',
+      role: userRole as UserRole,
+      isActive,
+      bannedAt,
+      emailVerifiedAt: user.email_confirmed_at ? new Date(user.email_confirmed_at) : null,
     }
   } catch (error) {
     console.error('Error getting current user:', error)
@@ -98,7 +92,7 @@ export async function requireAuth(redirectTo: string = '/') {
 export async function requireAdmin() {
   const user = await requireAuth('/admin')
   
-  if (typeof user !== 'object') {
+  if (user instanceof NextResponse) {
     return user // It's a redirect response
   }
   
@@ -115,7 +109,7 @@ export async function requireAdmin() {
 export async function requireSuperAdmin() {
   const user = await requireAuth('/admin')
   
-  if (typeof user !== 'object') {
+  if (user instanceof NextResponse) {
     return user // It's a redirect response
   }
   
