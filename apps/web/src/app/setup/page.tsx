@@ -65,29 +65,8 @@ export default function SetupPage() {
     }
   }
 
-  // Only show this page in development or if no super admin exists
-  if (process.env.NODE_ENV === 'production') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-yellow-500" />
-              Setup Not Available
-            </CardTitle>
-            <CardDescription>
-              This setup page is only available in development mode.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-gray-600">
-              In production, use the setup script or contact your system administrator.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+  // Check if super admin already exists (optional check)
+  // This page can be used in production for initial setup
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

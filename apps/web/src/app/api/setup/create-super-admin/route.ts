@@ -12,9 +12,10 @@ export async function POST(request: NextRequest) {
     const isDev = process.env.NODE_ENV === 'development'
     const hasCorrectSecret = authHeader === `Bearer ${SETUP_SECRET}`
     
+    // Allow in development or with correct secret
     if (!isDev && !hasCorrectSecret) {
       return NextResponse.json({ 
-        error: 'Unauthorized: This endpoint is only available in development or with correct secret' 
+        error: 'Unauthorized: This endpoint requires proper authentication' 
       }, { status: 401 })
     }
 
