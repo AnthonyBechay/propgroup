@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
 import {
   Home,
   Building2,
@@ -15,27 +14,10 @@ import {
   Bot
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
-import { createClient } from '@/lib/supabase/client'
 
 export function Sidebar() {
   const pathname = usePathname()
-  const { signOut } = useAuth()
-  const [userRole, setUserRole] = useState<string | null>(null)
-  
-  useEffect(() => {
-    const getUserRole = async () => {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (user) {
-        // Get role from user metadata instead of database
-        const role = user.user_metadata?.role || 'USER'
-        setUserRole(role)
-      }
-    }
-    
-    getUserRole()
-  }, [])
+  const { signOut, user } = useAuth()
 
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: Home },
@@ -59,7 +41,7 @@ export function Sidebar() {
               <span className="font-bold text-xl text-gray-900">
                 Admin Panel
               </span>
-              {userRole === 'SUPER_ADMIN' && (
+              {user?.role === 'SUPER_ADMIN' && (
                 <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
                   Super Admin
                 </span>

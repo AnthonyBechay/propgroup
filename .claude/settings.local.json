@@ -3,7 +3,11 @@
     "allow": [
       "Bash(npm run type-check:*)",
       "Bash(npm install:*)",
-      "Bash(pnpm install)"
+      "Bash(pnpm install)",
+      "Bash(pnpm run build:web)",
+      "Bash(npx prisma generate)",
+      "Bash(pnpm --filter web build)",
+      "Bash(test -d apps/web/.next)"
     ],
     "deny": [],
     "ask": []

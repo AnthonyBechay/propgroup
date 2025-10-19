@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -49,14 +48,12 @@ type ProfileFormData = z.infer<typeof profileSchema>
 type PasswordFormData = z.infer<typeof passwordSchema>
 
 export default function SettingsPage() {
-  const { user } = useAuth()
+  const { user, updateProfile, changePassword } = useAuth()
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
   const [profileSuccess, setProfileSuccess] = useState(false)
   const [passwordSuccess, setPasswordSuccess] = useState(false)
   const [passwordError, setPasswordError] = useState<string | null>(null)
-
-  const supabase = createClient()
 
   const profileForm = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -82,14 +79,11 @@ export default function SettingsPage() {
     setProfileSuccess(false)
 
     try {
-      // Update user profile in Supabase
-      const { error } = await supabase.auth.updateUser({
-        data: {
-          first_name: data.firstName,
-          last_name: data.lastName,
-          phone: data.phone,
-          country: data.country,
-        }
+      const { error } = await updateProfile({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
+        country: data.country,
       })
 
       if (error) {
@@ -112,14 +106,11 @@ export default function SettingsPage() {
     setPasswordError(null)
 
     try {
-      // Update password in Supabase
-      const { error } = await supabase.auth.updateUser({
-        password: data.newPassword
-      })
+      const { error } = await changePassword(data.currentPassword, data.newPassword)
 
       if (error) {
         console.error('Error updating password:', error)
-        setPasswordError(error.message)
+        setPasswordError(error)
         return
       }
 

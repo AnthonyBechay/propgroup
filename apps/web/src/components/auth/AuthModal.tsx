@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { createClient } from '@/lib/supabase/client'
+import { apiClient } from '@/lib/api/client'
 import {
   Dialog,
   DialogContent,
@@ -50,8 +50,6 @@ export function AuthModal({ children }: AuthModalProps) {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
-  const supabase = createClient()
-
   const loginForm = useForm<AuthData>({
     resolver: zodResolver(authSchema),
     defaultValues: {
@@ -75,24 +73,16 @@ export function AuthModal({ children }: AuthModalProps) {
     setSuccess(null)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      })
-
-      if (error) {
-        setError(error.message)
-      } else {
-        setSuccess('Login successful!')
-        setTimeout(() => {
-          setIsOpen(false)
-          loginForm.reset()
-          // Reload the page to update the auth state
-          window.location.reload()
-        }, 1000)
-      }
-    } catch (err) {
-      setError('An unexpected error occurred')
+      await apiClient.login(data.email, data.password)
+      setSuccess('Login successful!')
+      setTimeout(() => {
+        setIsOpen(false)
+        loginForm.reset()
+        // Reload the page to update the auth state
+        window.location.reload()
+      }, 1000)
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred')
     } finally {
       setIsLoading(false)
     }
@@ -104,47 +94,19 @@ export function AuthModal({ children }: AuthModalProps) {
     setSuccess(null)
 
     try {
-      const { error } = await supabase.auth.signUp({
+      await apiClient.register({
         email: data.email,
         password: data.password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        }
       })
-
-      if (error) {
-        setError(error.message)
-      } else {
-        setSuccess('Check your email for verification link!')
-        setTimeout(() => {
-          setIsOpen(false)
-          signupForm.reset()
-        }, 3000)
-      }
-    } catch (err) {
-      setError('An unexpected error occurred')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true)
-    setError(null)
-    
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        }
-      })
-      
-      if (error) {
-        setError(error.message)
-      }
-    } catch (err) {
-      setError('An unexpected error occurred')
+      setSuccess('Account created successfully!')
+      setTimeout(() => {
+        setIsOpen(false)
+        signupForm.reset()
+        // Reload to update auth state
+        window.location.reload()
+      }, 1500)
+    } catch (err: any) {
+      setError(err.message || 'An unexpected error occurred')
     } finally {
       setIsLoading(false)
     }
@@ -218,17 +180,7 @@ export function AuthModal({ children }: AuthModalProps) {
               <Button type="submit" disabled={isLoading} className="w-full">
                 {isLoading ? 'Signing In...' : 'Sign In'}
               </Button>
-              
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleGoogleSignIn}
-                disabled={isLoading}
-                className="w-full"
-              >
-                Sign in with Google
-              </Button>
-              
+
               <Button
                 type="button"
                 variant="ghost"
@@ -293,17 +245,7 @@ export function AuthModal({ children }: AuthModalProps) {
               <Button type="submit" disabled={isLoading} className="w-full">
                 {isLoading ? 'Creating Account...' : 'Create Account'}
               </Button>
-              
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleGoogleSignIn}
-                disabled={isLoading}
-                className="w-full"
-              >
-                Sign up with Google
-              </Button>
-              
+
               <Button
                 type="button"
                 variant="ghost"

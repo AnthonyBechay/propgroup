@@ -1,6 +1,5 @@
 import { PropertiesClient } from '@/components/properties/PropertiesClient';
 import { prisma } from '@/lib/prisma';
-import { createClient } from '@/lib/supabase/server';
 import { SearchParams } from '@/types/search';
 
 type PropertiesPageProps = {
@@ -10,10 +9,6 @@ type PropertiesPageProps = {
 export default async function PropertiesPage({ searchParams }: PropertiesPageProps) {
   // Await searchParams as it's now a Promise in Next.js 15
   const params = await searchParams;
-  
-  // Get current user to check favorites
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
   
   // Build the where clause based on search parameters
   const where: any = {};
@@ -54,18 +49,13 @@ export default async function PropertiesPage({ searchParams }: PropertiesPagePro
 
   // Fetch properties from the database with error handling
   let properties: any[] = [];
-  
+
   try {
     properties = await prisma.property.findMany({
       where,
-      include: { 
+      include: {
         investmentData: true,
         developer: true,
-        favoriteProperties: user ? {
-          where: {
-            userId: user.id
-          }
-        } : false
       },
       orderBy: { createdAt: 'desc' },
     });

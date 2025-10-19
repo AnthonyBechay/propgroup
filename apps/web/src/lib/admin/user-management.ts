@@ -1,6 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { cookies } from 'next/headers'
+import { apiClient } from '@/lib/api/client'
 
 export interface AdminUser {
   id: string
@@ -18,24 +16,22 @@ export interface AdminUser {
  */
 export async function getAllUsers(): Promise<AdminUser[]> {
   try {
-    const adminSupabase = createAdminClient()
-    
-    const { data: { users }, error } = await adminSupabase.auth.admin.listUsers()
-    
-    if (error) {
-      throw new Error(`Failed to fetch users: ${error.message}`)
+    const response = await apiClient.getUsers()
+
+    if (response.success && response.users) {
+      return response.users.map((user: any) => ({
+        id: user.id,
+        email: user.email || '',
+        role: user.role || 'USER',
+        isActive: user.isActive !== false,
+        bannedAt: user.bannedAt || null,
+        emailVerifiedAt: user.emailVerifiedAt || null,
+        createdAt: user.createdAt,
+        lastLoginAt: user.lastLoginAt || null,
+      }))
     }
-    
-    return users.map(user => ({
-      id: user.id,
-      email: user.email || '',
-      role: (user.user_metadata?.role as 'USER' | 'ADMIN' | 'SUPER_ADMIN') || 'USER',
-      isActive: user.user_metadata?.is_active !== false,
-      bannedAt: user.user_metadata?.banned_at || null,
-      emailVerifiedAt: user.email_confirmed_at || null,
-      createdAt: user.created_at,
-      lastLoginAt: user.last_sign_in_at || null,
-    }))
+
+    return []
   } catch (error) {
     console.error('Error fetching users:', error)
     return []
@@ -47,18 +43,8 @@ export async function getAllUsers(): Promise<AdminUser[]> {
  */
 export async function updateUserRole(userId: string, role: 'USER' | 'ADMIN' | 'SUPER_ADMIN'): Promise<boolean> {
   try {
-    const adminSupabase = createAdminClient()
-    
-    const { error } = await adminSupabase.auth.admin.updateUserById(userId, {
-      user_metadata: { role }
-    })
-    
-    if (error) {
-      console.error('Error updating user role:', error)
-      return false
-    }
-    
-    return true
+    const response = await apiClient.updateUserRole(userId, role)
+    return response.success === true
   } catch (error) {
     console.error('Error updating user role:', error)
     return false
@@ -70,24 +56,11 @@ export async function updateUserRole(userId: string, role: 'USER' | 'ADMIN' | 'S
  */
 export async function toggleUserBan(userId: string, ban: boolean, reason?: string): Promise<boolean> {
   try {
-    const adminSupabase = createAdminClient()
-    
-    const userMetadata = {
-      is_active: !ban,
-      banned_at: ban ? new Date().toISOString() : null,
-      banned_reason: ban ? reason : null
-    }
-    
-    const { error } = await adminSupabase.auth.admin.updateUserById(userId, {
-      user_metadata: userMetadata
-    })
-    
-    if (error) {
-      console.error('Error updating user ban status:', error)
-      return false
-    }
-    
-    return true
+    const response = ban
+      ? await apiClient.banUser(userId, reason || 'No reason provided')
+      : await apiClient.unbanUser(userId)
+
+    return response.success === true
   } catch (error) {
     console.error('Error updating user ban status:', error)
     return false
@@ -99,16 +72,8 @@ export async function toggleUserBan(userId: string, ban: boolean, reason?: strin
  */
 export async function deleteUser(userId: string): Promise<boolean> {
   try {
-    const adminSupabase = createAdminClient()
-    
-    const { error } = await adminSupabase.auth.admin.deleteUser(userId)
-    
-    if (error) {
-      console.error('Error deleting user:', error)
-      return false
-    }
-    
-    return true
+    const response = await apiClient.deleteUser(userId)
+    return response.success === true
   } catch (error) {
     console.error('Error deleting user:', error)
     return false
@@ -120,39 +85,10 @@ export async function deleteUser(userId: string): Promise<boolean> {
  */
 export async function inviteAdminUser(email: string, role: 'ADMIN' | 'SUPER_ADMIN'): Promise<boolean> {
   try {
-    const adminSupabase = createAdminClient()
-    
-    const { error } = await adminSupabase.auth.admin.inviteUserByEmail(email, {
-      data: {
-        role,
-        is_active: true,
-        invited_by: (await getCurrentUser())?.id
-      }
-    })
-    
-    if (error) {
-      console.error('Error inviting admin user:', error)
-      return false
-    }
-    
-    return true
+    const response = await apiClient.inviteAdmin(email, role)
+    return response.success === true
   } catch (error) {
     console.error('Error inviting admin user:', error)
     return false
-  }
-}
-
-/**
- * Get current user (helper function)
- */
-async function getCurrentUser() {
-  try {
-    const cookieStore = await cookies()
-    const supabase = await createClient(cookieStore)
-    
-    const { data: { user } } = await supabase.auth.getUser()
-    return user
-  } catch (error) {
-    return null
   }
 }

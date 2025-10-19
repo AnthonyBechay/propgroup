@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,114 +25,20 @@ type DocumentFile = {
 export default function DocumentsPage() {
   const { user } = useAuth()
   const [files, setFiles] = useState<DocumentFile[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadFile, setUploadFile] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const supabase = createClient()
-
-  useEffect(() => {
-    if (user) {
-      fetchDocuments()
-    }
-  }, [user])
-
-  const fetchDocuments = async () => {
-    if (!user) return
-
-    try {
-      setLoading(true)
-      const { data, error } = await supabase.storage
-        .from('user_documents')
-        .list(`${user.id}`, {
-          limit: 100,
-          offset: 0,
-        })
-
-      if (error) {
-        console.error('Error fetching documents:', error)
-        setError('Failed to load documents')
-        return
-      }
-
-      // Get download URLs for each file
-      const filesWithUrls = await Promise.all(
-        data.map(async (file) => {
-          const { data: urlData } = await supabase.storage
-            .from('user_documents')
-            .createSignedUrl(`${user.id}/${file.name}`, 3600) // 1 hour expiry
-
-          return {
-            name: file.name,
-            size: file.metadata?.size || 0,
-            lastModified: file.updated_at,
-            url: urlData?.signedUrl || '',
-          }
-        })
-      )
-
-      setFiles(filesWithUrls)
-    } catch (err) {
-      console.error('Error:', err)
-      setError('Failed to load documents')
-    } finally {
-      setLoading(false)
-    }
-  }
+  // Document storage is not yet implemented in the backend
+  // This is a placeholder UI that will be connected once backend storage is ready
 
   const handleFileUpload = async () => {
-    if (!user || !uploadFile) return
-
-    try {
-      setUploading(true)
-      setError(null)
-
-      const fileExt = uploadFile.name.split('.').pop()
-      const fileName = `${Date.now()}.${fileExt}`
-      const filePath = `${user.id}/${fileName}`
-
-      const { error: uploadError } = await supabase.storage
-        .from('user_documents')
-        .upload(filePath, uploadFile)
-
-      if (uploadError) {
-        console.error('Upload error:', uploadError)
-        setError('Failed to upload file')
-        return
-      }
-
-      // Refresh the file list
-      await fetchDocuments()
-      setUploadFile(null)
-    } catch (err) {
-      console.error('Upload error:', err)
-      setError('Failed to upload file')
-    } finally {
-      setUploading(false)
-    }
+    setError('Document upload feature is coming soon!')
   }
 
   const handleFileDelete = async (fileName: string) => {
-    if (!user) return
-
-    try {
-      const { error } = await supabase.storage
-        .from('user_documents')
-        .remove([`${user.id}/${fileName}`])
-
-      if (error) {
-        console.error('Delete error:', error)
-        setError('Failed to delete file')
-        return
-      }
-
-      // Refresh the file list
-      await fetchDocuments()
-    } catch (err) {
-      console.error('Delete error:', err)
-      setError('Failed to delete file')
-    }
+    setError('Document management feature is coming soon!')
   }
 
   const formatFileSize = (bytes: number) => {
