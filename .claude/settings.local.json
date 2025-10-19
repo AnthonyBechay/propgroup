@@ -8,7 +8,10 @@
       "Bash(npx prisma generate)",
       "Bash(pnpm --filter web build)",
       "Bash(test -d apps/web/.next)",
-      "Bash(npx tsc)"
+      "Bash(npx tsc)",
+      "Bash(rm -rf packages/supabase)",
+      "Bash(rm -f AI_FEATURES_README.md AI_SEARCH_DOCUMENTATION.md AUTH_FLOW_VERIFICATION.md IMPLEMENTATION_SUMMARY.md LANDING_PAGE_REVIEW.md)",
+      "Bash(rm -rf documentation)"
     ],
     "deny": [],
     "ask": []
