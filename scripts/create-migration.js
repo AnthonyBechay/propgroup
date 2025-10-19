@@ -229,8 +229,8 @@ async function createMigration() {
   
   console.log('\nNext steps:');
   console.log('  1. Edit the migration file to add your changes');
-  console.log('  2. Test locally: npm run supabase:reset');
-  console.log('  3. Push to remote: npm run supabase:push');
+  console.log('  2. Test locally: pnpm dlx supabase db reset');
+  console.log('  3. Push to remote: pnpm dlx supabase db push');
   
   rl.close();
 }

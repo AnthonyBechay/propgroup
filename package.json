@@ -3,37 +3,33 @@
   "version": "1.0.0",
   "description": "PropGroup - A comprehensive real estate investment platform",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
     "dev": "node scripts/start.js",
     "dev:backend": "node scripts/start-backend.js",
     "dev:frontend": "node scripts/start-frontend.js",
-    "dev:web": "npm run --prefix apps/web dev",
+    "dev:web": "pnpm --filter web dev",
     "build": "node scripts/build.js",
-    "postinstall": "npm run build:packages",
-    "start": "npm run --prefix apps/web start",
-    "start:backend": "npm run --prefix apps/backend start",
+    "postinstall": "pnpm run build:packages",
+    "start": "pnpm --filter web start",
+    "start:backend": "pnpm --filter backend start",
     "setup": "node scripts/setup.js",
     "clean": "node scripts/clean.js",
     "build:packages": "node scripts/build-packages.js",
     "health": "node scripts/health-check.js",
     "types:generate": "node scripts/generate-types.js",
     "migration:new": "node scripts/create-migration.js",
-    "lint": "npm run --prefix apps/web lint",
-    "lint:fix": "npm run --prefix apps/web lint:fix",
-    "type-check": "npm run type-check:all",
-    "type-check:all": "npm run --prefix apps/web type-check",
-    "test": "npm run --prefix apps/web test:run",
-    "test:watch": "npm run --prefix apps/web test",
-    "test:coverage": "npm run --prefix apps/web test:coverage",
-    "build:web": "npm run build:packages && npm run --prefix apps/web build",
-    "build:backend": "npm run --prefix apps/backend build",
-    "build:mobile": "npm run build:packages && npm run --prefix apps/mobile-capacitor build",
+    "lint": "pnpm --filter web lint",
+    "lint:fix": "pnpm --filter web lint:fix",
+    "type-check": "pnpm run type-check:all",
+    "type-check:all": "pnpm --filter web type-check",
+    "test": "pnpm --filter web test:run",
+    "test:watch": "pnpm --filter web test",
+    "test:coverage": "pnpm --filter web test:coverage",
+    "build:web": "pnpm run build:packages && pnpm --filter web build",
+    "build:backend": "pnpm --filter backend build",
+    "build:mobile": "pnpm run build:packages && pnpm --filter mobile-capacitor build",
     "vercel-build": "node scripts/vercel-build-monorepo.js",
-    "deploy": "npm run build",
+    "deploy": "pnpm run build",
     "deploy:web": "vercel --prod",
     "deploy:preview": "vercel",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,sql}\"",
@@ -43,9 +39,9 @@
     "db:check": "node packages/db/check-database.js",
     "db:fix": "fix-all-database-issues.bat",
     "setup:super-admin": "node scripts/create-super-admin.js",
-    "mobile:ios": "npm run --prefix apps/mobile-capacitor cap:ios",
-    "mobile:android": "npm run --prefix apps/mobile-capacitor cap:android",
-    "mobile:sync": "npm run --prefix apps/mobile-capacitor cap:sync"
+    "mobile:ios": "pnpm --filter mobile-capacitor cap:ios",
+    "mobile:android": "pnpm --filter mobile-capacitor cap:android",
+    "mobile:sync": "pnpm --filter mobile-capacitor cap:sync"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -58,7 +54,7 @@
   },
   "engines": {
     "node": ">=18.0.0",
-    "npm": ">=9.0.0"
+    "pnpm": ">=8.0.0"
   },
-  "packageManager": "npm@9.0.0"
+  "packageManager": "pnpm@9.15.0"
 }

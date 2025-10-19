@@ -67,7 +67,7 @@ async function checkSupabase() {
       }
     } else {
       console.log(`${colors.yellow}⚠️  Supabase: Not running locally${colors.reset}`);
-      console.log(`   Run 'npm run supabase:start' to start local Supabase`);
+      console.log(`   Run 'pnpm dlx supabase start' to start local Supabase`);
     }
     
     return isRunning;
@@ -119,7 +119,7 @@ async function healthCheck() {
   // Check CLI tools
   console.log(`${colors.blue}🔧 Checking CLI tools...${colors.reset}\n`);
   await checkCommand('node --version', 'Node.js');
-  await checkCommand('npm --version', 'npm');
+  await checkCommand('pnpm --version', 'pnpm');
   await checkCommand('supabase --version', 'Supabase CLI');
   await checkCommand('vercel --version', 'Vercel CLI');
   
@@ -158,7 +158,7 @@ async function healthCheck() {
       console.log('  1. Set up missing environment variables in .env.local');
     }
     if (!supabaseOk) {
-      console.log('  2. Start Supabase locally: npm run supabase:start');
+      console.log('  2. Start Supabase locally: pnpm dlx supabase start');
     }
   }
 }

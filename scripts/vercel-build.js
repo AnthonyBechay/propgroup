@@ -18,7 +18,7 @@ process.chdir(rootDir);
 // Step 1: Install dependencies
 console.log('📦 Installing dependencies...');
 try {
-  execSync('npm install', { stdio: 'inherit' });
+  execSync('pnpm install', { stdio: 'inherit' });
   console.log('✅ Dependencies installed\n');
 } catch (error) {
   console.error('❌ Failed to install dependencies:', error.message);
@@ -125,8 +125,8 @@ for (const pkg of packages) {
 // Step 3: Build the web app
 console.log('🌐 Building web application...');
 try {
-  execSync('npm run build', { 
-    cwd: path.join(rootDir, 'apps/web'), 
+  execSync('pnpm run build', {
+    cwd: path.join(rootDir, 'apps/web'),
     stdio: 'inherit',
     env: { ...process.env, NODE_ENV: 'production' }
   });

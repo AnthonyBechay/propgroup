@@ -6,6 +6,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Toaster } from "@/components/ui/toast";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
+import { AIAssistantFab } from "@/components/ai/AIAssistantFab";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -89,6 +90,7 @@ export default function RootLayout({
           </main>
           <Footer />
           <ScrollToTop />
+          <AIAssistantFab />
           <Toaster />
         </AuthProvider>
       </body>

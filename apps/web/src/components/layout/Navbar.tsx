@@ -99,7 +99,16 @@ export function Navbar() {
             <NavLink href="/properties" icon={<Building2 className="w-4 h-4" />} isActive={isActive('/properties')}>
               Properties
             </NavLink>
-            
+
+            <NavLink href="/ai-search" icon={<Sparkles className="w-4 h-4" />} isActive={isActive('/ai-search')}>
+              <span className="flex items-center gap-1.5">
+                AI Search
+                <span className="inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full">
+                  NEW
+                </span>
+              </span>
+            </NavLink>
+
             {/* Portal Dropdown for logged in users */}
             {user && (
               <div className="relative">

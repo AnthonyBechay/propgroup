@@ -33,15 +33,15 @@ function fileExists(filePath) {
 // Main setup steps
 async function setup() {
   console.log('Step 1: Installing dependencies...\n');
-  if (!runCommand('npm install --legacy-peer-deps')) {
+  if (!runCommand('pnpm install')) {
     console.error('Failed to install dependencies');
     process.exit(1);
   }
-  
+
   console.log('\nStep 2: Building packages...\n');
   if (!runCommand('node scripts/build.js')) {
     console.error('Failed to build packages');
-    console.log('You can try building manually with: npm run build:packages');
+    console.log('You can try building manually with: pnpm run build:packages');
   }
   
   console.log('\nStep 3: Checking environment...\n');
@@ -81,11 +81,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
   console.log('\n' + '='.repeat(50));
   console.log('✅ Setup complete!\n');
   console.log('Next steps:');
-  console.log('1. Run "npm run dev" to start the development server');
+  console.log('1. Run "pnpm run dev" to start the development server');
   console.log('2. Open http://localhost:3000 in your browser');
   console.log('\nOptional:');
-  console.log('- Run "npx supabase start" to start Supabase (requires Docker)');
-  console.log('- Run "npm run dev:full" to start with Supabase');
+  console.log('- Run "pnpm dlx supabase start" to start Supabase (requires Docker)');
+  console.log('- Run "pnpm run dev:full" to start with Supabase');
   console.log('='.repeat(50) + '\n');
 }
 

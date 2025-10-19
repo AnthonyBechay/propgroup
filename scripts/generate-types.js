@@ -55,7 +55,7 @@ try {
 } catch (error) {
   console.error('❌ Failed to generate types:', error.message);
   console.log('\nMake sure you have:');
-  console.log('  1. Supabase CLI installed: npm install -g supabase');
+  console.log('  1. Supabase CLI installed: pnpm add -g supabase');
   console.log('  2. Valid SUPABASE_PROJECT_ID in your environment');
   console.log('  3. Proper authentication with Supabase\n');
   process.exit(1);

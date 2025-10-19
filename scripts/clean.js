@@ -92,4 +92,4 @@ console.log('\nCleaning files...\n');
 filesToClean.forEach(removeFile);
 
 console.log('\n✨ Cleanup complete!\n');
-console.log('Run "npm install" to reinstall dependencies');
+console.log('Run "pnpm install" to reinstall dependencies');

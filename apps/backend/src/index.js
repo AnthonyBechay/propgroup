@@ -13,6 +13,7 @@ import favoriteRoutes from './routes/favorites.js';
 import inquiryRoutes from './routes/inquiries.js';
 import portfolioRoutes from './routes/portfolio.js';
 import adminRoutes from './routes/admin.js';
+import aiSearchRoutes from './routes/ai-search.js';
 
 // Load environment variables
 dotenv.config();
@@ -52,6 +53,7 @@ app.use('/api/favorites', favoriteRoutes);
 app.use('/api/inquiries', inquiryRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/ai-search', aiSearchRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

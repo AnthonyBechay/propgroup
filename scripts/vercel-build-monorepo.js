@@ -243,7 +243,7 @@ async function build() {
     // Step 1: Install dependencies if needed
     if (!fs.existsSync(path.join(rootDir, 'node_modules'))) {
       console.log('📦 Installing dependencies...');
-      exec('npm install');
+      exec('pnpm install');
       console.log('✅ Dependencies installed\n');
     } else {
       console.log('📦 Dependencies already installed\n');
@@ -279,7 +279,7 @@ async function build() {
     };
     
     // Build the Next.js app
-    exec('npm run build', { 
+    exec('pnpm run build', {
       cwd: webPath,
       env: buildEnv
     });
@@ -317,9 +317,9 @@ async function build() {
   } catch (error) {
     console.error('\n❌ Build failed:', error.message);
     console.error('\nTroubleshooting tips:');
-    console.error('  1. Check that all dependencies are installed: npm install');
+    console.error('  1. Check that all dependencies are installed: pnpm install');
     console.error('  2. Clear build caches: rm -rf .next packages/*/dist');
-    console.error('  3. Check for TypeScript errors: npm run type-check');
+    console.error('  3. Check for TypeScript errors: pnpm run type-check');
     console.error('  4. Ensure environment variables are set in Vercel dashboard');
     process.exit(1);
   }

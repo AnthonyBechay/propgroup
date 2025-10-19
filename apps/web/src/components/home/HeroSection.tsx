@@ -6,12 +6,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useRouter } from 'next/navigation'
+import { AIPropertySearch } from '@/components/ai/AIPropertySearch'
 
 export function HeroSection() {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [propertyType, setPropertyType] = useState('')
   const [priceRange, setPriceRange] = useState('')
+  const [useAISearch, setUseAISearch] = useState(true)
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -62,46 +64,80 @@ export function HeroSection() {
           </p>
 
           {/* Search form */}
-          <form onSubmit={handleSearch} className="glass-card p-6 rounded-2xl shadow-2xl animate-fade-in" style={{ animationDelay: '300ms' }}>
-            <div className="grid md:grid-cols-4 gap-4">
-              <Input
-                type="text"
-                placeholder="Search location..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-12 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700"
-              />
-              
-              <Select value={propertyType} onValueChange={setPropertyType}>
-                <SelectTrigger className="h-12 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700">
-                  <SelectValue placeholder="Property Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="apartment">Apartment</SelectItem>
-                  <SelectItem value="villa">Villa</SelectItem>
-                  <SelectItem value="commercial">Commercial</SelectItem>
-                  <SelectItem value="land">Land</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={priceRange} onValueChange={setPriceRange}>
-                <SelectTrigger className="h-12 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700">
-                  <SelectValue placeholder="Price Range" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0-500000">Under $500K</SelectItem>
-                  <SelectItem value="500000-1000000">$500K - $1M</SelectItem>
-                  <SelectItem value="1000000-2000000">$1M - $2M</SelectItem>
-                  <SelectItem value="2000000-">Above $2M</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Button type="submit" size="lg" className="h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg">
-                <Search className="w-5 h-5 mr-2" />
-                Search
-              </Button>
+          <div className="glass-card p-6 rounded-2xl shadow-2xl animate-fade-in" style={{ animationDelay: '300ms' }}>
+            {/* Toggle between AI and traditional search */}
+            <div className="flex justify-center mb-4">
+              <div className="inline-flex rounded-lg bg-gray-100 dark:bg-gray-800 p-1">
+                <button
+                  onClick={() => setUseAISearch(true)}
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                    useAISearch
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-md'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4 inline mr-2" />
+                  AI Search
+                </button>
+                <button
+                  onClick={() => setUseAISearch(false)}
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${
+                    !useAISearch
+                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-md'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                  }`}
+                >
+                  <Search className="w-4 h-4 inline mr-2" />
+                  Traditional
+                </button>
+              </div>
             </div>
-          </form>
+
+            {useAISearch ? (
+              <AIPropertySearch variant="inline" placeholder="Try: 'I want a 3-bedroom apartment in Cyprus under $400k with good ROI'" />
+            ) : (
+              <form onSubmit={handleSearch}>
+                <div className="grid md:grid-cols-4 gap-4">
+                  <Input
+                    type="text"
+                    placeholder="Search location..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="h-12 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700"
+                  />
+
+                  <Select value={propertyType} onValueChange={setPropertyType}>
+                    <SelectTrigger className="h-12 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700">
+                      <SelectValue placeholder="Property Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="apartment">Apartment</SelectItem>
+                      <SelectItem value="villa">Villa</SelectItem>
+                      <SelectItem value="commercial">Commercial</SelectItem>
+                      <SelectItem value="land">Land</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={priceRange} onValueChange={setPriceRange}>
+                    <SelectTrigger className="h-12 bg-white/50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700">
+                      <SelectValue placeholder="Price Range" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0-500000">Under $500K</SelectItem>
+                      <SelectItem value="500000-1000000">$500K - $1M</SelectItem>
+                      <SelectItem value="1000000-2000000">$1M - $2M</SelectItem>
+                      <SelectItem value="2000000-">Above $2M</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Button type="submit" size="lg" className="h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg">
+                    <Search className="w-5 h-5 mr-2" />
+                    Search
+                  </Button>
+                </div>
+              </form>
+            )}
+          </div>
 
           {/* Quick stats */}
           <div className="flex flex-wrap justify-center gap-8 pt-8 animate-fade-in" style={{ animationDelay: '400ms' }}>

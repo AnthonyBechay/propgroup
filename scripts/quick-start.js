@@ -17,8 +17,8 @@ function startNextJS() {
   console.log('🌐 Starting Next.js development server directly...\n');
   console.log('Note: Some features may be limited without built packages.\n');
   
-  const npmCmd = isWindows ? 'npm.cmd' : 'npm';
-  const next = spawn(npmCmd, ['run', 'dev'], {
+  const pnpmCmd = isWindows ? 'pnpm.cmd' : 'pnpm';
+  const next = spawn(pnpmCmd, ['run', 'dev'], {
     cwd: path.resolve(__dirname, '..', 'apps', 'web'),
     stdio: 'inherit',
     shell: true,  // This is crucial for Windows
@@ -27,7 +27,7 @@ function startNextJS() {
 
   next.on('error', (err) => {
     console.error('❌ Failed to start Next.js:', err.message);
-    console.error('Try running: cd apps/web && npm run dev');
+    console.error('Try running: cd apps/web && pnpm run dev');
     process.exit(1);
   });
 

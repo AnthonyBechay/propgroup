@@ -3,15 +3,16 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { 
-  Home, 
-  Building2, 
+import {
+  Home,
+  Building2,
   Users,
-  Shield, 
-  FileText, 
+  Shield,
+  FileText,
   Settings,
   BarChart3,
-  LogOut
+  LogOut,
+  Bot
 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { createClient } from '@/lib/supabase/client'
@@ -41,6 +42,7 @@ export function Sidebar() {
     { name: 'Properties', href: '/admin/properties', icon: Building2 },
     { name: 'User Management', href: '/admin/users', icon: Users },
     { name: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
+    { name: 'AI Settings', href: '/admin/ai-settings', icon: Bot },
     { name: 'Documents', href: '/admin/documents', icon: FileText },
     { name: 'Settings', href: '/admin/settings', icon: Settings },
   ]

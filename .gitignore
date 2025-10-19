@@ -37,6 +37,7 @@ next-env.d.ts
 
 # IDE
 .vscode/*
+.vs/*
 !.vscode/extensions.json
 !.vscode/settings.json
 .idea/
@@ -78,9 +79,13 @@ tmp/
 temp/
 *.tmp
 
-# Package lock files (keep only root)
+# Package lock files (npm - no longer used)
+package-lock.json
 apps/*/package-lock.json
 packages/*/package-lock.json
+
+# PNPM
+pnpm-lock.yaml
 
 # Editor directories and files
 .vscode/

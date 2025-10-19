@@ -57,9 +57,9 @@ function attemptBuildPackages() {
 // Function to start backend API server
 function startBackend() {
   console.log('🔧 Starting Backend API server...\n');
-  
-  const npmCmd = isWindows ? 'npm.cmd' : 'npm';
-  const backend = spawn(npmCmd, ['run', 'dev'], {
+
+  const pnpmCmd = isWindows ? 'pnpm.cmd' : 'pnpm';
+  const backend = spawn(pnpmCmd, ['run', 'dev'], {
     cwd: path.resolve(__dirname, '..', 'apps', 'backend'),
     stdio: 'inherit',
     shell: true,
@@ -69,7 +69,7 @@ function startBackend() {
   backend.on('error', (err) => {
     console.error('❌ Failed to start Backend API:', err.message);
     console.log('\nMake sure you have installed backend dependencies:');
-    console.log('  cd apps/backend && npm install');
+    console.log('  pnpm install');
     process.exit(1);
   });
 
@@ -79,9 +79,9 @@ function startBackend() {
 // Function to start Next.js frontend
 function startFrontend() {
   console.log('🌐 Starting Next.js frontend...\n');
-  
-  const npmCmd = isWindows ? 'npm.cmd' : 'npm';
-  const frontend = spawn(npmCmd, ['run', 'dev'], {
+
+  const pnpmCmd = isWindows ? 'pnpm.cmd' : 'pnpm';
+  const frontend = spawn(pnpmCmd, ['run', 'dev'], {
     cwd: path.resolve(__dirname, '..', 'apps', 'web'),
     stdio: 'inherit',
     shell: true,
@@ -91,7 +91,7 @@ function startFrontend() {
   frontend.on('error', (err) => {
     console.error('❌ Failed to start Next.js:', err.message);
     console.log('\nMake sure you have installed frontend dependencies:');
-    console.log('  cd apps/web && npm install');
+    console.log('  pnpm install');
     process.exit(1);
   });
 

@@ -63,8 +63,8 @@ function buildPackage(pkg) {
     }
     
     // Build the package
-    execSync('npm run build', { 
-      cwd: pkgPath, 
+    execSync('pnpm run build', {
+      cwd: pkgPath,
       stdio: 'inherit',
       env: { ...process.env, NODE_ENV: 'production' }
     });
@@ -108,8 +108,8 @@ function buildApplication(app) {
     
     // For web app, run the build command
     if (app.name === 'web') {
-      execSync('npm run build', { 
-        cwd: appPath, 
+      execSync('pnpm run build', {
+        cwd: appPath,
         stdio: 'inherit',
         env: { ...process.env, NODE_ENV: 'production' }
       });
@@ -150,14 +150,14 @@ for (const app of applications) {
 if (!hasErrors) {
   console.log('✅ Build completed successfully!\n');
   console.log('You can now run:');
-  console.log('  npm run dev       - Start development servers (backend + frontend)');
-  console.log('  npm run start     - Start production servers');
-  console.log('  npm run clean     - Clean all build artifacts');
+  console.log('  pnpm run dev       - Start development servers (backend + frontend)');
+  console.log('  pnpm run start     - Start production servers');
+  console.log('  pnpm run clean     - Clean all build artifacts');
 } else {
   console.warn('⚠️  Build completed with some issues.');
   console.warn('The application may still work, but some features might be limited.');
   console.log('\nYou can try:');
-  console.log('  npm run dev       - Start development servers anyway');
+  console.log('  pnpm run dev       - Start development servers anyway');
 }
 
 // Don't exit with error to allow development to continue

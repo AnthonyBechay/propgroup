@@ -7,15 +7,17 @@ import { PropertyFilters } from '@/components/properties/PropertyFilters'
 import { PropertySort } from '@/components/properties/PropertySort'
 import { PropertyGridSkeleton } from '@/components/properties/PropertyGridSkeleton'
 import { MapView } from '@/components/properties/MapView'
-import { 
-  Grid3x3, 
-  Map, 
-  Filter, 
+import { AIPropertySearch } from '@/components/ai/AIPropertySearch'
+import {
+  Grid3x3,
+  Map,
+  Filter,
   X,
   Sparkles,
   TrendingUp,
   Globe,
-  Search
+  Search,
+  Bot
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -53,6 +55,7 @@ export function PropertiesClient({
   const [loading, setLoading] = useState(false)
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid')
   const [showFilters, setShowFilters] = useState(false)
+  const [showAISearch, setShowAISearch] = useState(false)
   const [filteredProperties, setFilteredProperties] = useState(initialProperties)
 
   // Filter and sort properties based on search params
@@ -177,9 +180,69 @@ export function PropertiesClient({
       </section>
 
       <div className="container mx-auto px-4 py-8">
+        {/* AI Search Banner */}
+        {!showAISearch && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl text-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                  <Bot className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-semibold">Try AI-Powered Search</h3>
+                  <p className="text-sm text-white/90">
+                    Find properties faster by describing what you want in plain English
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={() => setShowAISearch(true)}
+                className="bg-white text-blue-600 hover:bg-white/90"
+                size="sm"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Try Now
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* AI Search Interface */}
+        {showAISearch && (
+          <div className="mb-8 animate-in fade-in slide-in-from-top-2">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                <Bot className="w-5 h-5 text-blue-600" />
+                AI Property Search
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAISearch(false)}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <AIPropertySearch variant="inline" />
+          </div>
+        )}
+
         {/* Toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4">
+            {/* AI Search button */}
+            {!showAISearch && (
+              <Button
+                onClick={() => setShowAISearch(true)}
+                variant="outline"
+                className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+              >
+                <Bot className="w-4 h-4 mr-2" />
+                AI Search
+              </Button>
+            )}
+
             {/* Filter button */}
             <Button
               onClick={() => setShowFilters(!showFilters)}
