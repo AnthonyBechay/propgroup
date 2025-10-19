@@ -84,9 +84,6 @@ package-lock.json
 apps/*/package-lock.json
 packages/*/package-lock.json
 
-# PNPM
-pnpm-lock.yaml
-
 # Editor directories and files
 .vscode/
 .idea/

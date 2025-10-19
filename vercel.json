@@ -1,6 +1,5 @@
 {
   "buildCommand": "pnpm run vercel-build",
-  "installCommand": "corepack enable && corepack prepare pnpm@9.15.0 --activate && pnpm install",
   "outputDirectory": "apps/web/.next",
   "framework": "nextjs",
   "env": {
