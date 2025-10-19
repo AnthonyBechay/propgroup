@@ -157,20 +157,24 @@ export function HeroSection() {
 
           {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8 animate-fade-in" style={{ animationDelay: '500ms' }}>
-            <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all">
-              <span className="flex items-center gap-2">
-                Start Investing
-                <ArrowRight className="w-5 h-5" />
-              </span>
-            </Button>
-            <Button size="lg" variant="outline" className="border-2 hover:bg-gray-50 dark:hover:bg-gray-800">
-              <span className="flex items-center gap-2">
-                Watch Demo
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
-                </svg>
-              </span>
-            </Button>
+            <a href="/properties">
+              <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all w-full sm:w-auto">
+                <span className="flex items-center gap-2">
+                  Start Investing
+                  <ArrowRight className="w-5 h-5" />
+                </span>
+              </Button>
+            </a>
+            <a href="/about">
+              <Button size="lg" variant="outline" className="border-2 hover:bg-gray-50 dark:hover:bg-gray-800 w-full sm:w-auto">
+                <span className="flex items-center gap-2">
+                  Learn More
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
+                  </svg>
+                </span>
+              </Button>
+            </a>
           </div>
         </div>
       </div>

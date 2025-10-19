@@ -18,22 +18,5 @@ if (process.env.NODE_ENV !== 'production') {
 export { PrismaClient }
 export default prisma
 
-// Re-export all types and enums from Prisma client
-export type {
-  User,
-  Developer,
-  LocationGuide,
-  Property,
-  PropertyInvestmentData,
-  FavoriteProperty,
-  PropertyInquiry,
-  UserOwnedProperty,
-  AdminAuditLog,
-} from '@prisma/client'
-
-export {
-  Country,
-  PropertyStatus,
-  InvestmentGoal,
-  Role,
-} from '@prisma/client'
+// Note: Prisma types and enums can be imported directly from '@prisma/client' or from the generated client
+// The generated Prisma client is in packages/db/dist which includes all types
