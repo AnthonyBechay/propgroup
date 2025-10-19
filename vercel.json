@@ -4,6 +4,7 @@
   "outputDirectory": "apps/web/.next",
   "framework": "nextjs",
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "ENABLE_EXPERIMENTAL_COREPACK": "1"
   }
 }
