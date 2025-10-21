@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { prisma } from '@propgroup/db';
 import { authenticateToken, logAdminAction } from '../middleware/auth.js';
+import passport from '../config/passport.js';
 
 const router = express.Router();
 
@@ -72,6 +73,7 @@ router.post('/register', async (req, res) => {
         phone: validatedData.phone,
         country: validatedData.country,
         investmentGoals: validatedData.investmentGoals || [],
+        provider: 'local',
         isActive: true
       },
       select: {
@@ -116,58 +118,39 @@ router.post('/register', async (req, res) => {
 });
 
 // Login user
-router.post('/login', async (req, res) => {
+router.post('/login', async (req, res, next) => {
   try {
     const validatedData = loginSchema.parse(req.body);
 
-    // Find user
-    const user = await prisma.user.findUnique({
-      where: { email: validatedData.email }
-    });
+    passport.authenticate('local', (err, user, info) => {
+      if (err) {
+        console.error('Login error:', err);
+        return res.status(500).json({
+          error: 'Internal Server Error',
+          message: 'Failed to login'
+        });
+      }
 
-    if (!user) {
-      return res.status(401).json({
-        error: 'Invalid credentials',
-        message: 'Email or password is incorrect'
+      if (!user) {
+        return res.status(401).json({
+          error: 'Invalid credentials',
+          message: info?.message || 'Email or password is incorrect'
+        });
+      }
+
+      // Create token
+      const token = createToken(user.id);
+      setTokenCookie(res, token);
+
+      // Return user data (excluding password)
+      const { password, ...userWithoutPassword } = user;
+
+      res.json({
+        success: true,
+        message: 'Login successful',
+        user: userWithoutPassword
       });
-    }
-
-    // Check if account is active
-    if (!user.isActive || user.bannedAt) {
-      return res.status(401).json({
-        error: 'Account inactive',
-        message: 'Your account is inactive or has been banned'
-      });
-    }
-
-    // Verify password
-    const isValidPassword = await bcrypt.compare(validatedData.password, user.password);
-
-    if (!isValidPassword) {
-      return res.status(401).json({
-        error: 'Invalid credentials',
-        message: 'Email or password is incorrect'
-      });
-    }
-
-    // Update last login
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { lastLoginAt: new Date() }
-    });
-
-    // Create token
-    const token = createToken(user.id);
-    setTokenCookie(res, token);
-
-    // Return user data (excluding password)
-    const { password, ...userWithoutPassword } = user;
-
-    res.json({
-      success: true,
-      message: 'Login successful',
-      user: userWithoutPassword
-    });
+    })(req, res, next);
 
   } catch (error) {
     if (error.name === 'ZodError') {
@@ -320,5 +303,51 @@ router.put('/change-password', authenticateToken, async (req, res) => {
     });
   }
 });
+
+// Google OAuth Routes (only if configured)
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  // Initiate Google OAuth
+  router.get('/google',
+    passport.authenticate('google', {
+      scope: ['profile', 'email']
+    })
+  );
+
+  // Google OAuth callback
+  router.get('/google/callback',
+    passport.authenticate('google', {
+      failureRedirect: `${process.env.FRONTEND_URL}/login?error=oauth_failed`,
+      session: false
+    }),
+    (req, res) => {
+      try {
+        // Create JWT token
+        const token = createToken(req.user.id);
+        setTokenCookie(res, token);
+
+        // Redirect to frontend with success
+        res.redirect(`${process.env.FRONTEND_URL}/auth/callback?success=true`);
+      } catch (error) {
+        console.error('Google callback error:', error);
+        res.redirect(`${process.env.FRONTEND_URL}/login?error=callback_failed`);
+      }
+    }
+  );
+} else {
+  // Return 404 for Google OAuth routes if not configured
+  router.get('/google', (req, res) => {
+    res.status(404).json({
+      error: 'Not configured',
+      message: 'Google OAuth is not configured on this server'
+    });
+  });
+
+  router.get('/google/callback', (req, res) => {
+    res.status(404).json({
+      error: 'Not configured',
+      message: 'Google OAuth is not configured on this server'
+    });
+  });
+}
 
 export default router;

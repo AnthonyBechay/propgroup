@@ -1,10 +1,34 @@
 import { PrismaClient } from '../dist/generated'
 import { Country, PropertyStatus, InvestmentGoal, Role } from '../dist/generated'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
 async function main() {
   console.log('🌱 Starting database seed...')
+
+  // Create Super Admin user
+  const hashedPassword = await bcrypt.hash('Admin123!', 12)
+
+  const superAdmin = await prisma.user.upsert({
+    where: { email: 'admin@propgroup.com' },
+    update: {},
+    create: {
+      email: 'admin@propgroup.com',
+      password: hashedPassword,
+      firstName: 'Super',
+      lastName: 'Admin',
+      role: Role.SUPER_ADMIN,
+      provider: 'local',
+      isActive: true,
+      emailVerifiedAt: new Date(),
+    }
+  })
+
+  console.log('✅ Created Super Admin user')
+  console.log('   Email: admin@propgroup.com')
+  console.log('   Password: Admin123!')
+  console.log('   ⚠️  CHANGE THIS PASSWORD AFTER FIRST LOGIN!\n')
 
   // Create developers
   const developers = await Promise.all([
@@ -248,13 +272,64 @@ async function main() {
 
   console.log(`✅ Created ${properties.length} properties with investment data`)
 
-  // Create a test admin user (you'll need to update the role manually or through Supabase)
-  console.log('\n📝 Note: To create an admin user:')
-  console.log('1. Sign up through the app with email: admin@propgroup.com')
-  console.log('2. Go to Supabase Dashboard > Table Editor > users')
-  console.log('3. Change the role from USER to ADMIN')
+  // Create a regular test user
+  const testUser = await prisma.user.upsert({
+    where: { email: 'user@propgroup.com' },
+    update: {},
+    create: {
+      email: 'user@propgroup.com',
+      password: await bcrypt.hash('User123!', 12),
+      firstName: 'Test',
+      lastName: 'User',
+      role: Role.USER,
+      provider: 'local',
+      isActive: true,
+      emailVerifiedAt: new Date(),
+      investmentGoals: [InvestmentGoal.HIGH_ROI, InvestmentGoal.CAPITAL_GROWTH],
+    }
+  })
+
+  console.log('\n✅ Created Test User')
+  console.log('   Email: user@propgroup.com')
+  console.log('   Password: User123!')
+
+  // Add some favorites for the test user
+  await prisma.favoriteProperty.createMany({
+    data: [
+      {
+        userId: testUser.id,
+        propertyId: (await prisma.property.findFirst({ where: { country: Country.GEORGIA } }))!.id,
+      },
+      {
+        userId: testUser.id,
+        propertyId: (await prisma.property.findFirst({ where: { country: Country.CYPRUS } }))!.id,
+      }
+    ],
+    skipDuplicates: true,
+  })
+
+  console.log('✅ Added 2 favorite properties for test user')
+
+  // Add a sample inquiry
+  const firstProperty = await prisma.property.findFirst()
+  if (firstProperty) {
+    await prisma.propertyInquiry.create({
+      data: {
+        userId: testUser.id,
+        propertyId: firstProperty.id,
+        name: 'Test User',
+        email: 'user@propgroup.com',
+        phone: '+1234567890',
+        message: 'I am interested in this property. Can you provide more details about the payment plan?',
+      }
+    })
+    console.log('✅ Created sample inquiry')
+  }
 
   console.log('\n🎉 Database seed completed successfully!')
+  console.log('\n📝 You can now login with:')
+  console.log('   Admin: admin@propgroup.com / Admin123!')
+  console.log('   User:  user@propgroup.com / User123!')
 }
 
 main()

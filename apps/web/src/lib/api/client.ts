@@ -1,5 +1,9 @@
 // API Client for PropGroup Backend
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+// For production, NEXT_PUBLIC_API_URL must be set in Vercel environment variables
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? '' // Use relative URLs in production if API_URL not set
+    : 'http://localhost:3001/api');
 
 class ApiClient {
   private baseURL: string;

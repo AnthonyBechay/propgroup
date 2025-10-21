@@ -11,7 +11,14 @@
       "Bash(npx tsc)",
       "Bash(rm -rf packages/supabase)",
       "Bash(rm -f AI_FEATURES_README.md AI_SEARCH_DOCUMENTATION.md AUTH_FLOW_VERIFICATION.md IMPLEMENTATION_SUMMARY.md LANDING_PAGE_REVIEW.md)",
-      "Bash(rm -rf documentation)"
+      "Bash(rm -rf documentation)",
+      "Bash(find:*)",
+      "Bash(pnpm install:*)",
+      "Bash(cat:*)",
+      "Bash(for file in scripts/*.js)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(head:*)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []
