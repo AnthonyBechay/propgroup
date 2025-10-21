@@ -90,9 +90,16 @@ function buildPackage(name, pkgPath) {
     // Generate Prisma client if this is the db package
     if (name === 'db') {
       console.log(`  Generating Prisma client for ${name}...`);
+      // Prisma needs DATABASE_URL even for generate
+      // Use placeholder if not set (Vercel build doesn't need real DB)
+      const dbUrl = process.env.DATABASE_URL || 'postgresql://placeholder:placeholder@localhost:5432/placeholder';
       exec('npx prisma generate', {
         cwd: fullPath,
-        env: { ...process.env, NODE_ENV: 'production' }
+        env: {
+          ...process.env,
+          NODE_ENV: 'production',
+          DATABASE_URL: dbUrl
+        }
       });
     }
     
