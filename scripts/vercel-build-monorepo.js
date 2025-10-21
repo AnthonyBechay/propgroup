@@ -234,12 +234,6 @@ export declare const prisma: PrismaClient;
 // Main build process
 async function build() {
   try {
-    // Step 0: Setup environment variables for Vercel
-    if (process.env.VERCEL) {
-      console.log('🔧 Setting up Vercel environment...');
-      require('./setup-vercel-env.js');
-      console.log('');
-    }
     // Step 1: Install dependencies if needed
     if (!fs.existsSync(path.join(rootDir, 'node_modules'))) {
       console.log('📦 Installing dependencies...');
@@ -255,7 +249,6 @@ async function build() {
     const packages = [
       { name: 'config', path: 'packages/config' },
       { name: 'db', path: 'packages/db' },
-      { name: 'supabase', path: 'packages/supabase' },
       { name: 'ui', path: 'packages/ui' }
     ];
     

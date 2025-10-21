@@ -15,9 +15,6 @@
     "setup": "node scripts/setup.js",
     "clean": "node scripts/clean.js",
     "build:packages": "node scripts/build-packages.js",
-    "health": "node scripts/health-check.js",
-    "types:generate": "node scripts/generate-types.js",
-    "migration:new": "node scripts/create-migration.js",
     "lint": "pnpm --filter web lint",
     "lint:fix": "pnpm --filter web lint:fix",
     "type-check": "pnpm run type-check:all",
@@ -37,8 +34,6 @@
     "db:seed": "node packages/db/seed.js",
     "db:migrate": "node packages/db/migrate.js",
     "db:check": "node packages/db/check-database.js",
-    "db:fix": "fix-all-database-issues.bat",
-    "setup:super-admin": "node scripts/create-super-admin.js",
     "mobile:ios": "pnpm --filter mobile-capacitor cap:ios",
     "mobile:android": "pnpm --filter mobile-capacitor cap:android",
     "mobile:sync": "pnpm --filter mobile-capacitor cap:sync"

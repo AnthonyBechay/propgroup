@@ -17,6 +17,12 @@ Complete documentation for the PropGroup real estate platform.
   - Database configuration
   - Troubleshooting guide
 
+- **[VERCEL_DEPLOYMENT.md](./VERCEL_DEPLOYMENT.md)** - Vercel frontend deployment
+  - Quick 5-minute deploy
+  - Dashboard configuration
+  - Environment variables
+  - Troubleshooting guide
+
 ### Technical Details
 - **[DEPLOYMENT_SUMMARY.md](./DEPLOYMENT_SUMMARY.md)** - Architecture & changes
   - What changed from Supabase
