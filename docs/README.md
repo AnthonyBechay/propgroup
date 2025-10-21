@@ -42,6 +42,29 @@ Complete documentation for the PropGroup real estate platform.
   - Testing guide
   - Production readiness
 
+### Configuration & Reference
+- **[ENVIRONMENT_VARIABLES.md](./ENVIRONMENT_VARIABLES.md)** - Complete environment variables guide
+  - Local development (.env files)
+  - Render backend configuration
+  - Vercel frontend configuration
+  - Secret generation guide
+
+- **[RENDER_DASHBOARD_CONFIG.md](./RENDER_DASHBOARD_CONFIG.md)** - Exact values for Render dashboard
+  - Service configuration table
+  - Environment variables format
+  - Step-by-step setup
+
+- **[RENDER_DEPLOYMENT_FIX.md](./RENDER_DEPLOYMENT_FIX.md)** - Fix migration errors
+  - Database reset procedure
+  - Migration troubleshooting
+  - Common deployment errors
+
+- **[DEPLOYMENT_TESTING_CHECKLIST.md](./DEPLOYMENT_TESTING_CHECKLIST.md)** - Complete testing checklist
+  - Pre-deployment verification
+  - Authentication flow tests
+  - Feature tests
+  - Security tests
+
 ## 🚀 Quick Links
 
 **For First-Time Setup:**
