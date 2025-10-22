@@ -2,8 +2,15 @@
   "name": "@propgroup/db",
   "version": "1.0.0",
   "description": "Database schema and Prisma client",
+  "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
     "build": "prisma generate && tsc",
     "dev": "tsc --watch",

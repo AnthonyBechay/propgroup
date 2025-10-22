@@ -1,5 +1,5 @@
-import { PrismaClient } from '../dist/generated'
-import { Country, PropertyStatus, InvestmentGoal, Role } from '../dist/generated'
+import { PrismaClient } from '@prisma/client'
+import { Country, PropertyStatus, InvestmentGoal, Role } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()

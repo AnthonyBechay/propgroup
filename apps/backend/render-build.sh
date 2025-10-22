@@ -14,6 +14,9 @@ echo "🔧 Generating Prisma Client..."
 cd packages/db
 pnpm exec prisma generate
 
+echo "📦 Building @propgroup/db package..."
+pnpm run build
+
 echo "🗄️  Running database migrations..."
 pnpm exec prisma migrate deploy
 

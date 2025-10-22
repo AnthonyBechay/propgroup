@@ -18,5 +18,5 @@ if (process.env.NODE_ENV !== 'production') {
 export { PrismaClient }
 export default prisma
 
-// Note: Prisma types and enums can be imported directly from '@prisma/client' or from the generated client
-// The generated Prisma client is in packages/db/dist which includes all types
+// Re-export all Prisma types and enums
+export * from '@prisma/client'
