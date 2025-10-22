@@ -1,5 +1,4 @@
-// API Client for PropGroup Backend
-// For production, NEXT_PUBLIC_API_URL must be set in Vercel environment variables
+// web/lib/api/client.ts
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ||
   (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
     ? '' // Use relative URLs in production if API_URL not set
@@ -12,16 +11,17 @@ class ApiClient {
     this.baseURL = baseURL;
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<T> {
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
+    // Récupérer le token JWT depuis localStorage
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
     const config: RequestInit = {
-      credentials: 'include', // Include cookies for authentication
+      credentials: 'include', // cookies si nécessaire
       headers: {
         'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}), // inclure le token
         ...options.headers,
       },
       ...options,
@@ -29,7 +29,7 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
@@ -52,23 +52,26 @@ class ApiClient {
     country?: string;
     investmentGoals?: string[];
   }) {
-    return this.request('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    return this.request('/auth/register', { method: 'POST', body: JSON.stringify(data) });
   }
 
   async login(email: string, password: string) {
-    return this.request('/auth/login', {
+    const res = await this.request('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
+
+    // Stocker le token JWT pour les futures requêtes
+    if ((res as any).token) {
+      localStorage.setItem('token', (res as any).token);
+    }
+
+    return res;
   }
 
   async logout() {
-    return this.request('/auth/logout', {
-      method: 'POST',
-    });
+    localStorage.removeItem('token');
+    return this.request('/auth/logout', { method: 'POST' });
   }
 
   async getCurrentUser() {
@@ -82,20 +85,11 @@ class ApiClient {
     country?: string;
     investmentGoals?: string[];
   }) {
-    return this.request('/auth/profile', {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
+    return this.request('/auth/profile', { method: 'PUT', body: JSON.stringify(data) });
   }
 
-  async changePassword(data: {
-    currentPassword: string;
-    newPassword: string;
-  }) {
-    return this.request('/auth/change-password', {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
+  async changePassword(data: { currentPassword: string; newPassword: string }) {
+    return this.request('/auth/change-password', { method: 'PUT', body: JSON.stringify(data) });
   }
 
   // Properties endpoints
@@ -112,14 +106,10 @@ class ApiClient {
     const searchParams = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          searchParams.append(key, value.toString());
-        }
+        if (value !== undefined) searchParams.append(key, value.toString());
       });
     }
-    
-    const queryString = searchParams.toString();
-    return this.request(`/properties${queryString ? `?${queryString}` : ''}`);
+    return this.request(`/properties${searchParams.toString() ? `?${searchParams}` : ''}`);
   }
 
   async getProperty(id: string) {
@@ -127,23 +117,15 @@ class ApiClient {
   }
 
   async createProperty(data: any) {
-    return this.request('/properties', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    return this.request('/properties', { method: 'POST', body: JSON.stringify(data) });
   }
 
   async updateProperty(id: string, data: any) {
-    return this.request(`/properties/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
+    return this.request(`/properties/${id}`, { method: 'PUT', body: JSON.stringify(data) });
   }
 
   async deleteProperty(id: string) {
-    return this.request(`/properties/${id}`, {
-      method: 'DELETE',
-    });
+    return this.request(`/properties/${id}`, { method: 'DELETE' });
   }
 
   // Favorites endpoints
@@ -152,15 +134,11 @@ class ApiClient {
   }
 
   async addFavorite(propertyId: string) {
-    return this.request(`/favorites/${propertyId}`, {
-      method: 'POST',
-    });
+    return this.request(`/favorites/${propertyId}`, { method: 'POST' });
   }
 
   async removeFavorite(propertyId: string) {
-    return this.request(`/favorites/${propertyId}`, {
-      method: 'DELETE',
-    });
+    return this.request(`/favorites/${propertyId}`, { method: 'DELETE' });
   }
 
   async checkFavorite(propertyId: string) {
@@ -168,39 +146,22 @@ class ApiClient {
   }
 
   // Inquiries endpoints
-  async createInquiry(data: {
-    propertyId: string;
-    name: string;
-    email: string;
-    phone?: string;
-    message?: string;
-  }) {
-    return this.request('/inquiries', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+  async createInquiry(data: { propertyId: string; name: string; email: string; phone?: string; message?: string }) {
+    return this.request('/inquiries', { method: 'POST', body: JSON.stringify(data) });
   }
 
   async getMyInquiries() {
     return this.request('/inquiries/my');
   }
 
-  async getInquiries(params?: {
-    page?: number;
-    limit?: number;
-    propertyId?: string;
-  }) {
+  async getInquiries(params?: { page?: number; limit?: number; propertyId?: string }) {
     const searchParams = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          searchParams.append(key, value.toString());
-        }
+        if (value !== undefined) searchParams.append(key, value.toString());
       });
     }
-    
-    const queryString = searchParams.toString();
-    return this.request(`/inquiries${queryString ? `?${queryString}` : ''}`);
+    return this.request(`/inquiries${searchParams.toString() ? `?${searchParams}` : ''}`);
   }
 
   async getInquiry(id: string) {
@@ -208,9 +169,7 @@ class ApiClient {
   }
 
   async deleteInquiry(id: string) {
-    return this.request(`/inquiries/${id}`, {
-      method: 'DELETE',
-    });
+    return this.request(`/inquiries/${id}`, { method: 'DELETE' });
   }
 
   // Portfolio endpoints
@@ -218,32 +177,16 @@ class ApiClient {
     return this.request('/portfolio');
   }
 
-  async addToPortfolio(data: {
-    customName: string;
-    purchasePrice: number;
-    purchaseDate: string;
-    initialMortgage?: number;
-    currentRent?: number;
-    notes?: string;
-    propertyId?: string;
-  }) {
-    return this.request('/portfolio', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+  async addToPortfolio(data: { customName: string; purchasePrice: number; purchaseDate: string; initialMortgage?: number; currentRent?: number; notes?: string; propertyId?: string }) {
+    return this.request('/portfolio', { method: 'POST', body: JSON.stringify(data) });
   }
 
   async updatePortfolioItem(id: string, data: any) {
-    return this.request(`/portfolio/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
+    return this.request(`/portfolio/${id}`, { method: 'PUT', body: JSON.stringify(data) });
   }
 
   async removeFromPortfolio(id: string) {
-    return this.request(`/portfolio/${id}`, {
-      method: 'DELETE',
-    });
+    return this.request(`/portfolio/${id}`, { method: 'DELETE' });
   }
 
   async getPortfolioStats() {
@@ -251,24 +194,10 @@ class ApiClient {
   }
 
   // Users endpoints (admin)
-  async getUsers(params?: {
-    page?: number;
-    limit?: number;
-    role?: string;
-    search?: string;
-    isActive?: boolean;
-  }) {
+  async getUsers(params?: { page?: number; limit?: number; role?: string; search?: string; isActive?: boolean }) {
     const searchParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          searchParams.append(key, value.toString());
-        }
-      });
-    }
-    
-    const queryString = searchParams.toString();
-    return this.request(`/users${queryString ? `?${queryString}` : ''}`);
+    if (params) Object.entries(params).forEach(([k, v]) => v !== undefined && searchParams.append(k, v.toString()));
+    return this.request(`/users${searchParams.toString() ? `?${searchParams}` : ''}`);
   }
 
   async getUser(id: string) {
@@ -276,36 +205,23 @@ class ApiClient {
   }
 
   async updateUserRole(id: string, role: string) {
-    return this.request(`/users/${id}/role`, {
-      method: 'PUT',
-      body: JSON.stringify({ role }),
-    });
+    return this.request(`/users/${id}/role`, { method: 'PUT', body: JSON.stringify({ role }) });
   }
 
   async banUser(id: string, reason: string) {
-    return this.request(`/users/${id}/ban`, {
-      method: 'POST',
-      body: JSON.stringify({ reason }),
-    });
+    return this.request(`/users/${id}/ban`, { method: 'POST', body: JSON.stringify({ reason }) });
   }
 
   async unbanUser(id: string) {
-    return this.request(`/users/${id}/unban`, {
-      method: 'POST',
-    });
+    return this.request(`/users/${id}/unban`, { method: 'POST' });
   }
 
   async deleteUser(id: string) {
-    return this.request(`/users/${id}`, {
-      method: 'DELETE',
-    });
+    return this.request(`/users/${id}`, { method: 'DELETE' });
   }
 
   async inviteAdmin(email: string, role: string) {
-    return this.request('/users/invite', {
-      method: 'POST',
-      body: JSON.stringify({ email, role }),
-    });
+    return this.request('/users/invite', { method: 'POST', body: JSON.stringify({ email, role }) });
   }
 
   // Admin endpoints
@@ -313,30 +229,14 @@ class ApiClient {
     return this.request('/admin/stats');
   }
 
-  async getAuditLogs(params?: {
-    page?: number;
-    limit?: number;
-    action?: string;
-    adminId?: string;
-  }) {
+  async getAuditLogs(params?: { page?: number; limit?: number; action?: string; adminId?: string }) {
     const searchParams = new URLSearchParams();
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          searchParams.append(key, value.toString());
-        }
-      });
-    }
-    
-    const queryString = searchParams.toString();
-    return this.request(`/admin/audit-logs${queryString ? `?${queryString}` : ''}`);
+    if (params) Object.entries(params).forEach(([k, v]) => v !== undefined && searchParams.append(k, v.toString()));
+    return this.request(`/admin/audit-logs${searchParams.toString() ? `?${searchParams}` : ''}`);
   }
 
   async createSuperAdmin(email: string, password: string) {
-    return this.request('/admin/create-super-admin', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
+    return this.request('/admin/create-super-admin', { method: 'POST', body: JSON.stringify({ email, password }) });
   }
 
   async getSystemHealth() {
