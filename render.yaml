@@ -1,0 +1,33 @@
+services:
+  # Backend API Service
+  - type: web
+    name: propgroup-backend
+    env: node
+    region: frankfurt
+    plan: starter
+    buildCommand: cd apps/backend && pnpm install --frozen-lockfile && pnpm run render-build
+    startCommand: cd apps/backend && pnpm run render-start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: postgresql://propgroup_database_user:N47ZWO9oy6BsGhYdZWd7tqBivUfgCYeh@dpg-d3ro26jipnbc73epphb0-a/propgroup_database
+      - key: PORT
+        value: 3001
+      - key: JWT_SECRET
+        generateValue: true
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: BACKEND_URL
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_CALLBACK_URL
+        sync: false

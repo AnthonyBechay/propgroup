@@ -1,0 +1,276 @@
+# Render Environment Variables - Ready to Copy
+
+**Copy these exact values to Render Dashboard → propgroup-backend → Environment**
+
+---
+
+## ✅ ALREADY CONFIGURED (via render.yaml)
+
+These are automatically set when you deploy using the render.yaml Blueprint:
+
+```
+✓ NODE_ENV=production
+✓ PORT=3001
+✓ DATABASE_URL=postgresql://propgroup_database_user:N47ZWO9oy6BsGhYdZWd7tqBivUfgCYeh@dpg-d3ro26jipnbc73epphb0-a/propgroup_database
+✓ JWT_SECRET (auto-generated)
+✓ SESSION_SECRET (auto-generated)
+```
+
+---
+
+## 🔧 YOU NEED TO ADD THESE
+
+After deployment, add these in Render Dashboard:
+
+### Step 1: Get Your Backend URL
+
+After Render deploys, your backend URL will be:
+```
+https://propgroup-backend.onrender.com
+```
+(Or whatever name you choose for the service)
+
+### Step 2: Add These Environment Variables
+
+#### BACKEND_URL (Required)
+```
+BACKEND_URL=https://propgroup-backend.onrender.com
+```
+☝️ **Use your actual Render backend URL**
+
+#### FRONTEND_URL (Required - Update after Vercel deployment)
+```
+FRONTEND_URL=https://your-app.vercel.app
+```
+☝️ **Temporary placeholder - UPDATE THIS after deploying to Vercel!**
+
+For multiple frontend domains (production + preview):
+```
+FRONTEND_URL=https://your-app.vercel.app,https://your-app-git-main.vercel.app
+```
+
+#### JWT_EXPIRES_IN (Optional - defaults to 7d)
+```
+JWT_EXPIRES_IN=7d
+```
+
+---
+
+## 🔐 GOOGLE OAUTH (Optional)
+
+Only add these if you want "Sign in with Google":
+
+### Step 1: Create Google OAuth App
+
+1. Go to https://console.cloud.google.com
+2. Create/Select Project
+3. Enable Google+ API
+4. Credentials → Create OAuth 2.0 Client ID
+5. Authorized redirect URIs:
+   ```
+   https://propgroup-backend.onrender.com/api/auth/google/callback
+   http://localhost:3001/api/auth/google/callback
+   ```
+
+### Step 2: Add to Render
+
+```
+GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-your-client-secret
+GOOGLE_CALLBACK_URL=https://propgroup-backend.onrender.com/api/auth/google/callback
+```
+
+---
+
+## 📋 Complete Checklist
+
+After deploying backend to Render, verify these are all set:
+
+### Required Variables:
+- [x] `NODE_ENV` = production *(auto-set)*
+- [x] `PORT` = 3001 *(auto-set)*
+- [x] `DATABASE_URL` = postgresql://... *(auto-set)*
+- [x] `JWT_SECRET` = (auto-generated) *(auto-set)*
+- [x] `SESSION_SECRET` = (auto-generated) *(auto-set)*
+- [ ] `BACKEND_URL` = https://propgroup-backend.onrender.com **← ADD THIS**
+- [ ] `FRONTEND_URL` = (temporary placeholder) **← ADD THIS, UPDATE AFTER VERCEL**
+
+### Optional Variables:
+- [ ] `JWT_EXPIRES_IN` = 7d
+- [ ] `GOOGLE_CLIENT_ID` = (if using OAuth)
+- [ ] `GOOGLE_CLIENT_SECRET` = (if using OAuth)
+- [ ] `GOOGLE_CALLBACK_URL` = (if using OAuth)
+
+---
+
+## 🚀 Deployment Flow
+
+### 1. Deploy Backend (Render)
+
+```bash
+# From your local machine:
+git add .
+git commit -m "Configure Render deployment"
+git push origin master
+```
+
+Then in Render:
+1. New → Blueprint
+2. Connect repo
+3. Render detects `render.yaml` and creates:
+   - Backend service (Frankfurt region)
+   - All environment variables from render.yaml
+
+### 2. Add Missing Variables
+
+Go to Render Dashboard → propgroup-backend → Environment:
+
+```
+BACKEND_URL=https://propgroup-backend.onrender.com
+FRONTEND_URL=https://temporary-placeholder.com
+```
+
+Click **Save Changes** → Backend redeploys
+
+### 3. Deploy Frontend (Vercel)
+
+1. Go to Vercel → New Project
+2. Import your GitHub repo
+3. Add environment variable:
+   ```
+   NEXT_PUBLIC_API_URL=https://propgroup-backend.onrender.com/api
+   ```
+4. Deploy
+5. Get your Vercel URL: `https://your-app.vercel.app`
+
+### 4. Update Backend CORS
+
+Go back to Render → Environment:
+```
+FRONTEND_URL=https://your-app.vercel.app
+```
+
+Save → Backend redeploys
+
+### 5. Done! ✨
+
+Test:
+```bash
+# Backend health check
+curl https://propgroup-backend.onrender.com/api/health
+
+# Frontend
+open https://your-app.vercel.app
+```
+
+---
+
+## 🔍 Verification Commands
+
+### Check Backend Environment Variables
+
+In Render Shell or logs, you should see:
+```bash
+🚀 Server running on port 3001
+🌍 Environment: production
+🔗 Frontend URL: https://your-app.vercel.app
+```
+
+### Test Health Endpoint
+
+```bash
+curl https://propgroup-backend.onrender.com/api/health
+```
+
+Expected response:
+```json
+{
+  "status": "ok",
+  "timestamp": "2025-10-22T...",
+  "environment": "production",
+  "database": "connected"
+}
+```
+
+### Test CORS
+
+From your browser console on the frontend:
+```javascript
+fetch('https://propgroup-backend.onrender.com/api/health')
+  .then(r => r.json())
+  .then(console.log)
+```
+
+Should work without CORS errors.
+
+---
+
+## ⚠️ Important Notes
+
+### Database URL Security
+- ✅ The database URL in `render.yaml` is **safe to commit** because:
+  - It's the **Internal Database URL** (only accessible from Render services)
+  - NOT the External Database URL
+  - If someone gets this URL, they can't connect from outside Render
+
+### JWT/Session Secrets
+- ✅ Auto-generated by Render (64-character random strings)
+- ✅ Different for each deployment
+- ✅ Persisted across redeploys
+
+### Region
+- ✅ Backend: **Frankfurt (EU Central)**
+- ✅ Database: **Frankfurt (EU Central)** (existing)
+- ✅ Both in same region = faster database queries
+
+---
+
+## 🆘 Troubleshooting
+
+### "Migration failed" error
+The migration is stuck. Run locally:
+```bash
+cd packages/db
+npx prisma migrate resolve --rolled-back 20251021000001_add_oauth_fields
+```
+
+Then redeploy backend.
+
+Or use the script:
+```bash
+chmod +x fix-migration.sh
+./fix-migration.sh
+git add packages/db/prisma/migrations/
+git commit -m "Fix migration"
+git push
+```
+
+### "Database connection failed"
+- Check DATABASE_URL is the **Internal Database URL**
+- Ensure database is in Frankfurt region
+- Verify database is not paused (Free tier auto-pauses)
+
+### "CORS error" in frontend
+- Verify `FRONTEND_URL` in backend matches your Vercel URL **exactly**
+- Include `https://` prefix
+- No trailing slash
+- Redeploy backend after updating
+
+### Backend won't start
+Check Render logs for errors:
+- Missing environment variables?
+- Migration issues?
+- Port conflicts?
+
+---
+
+## 📚 Next Steps
+
+1. ✅ Deploy backend using render.yaml
+2. ✅ Add `BACKEND_URL` to Render
+3. ✅ Deploy frontend to Vercel
+4. ✅ Update `FRONTEND_URL` in Render
+5. ✅ Test the deployment
+6. 🎉 You're live!
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed step-by-step guide.
