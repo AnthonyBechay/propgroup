@@ -1,9 +1,8 @@
-import { requireAdmin } from '@/lib/auth/rbac'
 import { getAllUsers } from '@/lib/admin/user-management'
 import { UsersManagementClient } from '@/components/admin/UsersManagementClient'
 
 export default async function AdminUsersPage() {
-  await requireAdmin()
+  // Layout already handles authentication
   const users = await getAllUsers()
 
   return (

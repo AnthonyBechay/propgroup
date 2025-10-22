@@ -1,5 +1,3 @@
-import { getCurrentUser } from '@/lib/auth/rbac'
-import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { PropertyTable } from '@/components/admin/PropertyTable'
 import { CreatePropertyModal } from '@/components/admin/CreatePropertyModal'
@@ -7,12 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Plus, Building2 } from 'lucide-react'
 
 export default async function AdminPropertiesPage() {
-  // Check if user is admin
-  const currentUser = await getCurrentUser()
-  
-  if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPER_ADMIN')) {
-    redirect('/unauthorized')
-  }
+  // Layout already handles authentication, no need to check again
   // Fetch all properties with related data
   const properties = await prisma.property.findMany({
     include: {

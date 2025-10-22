@@ -19,11 +19,12 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export default async function AdminDashboard() {
-  // Check if user is admin
+  // Get current user (layout already checked authentication)
   const currentUser = await getCurrentUser()
-  
-  if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPER_ADMIN')) {
-    redirect('/unauthorized')
+
+  // This should never happen as layout handles auth, but keep as safety check
+  if (!currentUser) {
+    redirect('/auth/login?next=/admin')
   }
 
   // Fetch dashboard statistics

@@ -1,6 +1,7 @@
 import { Sidebar } from '@/components/admin/Sidebar'
 import { AdminHeader } from '@/components/admin/AdminHeader'
-import { requireAdmin } from '@/lib/auth/rbac'
+import { getCurrentUser } from '@/lib/auth/rbac'
+import { redirect } from 'next/navigation'
 
 // Force dynamic rendering for all admin pages
 export const dynamic = 'force-dynamic'
@@ -11,8 +12,18 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
-  // Check authentication and admin role using Supabase
-  await requireAdmin()
+  // Single authentication check for entire admin section
+  const currentUser = await getCurrentUser()
+
+  // Redirect to login if not authenticated
+  if (!currentUser) {
+    redirect('/auth/login?next=/admin')
+  }
+
+  // Redirect to unauthorized if not admin
+  if (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPER_ADMIN') {
+    redirect('/unauthorized')
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
