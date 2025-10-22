@@ -1,33 +1,45 @@
+# Render Blueprint for PropGroup Backend
+version: "1"
+
 services:
-  # Backend API Service
   - type: web
-    name: propgroup-backend
-    env: node
+    name: propgroup
+    runtime: node
+    repo: https://github.com/AnthonyBechay/propgroup
+    plan: free
     region: frankfurt
-    plan: starter
-    buildCommand: cd apps/backend && pnpm install --frozen-lockfile && pnpm run render-build
-    startCommand: cd apps/backend && pnpm run render-start
+    rootDir: apps/backend
+    buildCommand: pnpm run render-build
+    startCommand: pnpm run render-start
     healthCheckPath: /api/health
+    autoDeployTrigger: commit
     envVars:
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
-        value: postgresql://propgroup_database_user:N47ZWO9oy6BsGhYdZWd7tqBivUfgCYeh@dpg-d3ro26jipnbc73epphb0-a/propgroup_database
+        fromDatabase:
+          name: propgroup-database
+          property: connectionString
       - key: PORT
         value: 3001
+      - key: FRONTEND_URL
+        value: https://propgroup-web.vercel.app
+      - key: BACKEND_URL
+        value: https://propgroup.onrender.com
       - key: JWT_SECRET
         generateValue: true
-        sync: false
       - key: SESSION_SECRET
         generateValue: true
-        sync: false
-      - key: FRONTEND_URL
-        sync: false
-      - key: BACKEND_URL
-        sync: false
-      - key: GOOGLE_CLIENT_ID
-        sync: false
-      - key: GOOGLE_CLIENT_SECRET
-        sync: false
-      - key: GOOGLE_CALLBACK_URL
-        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+
+databases:
+  - name: propgroup-database
+    databaseName: propgroup_database
+    user: propgroup_database_user
+    plan: free
+    region: frankfurt
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: everywhere
+    postgresMajorVersion: "17"
