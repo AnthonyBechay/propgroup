@@ -11,11 +11,11 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Edit, 
-  Trash2, 
-  Eye, 
-  Heart, 
+import {
+  Edit,
+  Trash2,
+  Eye,
+  Heart,
   MessageSquare,
   MoreHorizontal
 } from 'lucide-react'
@@ -25,6 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { EditPropertyModal } from './EditPropertyModal'
 
 type Property = {
   id: string
@@ -59,6 +60,7 @@ type PropertyTableProps = {
 
 export function PropertyTable({ properties }: PropertyTableProps) {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null)
+  const [editModalOpen, setEditModalOpen] = useState(false)
 
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {
@@ -81,24 +83,49 @@ export function PropertyTable({ properties }: PropertyTableProps) {
   }
 
   const handleEdit = (property: Property) => {
-    // TODO: Implement edit functionality
-    console.log('Edit property:', property.id)
+    // Open edit modal with property data
+    setSelectedProperty(property)
+    setEditModalOpen(true)
   }
 
-  const handleDelete = (property: Property) => {
-    // TODO: Implement delete functionality
-    console.log('Delete property:', property.id)
+  const handleDelete = async (property: Property) => {
+    if (!confirm(`Are you sure you want to delete "${property.title}"? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/properties/${property.id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      })
+
+      if (response.ok) {
+        window.location.reload()
+      } else {
+        const error = await response.json()
+        alert(`Failed to delete property: ${error.message}`)
+      }
+    } catch (error) {
+      console.error('Error deleting property:', error)
+      alert('Failed to delete property. Please try again.')
+    }
   }
 
   const handleView = (property: Property) => {
-    // TODO: Implement view functionality
-    console.log('View property:', property.id)
+    // Open property in new tab
+    window.open(`/property/${property.id}`, '_blank')
   }
 
   return (
-    <div className="bg-white shadow rounded-lg">
-      <div className="overflow-x-auto">
-        <Table>
+    <>
+      <EditPropertyModal
+        property={selectedProperty}
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+      />
+      <div className="bg-white shadow rounded-lg">
+        <div className="overflow-x-auto">
+          <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Property</TableHead>
@@ -210,8 +237,9 @@ export function PropertyTable({ properties }: PropertyTableProps) {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+          </Table>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
