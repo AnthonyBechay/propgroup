@@ -9,7 +9,6 @@
     "dev:frontend": "node scripts/start-frontend.js",
     "dev:web": "pnpm --filter web dev",
     "build": "node scripts/build.js",
-    "postinstall": "pnpm run build:packages",
     "start": "pnpm --filter web start",
     "start:backend": "pnpm --filter backend start",
     "setup": "node scripts/setup.js",

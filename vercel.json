@@ -4,7 +4,6 @@
   "outputDirectory": "apps/web/.next",
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "nextjs",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./apps/web ./packages/db ./packages/ui ./packages/config",
   "env": {
     "NEXT_PUBLIC_API_URL": "https://propgroup.onrender.com/api"
   },
