@@ -1,20 +1,28 @@
+// middleware/auth.ts
 import jwt from 'jsonwebtoken';
 import { prisma } from '@propgroup/db';
+import { Request, Response, NextFunction } from 'express';
 
-export const authenticateToken = async (req, res, next) => {
+export interface AuthRequest extends Request {
+  user?: any;
+}
+
+// Middleware principal pour authentification
+export const authenticateToken = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const token = req.cookies?.token || req.headers.authorization?.replace('Bearer ', '');
-    
+    // Récupère token depuis cookie ou header
+    const token =
+      req.cookies?.token ||
+      req.headers.authorization?.replace('Bearer ', '');
+
     if (!token) {
-      return res.status(401).json({ 
-        error: 'Unauthorized', 
-        message: 'No authentication token provided' 
-      });
+      return res.status(401).json({ error: 'Unauthorized', message: 'No authentication token provided' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Get user from database to ensure they still exist and are active
+    // Vérifie le token
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+
+    // Récupère l'utilisateur dans la DB
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: {
@@ -23,97 +31,65 @@ export const authenticateToken = async (req, res, next) => {
         role: true,
         isActive: true,
         bannedAt: true,
-        emailVerifiedAt: true,
         firstName: true,
-        lastName: true,
-        phone: true,
-        country: true,
-        investmentGoals: true,
-        createdAt: true,
-        updatedAt: true
+        lastName: true
       }
     });
 
     if (!user) {
-      return res.status(401).json({ 
-        error: 'Unauthorized', 
-        message: 'User not found' 
-      });
+      return res.status(401).json({ error: 'Unauthorized', message: 'User not found' });
     }
 
     if (!user.isActive || user.bannedAt) {
-      return res.status(401).json({ 
-        error: 'Unauthorized', 
-        message: 'Account is inactive or banned' 
-      });
+      return res.status(401).json({ error: 'Unauthorized', message: 'Account inactive or banned' });
     }
 
     req.user = user;
     next();
-  } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ 
-        error: 'Unauthorized', 
-        message: 'Invalid token' 
-      });
-    }
-    
+  } catch (error: any) {
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ 
-        error: 'Unauthorized', 
-        message: 'Token expired' 
-      });
+      return res.status(401).json({ error: 'Unauthorized', message: 'Token expired' });
     }
-
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(401).json({ error: 'Unauthorized', message: 'Invalid token' });
+    }
     console.error('Auth middleware error:', error);
-    return res.status(500).json({ 
-      error: 'Internal Server Error', 
-      message: 'Authentication failed' 
-    });
+    return res.status(500).json({ error: 'Internal Server Error', message: 'Authentication failed' });
   }
 };
 
-export const requireAdmin = (req, res, next) => {
+// Vérification ADMIN
+export const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
   if (!req.user) {
-    return res.status(401).json({ 
-      error: 'Unauthorized', 
-      message: 'Authentication required' 
-    });
+    return res.status(401).json({ error: 'Unauthorized', message: 'Authentication required' });
   }
-
   if (req.user.role !== 'ADMIN' && req.user.role !== 'SUPER_ADMIN') {
-    return res.status(403).json({ 
-      error: 'Forbidden', 
-      message: 'Admin access required' 
-    });
+    return res.status(403).json({ error: 'Forbidden', message: 'Admin access required' });
   }
-
   next();
 };
 
-export const requireSuperAdmin = (req, res, next) => {
+// Vérification SUPER ADMIN
+export const requireSuperAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
   if (!req.user) {
-    return res.status(401).json({ 
-      error: 'Unauthorized', 
-      message: 'Authentication required' 
-    });
+    return res.status(401).json({ error: 'Unauthorized', message: 'Authentication required' });
   }
-
   if (req.user.role !== 'SUPER_ADMIN') {
-    return res.status(403).json({ 
-      error: 'Forbidden', 
-      message: 'Super admin access required' 
-    });
+    return res.status(403).json({ error: 'Forbidden', message: 'Super admin access required' });
   }
-
   next();
 };
 
-export const logAdminAction = async (action, targetType, targetId, details, req) => {
+// Logger d'action admin
+export const logAdminAction = async (
+  action: string,
+  targetType?: string,
+  targetId?: string,
+  details?: any,
+  req?: AuthRequest
+) => {
   try {
-    if (!req.user || (req.user.role !== 'ADMIN' && req.user.role !== 'SUPER_ADMIN')) {
-      return;
-    }
+    if (!req?.user || (req.user.role !== 'ADMIN' && req.user.role !== 'SUPER_ADMIN')) return;
 
     await prisma.adminAuditLog.create({
       data: {
@@ -123,7 +99,7 @@ export const logAdminAction = async (action, targetType, targetId, details, req)
         targetId,
         details,
         ipAddress: req.ip || req.connection.remoteAddress,
-        userAgent: req.get('User-Agent')
+        userAgent: req.get('User-Agent') || ''
       }
     });
   } catch (error) {
