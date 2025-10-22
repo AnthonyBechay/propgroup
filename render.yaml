@@ -8,9 +8,8 @@ services:
     repo: https://github.com/AnthonyBechay/propgroup
     plan: free
     region: frankfurt
-    rootDir: apps/backend
-    buildCommand: pnpm run render-build
-    startCommand: pnpm run render-start
+    buildCommand: cd apps/backend && chmod +x render-build.sh && ./render-build.sh
+    startCommand: cd apps/backend && node src/index.js
     healthCheckPath: /api/health
     autoDeployTrigger: commit
     envVars:

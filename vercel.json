@@ -1,7 +1,16 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "buildCommand": "pnpm run vercel-build",
   "outputDirectory": "apps/web/.next",
   "installCommand": "pnpm install --frozen-lockfile",
   "framework": "nextjs",
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./apps/web ./packages/db ./packages/ui ./packages/config"
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./apps/web ./packages/db ./packages/ui ./packages/config",
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://propgroup.onrender.com/api"
+  },
+  "build": {
+    "env": {
+      "DATABASE_URL": "postgresql://propgroup_database_user:N47ZWO9oy6BsGhYdZWd7tqBivUfgCYeh@dpg-d3ro26jipnbc73epphb0-a.frankfurt-postgres.render.com/propgroup_database"
+    }
+  }
 }
