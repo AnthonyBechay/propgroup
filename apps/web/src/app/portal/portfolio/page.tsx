@@ -12,7 +12,7 @@ export default async function PortfolioPage() {
   const currentUser = await getCurrentUser()
   
   if (!currentUser) {
-    redirect('/login')
+    redirect('/auth/login?next=/portal/portfolio')
   }
 
   // Fetch user's portfolio data from database

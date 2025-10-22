@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { redirect } from 'next/navigation'
 import { apiClient } from '@/lib/api/client'
 
 export type UserRole = 'USER' | 'ADMIN' | 'SUPER_ADMIN'
@@ -62,52 +63,47 @@ export async function isSuperAdmin(): Promise<boolean> {
 
 /**
  * Require authentication - redirects to login if not authenticated
+ * Use this in server components (pages)
  */
 export async function requireAuth(redirectTo: string = '/') {
   const user = await getCurrentUser()
-  
+
   if (!user) {
-    return NextResponse.redirect(new URL(`/auth/login?next=${encodeURIComponent(redirectTo)}`, process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'))
+    redirect(`/auth/login?next=${encodeURIComponent(redirectTo)}`)
   }
-  
+
   if (!user.isActive || user.bannedAt) {
-    return NextResponse.redirect(new URL('/auth/banned', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'))
+    redirect('/auth/banned')
   }
-  
+
   return user
 }
 
 /**
  * Require admin role - redirects to unauthorized if not admin
+ * Use this in server components (admin pages)
  */
 export async function requireAdmin() {
   const user = await requireAuth('/admin')
-  
-  if (user instanceof NextResponse) {
-    return user // It's a redirect response
-  }
-  
+
   if (user.role !== 'ADMIN' && user.role !== 'SUPER_ADMIN') {
-    return NextResponse.redirect(new URL('/unauthorized', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'))
+    redirect('/unauthorized')
   }
-  
+
   return user
 }
 
 /**
  * Require super admin role - redirects to unauthorized if not super admin
+ * Use this in server components (admin pages)
  */
 export async function requireSuperAdmin() {
   const user = await requireAuth('/admin')
-  
-  if (user instanceof NextResponse) {
-    return user // It's a redirect response
-  }
-  
+
   if (user.role !== 'SUPER_ADMIN') {
-    return NextResponse.redirect(new URL('/unauthorized', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'))
+    redirect('/unauthorized')
   }
-  
+
   return user
 }
 

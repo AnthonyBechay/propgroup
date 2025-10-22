@@ -12,7 +12,7 @@ export default async function MarketAnalysisPage() {
   const currentUser = await getCurrentUser()
   
   if (!currentUser) {
-    redirect('/login')
+    redirect('/auth/login?next=/portal/market-analysis')
   }
 
   // Fetch real market data from database

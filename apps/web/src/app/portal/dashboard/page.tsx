@@ -27,7 +27,7 @@ export default async function DashboardPage() {
   const currentUser = await getCurrentUser()
   
   if (!currentUser) {
-    redirect('/login')
+    redirect('/auth/login?next=/portal/dashboard')
   }
 
   // Fetch real data from database
