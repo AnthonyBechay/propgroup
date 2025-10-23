@@ -20,7 +20,7 @@ export interface AuthUser {
 export async function getCurrentUser(): Promise<AuthUser | null> {
   try {
     const response = await apiClient.getCurrentUser()
-    
+
     if (response.success && response.user) {
       return {
         id: response.user.id,
@@ -31,10 +31,17 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
         emailVerifiedAt: response.user.emailVerifiedAt,
       }
     }
-    
+
     return null
-  } catch (error) {
-    console.error('Error getting current user:', error)
+  } catch (error: any) {
+    // Log more detailed error information for debugging
+    if (error?.message?.includes('fetch')) {
+      console.error('[rbac] Network error fetching current user:', error.message)
+    } else if (error?.message?.includes('401')) {
+      console.error('[rbac] Unauthorized - token may be expired or invalid')
+    } else {
+      console.error('[rbac] Error getting current user:', error)
+    }
     return null
   }
 }

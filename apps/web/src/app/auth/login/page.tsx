@@ -39,6 +39,12 @@ function LoginForm() {
   // Check if already logged in
   useEffect(() => {
     if (user && !loading) {
+      // Only redirect if user is active and not banned
+      if (!user.isActive || user.bannedAt) {
+        router.push('/auth/banned')
+        return
+      }
+
       // Redirect based on role
       if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN') {
         router.push('/admin')

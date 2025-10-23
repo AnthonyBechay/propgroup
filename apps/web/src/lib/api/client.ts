@@ -17,7 +17,7 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const config: RequestInit = {
       credentials: 'include', // Include cookies for authentication
       headers: {
@@ -29,15 +29,29 @@ class ApiClient {
 
     try {
       const response = await fetch(url, config);
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        const errorMessage = errorData.message || errorData.error || `HTTP error! status: ${response.status}`;
+
+        // Log detailed error for debugging
+        if (response.status === 401) {
+          console.error(`[API] Unauthorized request to ${endpoint}`);
+        } else if (response.status >= 500) {
+          console.error(`[API] Server error on ${endpoint}:`, errorMessage);
+        }
+
+        throw new Error(errorMessage);
       }
 
       return await response.json();
-    } catch (error) {
-      console.error('API request failed:', error);
+    } catch (error: any) {
+      // Enhanced error logging
+      if (error.message?.includes('fetch')) {
+        console.error(`[API] Network error for ${endpoint}:`, error.message);
+      } else if (!error.message) {
+        console.error(`[API] Unknown error for ${endpoint}:`, error);
+      }
       throw error;
     }
   }

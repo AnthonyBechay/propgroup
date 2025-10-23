@@ -20,6 +20,11 @@ export default async function AdminLayout({
     redirect('/auth/login?next=/admin')
   }
 
+  // Check if account is active and not banned
+  if (!currentUser.isActive || currentUser.bannedAt) {
+    redirect('/auth/banned')
+  }
+
   // Redirect to unauthorized if not admin
   if (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPER_ADMIN') {
     redirect('/unauthorized')

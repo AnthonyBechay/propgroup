@@ -7,28 +7,38 @@ export async function middleware(request: NextRequest) {
 
     // Check protected routes
     const protectedPaths = ['/portal', '/admin']
-    const isProtectedPath = protectedPaths.some(path => 
+    const isProtectedPath = protectedPaths.some(path =>
       request.nextUrl.pathname.startsWith(path)
     )
 
+    // Special handling for login page - prevent redirect loop
+    const isLoginPage = request.nextUrl.pathname.startsWith('/auth/login')
+
     if (isProtectedPath) {
       if (!token) {
-        // No token, redirect to home with auth required flag
+        // No token, redirect to login with next parameter
         const redirectUrl = request.nextUrl.clone()
-        redirectUrl.pathname = '/'
-        redirectUrl.searchParams.set('auth', 'required')
+        redirectUrl.pathname = '/auth/login'
+        redirectUrl.searchParams.set('next', request.nextUrl.pathname)
         return NextResponse.redirect(redirectUrl)
       }
 
       // Token exists, let the request continue
-      // The actual token validation will happen in the API routes
+      // The actual token validation will happen in the API routes and layouts
+      return NextResponse.next()
+    }
+
+    // If user has a token and tries to visit login, allow it
+    // The login page itself will handle the redirect
+    if (isLoginPage && token) {
+      // Let the login page handle the redirect based on user role
       return NextResponse.next()
     }
 
     return NextResponse.next()
   } catch (e) {
-    // Handle any unexpected errors silently
-    console.error('Middleware error:', e)
+    // Handle any unexpected errors
+    console.error('[Middleware] Error:', e)
     return NextResponse.next()
   }
 }
