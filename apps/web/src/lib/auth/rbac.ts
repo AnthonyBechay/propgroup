@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { redirect } from 'next/navigation'
-import { apiClient } from '@/lib/api/client'
+import { cookies } from 'next/headers'
 
 export type UserRole = 'USER' | 'ADMIN' | 'SUPER_ADMIN'
 
@@ -16,32 +16,57 @@ export interface AuthUser {
 
 /**
  * Get the current authenticated user with role information from JWT token
+ * Works in server components by reading cookies directly and validating via API
  */
 export async function getCurrentUser(): Promise<AuthUser | null> {
   try {
-    const response = await apiClient.getCurrentUser()
+    const cookieStore = await cookies()
+    const token = cookieStore.get('token')?.value
 
-    if (response.success && response.user) {
+    if (!token) {
+      console.log('[rbac] No token found in cookies')
+      return null
+    }
+
+    // Use the backend URL, not the public API URL (which may be relative)
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+    const backendUrl = apiUrl.startsWith('http') ? apiUrl : `https://propgroup.onrender.com/api`
+
+    console.log(`[rbac] Attempting auth check to: ${backendUrl}/auth/me`)
+
+    const response = await fetch(`${backendUrl}/auth/me`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      cache: 'no-store', // Don't cache auth responses
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`[rbac] Auth check failed with status ${response.status}:`, errorText)
+      return null
+    }
+
+    const data = await response.json()
+
+    if (data.success && data.user) {
+      console.log(`[rbac] Successfully authenticated user: ${data.user.email} (${data.user.role})`)
       return {
-        id: response.user.id,
-        email: response.user.email,
-        role: response.user.role,
-        isActive: response.user.isActive,
-        bannedAt: response.user.bannedAt,
-        emailVerifiedAt: response.user.emailVerifiedAt,
+        id: data.user.id,
+        email: data.user.email,
+        role: data.user.role,
+        isActive: data.user.isActive,
+        bannedAt: data.user.bannedAt,
+        emailVerifiedAt: data.user.emailVerifiedAt,
       }
     }
 
+    console.error('[rbac] Response missing user data:', data)
     return null
   } catch (error: any) {
-    // Log more detailed error information for debugging
-    if (error?.message?.includes('fetch')) {
-      console.error('[rbac] Network error fetching current user:', error.message)
-    } else if (error?.message?.includes('401')) {
-      console.error('[rbac] Unauthorized - token may be expired or invalid')
-    } else {
-      console.error('[rbac] Error getting current user:', error)
-    }
+    console.error('[rbac] Error getting current user:', error.message || error)
     return null
   }
 }

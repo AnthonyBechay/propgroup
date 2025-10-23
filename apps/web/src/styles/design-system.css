@@ -1,0 +1,530 @@
+/**
+ * PropGroup Design System
+ * Futuristic, professional color scheme and components
+ * Mobile-first, accessible, and performant
+ */
+
+/* ============================================
+   FUTURISTIC COLOR PALETTE
+   ============================================ */
+:root {
+  /* Primary Colors - Deep Blue to Cyan Gradient */
+  --pg-primary-900: #0a1628;
+  --pg-primary-800: #0f2439;
+  --pg-primary-700: #15304b;
+  --pg-primary-600: #1e4976;
+  --pg-primary-500: #2563eb;
+  --pg-primary-400: #3b82f6;
+  --pg-primary-300: #60a5fa;
+  --pg-primary-200: #93c5fd;
+  --pg-primary-100: #dbeafe;
+
+  /* Secondary Colors - Electric Purple to Magenta */
+  --pg-secondary-900: #2d1b4e;
+  --pg-secondary-800: #3d2765;
+  --pg-secondary-700: #4c1d95;
+  --pg-secondary-600: #6d28d9;
+  --pg-secondary-500: #8b5cf6;
+  --pg-secondary-400: #a78bfa;
+  --pg-secondary-300: #c4b5fd;
+  --pg-secondary-200: #ddd6fe;
+  --pg-secondary-100: #ede9fe;
+
+  /* Accent Colors - Cyan to Teal */
+  --pg-accent-900: #083344;
+  --pg-accent-800: #0e4f6f;
+  --pg-accent-700: #0c617a;
+  --pg-accent-600: #0891b2;
+  --pg-accent-500: #06b6d4;
+  --pg-accent-400: #22d3ee;
+  --pg-accent-300: #67e8f9;
+  --pg-accent-200: #a5f3fc;
+  --pg-accent-100: #cffafe;
+
+  /* Neutral Colors - Modern Grays */
+  --pg-neutral-950: #030712;
+  --pg-neutral-900: #0f172a;
+  --pg-neutral-800: #1e293b;
+  --pg-neutral-700: #334155;
+  --pg-neutral-600: #475569;
+  --pg-neutral-500: #64748b;
+  --pg-neutral-400: #94a3b8;
+  --pg-neutral-300: #cbd5e1;
+  --pg-neutral-200: #e2e8f0;
+  --pg-neutral-100: #f1f5f9;
+  --pg-neutral-50: #f8fafc;
+
+  /* Semantic Colors */
+  --pg-success: #10b981;
+  --pg-success-light: #d1fae5;
+  --pg-warning: #f59e0b;
+  --pg-warning-light: #fef3c7;
+  --pg-error: #ef4444;
+  --pg-error-light: #fee2e2;
+  --pg-info: #3b82f6;
+  --pg-info-light: #dbeafe;
+
+  /* Gradients */
+  --pg-gradient-primary: linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%);
+  --pg-gradient-secondary: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  --pg-gradient-accent: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+  --pg-gradient-warm: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+  --pg-gradient-success: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  --pg-gradient-dark: linear-gradient(135deg, #0a1628 0%, #1e293b 100%);
+  --pg-gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+
+  /* Glassmorphism */
+  --pg-glass-light: rgba(255, 255, 255, 0.7);
+  --pg-glass-dark: rgba(15, 23, 42, 0.7);
+  --pg-glass-border: rgba(255, 255, 255, 0.2);
+  --pg-glass-border-dark: rgba(148, 163, 184, 0.2);
+
+  /* Shadows */
+  --pg-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --pg-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --pg-shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+  --pg-shadow-xl: 0 20px 50px -12px rgba(0, 0, 0, 0.25);
+  --pg-shadow-2xl: 0 30px 70px -15px rgba(0, 0, 0, 0.3);
+  --pg-shadow-glow: 0 0 20px rgba(37, 99, 235, 0.4);
+  --pg-shadow-glow-purple: 0 0 30px rgba(139, 92, 246, 0.4);
+  --pg-shadow-glow-cyan: 0 0 25px rgba(6, 182, 212, 0.4);
+
+  /* Spacing System */
+  --pg-space-xs: 0.25rem;    /* 4px */
+  --pg-space-sm: 0.5rem;     /* 8px */
+  --pg-space-md: 1rem;       /* 16px */
+  --pg-space-lg: 1.5rem;     /* 24px */
+  --pg-space-xl: 2rem;       /* 32px */
+  --pg-space-2xl: 3rem;      /* 48px */
+  --pg-space-3xl: 4rem;      /* 64px */
+  --pg-space-4xl: 6rem;      /* 96px */
+
+  /* Border Radius */
+  --pg-radius-sm: 0.375rem;  /* 6px */
+  --pg-radius-md: 0.5rem;    /* 8px */
+  --pg-radius-lg: 0.75rem;   /* 12px */
+  --pg-radius-xl: 1rem;      /* 16px */
+  --pg-radius-2xl: 1.5rem;   /* 24px */
+  --pg-radius-3xl: 2rem;     /* 32px */
+  --pg-radius-full: 9999px;
+
+  /* Typography */
+  --pg-font-sans: ui-sans-serif, system-ui, sans-serif;
+  --pg-font-mono: ui-monospace, 'Cascadia Code', monospace;
+
+  /* Z-index layers */
+  --pg-z-base: 0;
+  --pg-z-dropdown: 1000;
+  --pg-z-sticky: 1020;
+  --pg-z-fixed: 1030;
+  --pg-z-modal-backdrop: 1040;
+  --pg-z-modal: 1050;
+  --pg-z-popover: 1060;
+  --pg-z-tooltip: 1070;
+}
+
+/* ============================================
+   COMPONENT CLASSES
+   ============================================ */
+
+/* Glass Card - Futuristic glassmorphism effect */
+.pg-glass-card {
+  background: var(--pg-glass-light);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--pg-glass-border);
+  border-radius: var(--pg-radius-2xl);
+  box-shadow: var(--pg-shadow-lg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark .pg-glass-card {
+  background: var(--pg-glass-dark);
+  border-color: var(--pg-glass-border-dark);
+  box-shadow: var(--pg-shadow-xl);
+}
+
+.pg-glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--pg-shadow-xl);
+}
+
+.dark .pg-glass-card:hover {
+  box-shadow: var(--pg-shadow-2xl);
+}
+
+/* Gradient Text */
+.pg-gradient-text {
+  background: var(--pg-gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pg-gradient-text-secondary {
+  background: var(--pg-gradient-secondary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pg-gradient-text-accent {
+  background: var(--pg-gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Neon Border Effect */
+.pg-neon-border {
+  position: relative;
+  border-radius: var(--pg-radius-2xl);
+  overflow: hidden;
+}
+
+.pg-neon-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: var(--pg-gradient-primary);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* Animated Background Gradient */
+.pg-animated-gradient {
+  background: linear-gradient(
+    -45deg,
+    var(--pg-primary-600),
+    var(--pg-secondary-600),
+    var(--pg-accent-600),
+    var(--pg-primary-500)
+  );
+  background-size: 400% 400%;
+  animation: pg-gradient-shift 15s ease infinite;
+}
+
+@keyframes pg-gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Floating Animation */
+.pg-float {
+  animation: pg-float 6s ease-in-out infinite;
+}
+
+@keyframes pg-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+/* Pulse Glow Effect */
+.pg-pulse-glow {
+  animation: pg-pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pg-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(37, 99, 235, 0.8);
+  }
+}
+
+/* Shimmer Effect */
+.pg-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.pg-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: pg-shimmer 2s infinite;
+}
+
+@keyframes pg-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Modern Button Styles */
+.pg-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  border-radius: var(--pg-radius-xl);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  cursor: pointer;
+  border: none;
+  font-size: 1rem;
+}
+
+.pg-btn-primary {
+  background: var(--pg-gradient-primary);
+  color: white;
+  box-shadow: var(--pg-shadow-lg);
+}
+
+.pg-btn-primary:hover {
+  box-shadow: var(--pg-shadow-glow);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.pg-btn-secondary {
+  background: var(--pg-gradient-secondary);
+  color: white;
+  box-shadow: var(--pg-shadow-lg);
+}
+
+.pg-btn-secondary:hover {
+  box-shadow: var(--pg-shadow-glow-purple);
+  transform: translateY(-2px) scale(1.02);
+}
+
+.pg-btn-outline {
+  background: transparent;
+  border: 2px solid var(--pg-primary-500);
+  color: var(--pg-primary-500);
+}
+
+.pg-btn-outline:hover {
+  background: var(--pg-primary-500);
+  color: white;
+}
+
+.pg-btn-ghost {
+  background: transparent;
+  color: var(--pg-neutral-700);
+}
+
+.dark .pg-btn-ghost {
+  color: var(--pg-neutral-300);
+}
+
+.pg-btn-ghost:hover {
+  background: var(--pg-neutral-100);
+}
+
+.dark .pg-btn-ghost:hover {
+  background: var(--pg-neutral-800);
+}
+
+/* Card Hover Effect */
+.pg-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pg-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--pg-shadow-xl);
+}
+
+/* Glow on Hover */
+.pg-glow-on-hover {
+  transition: all 0.3s ease;
+}
+
+.pg-glow-on-hover:hover {
+  box-shadow: var(--pg-shadow-glow);
+}
+
+/* Neon Text */
+.pg-neon-text {
+  color: var(--pg-accent-400);
+  text-shadow:
+    0 0 7px rgba(6, 182, 212, 0.8),
+    0 0 10px rgba(6, 182, 212, 0.6),
+    0 0 21px rgba(6, 182, 212, 0.4);
+}
+
+/* Badge Styles */
+.pg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--pg-radius-full);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pg-badge-primary {
+  background: linear-gradient(135deg, var(--pg-primary-100), var(--pg-secondary-100));
+  color: var(--pg-primary-700);
+}
+
+.dark .pg-badge-primary {
+  background: linear-gradient(135deg,
+    rgba(37, 99, 235, 0.2),
+    rgba(139, 92, 246, 0.2)
+  );
+  color: var(--pg-primary-300);
+}
+
+.pg-badge-success {
+  background: var(--pg-success-light);
+  color: var(--pg-success);
+}
+
+.pg-badge-warning {
+  background: var(--pg-warning-light);
+  color: var(--pg-warning);
+}
+
+/* Blob Backgrounds */
+.pg-blob-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.pg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.3;
+  mix-blend-mode: multiply;
+  animation: pg-blob-float 20s ease-in-out infinite;
+}
+
+.dark .pg-blob {
+  mix-blend-mode: screen;
+  opacity: 0.15;
+}
+
+.pg-blob-1 {
+  background: var(--pg-primary-500);
+  animation-delay: 0s;
+}
+
+.pg-blob-2 {
+  background: var(--pg-secondary-500);
+  animation-delay: 7s;
+}
+
+.pg-blob-3 {
+  background: var(--pg-accent-500);
+  animation-delay: 14s;
+}
+
+@keyframes pg-blob-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(30px, -30px) scale(1.1);
+  }
+  50% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  75% {
+    transform: translate(40px, 10px) scale(1.05);
+  }
+}
+
+/* Grid Pattern */
+.pg-grid-pattern {
+  background-image:
+    linear-gradient(var(--pg-neutral-200) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pg-neutral-200) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+.dark .pg-grid-pattern {
+  background-image:
+    linear-gradient(var(--pg-neutral-800) 1px, transparent 1px),
+    linear-gradient(90deg, var(--pg-neutral-800) 1px, transparent 1px);
+}
+
+/* Dot Pattern */
+.pg-dot-pattern {
+  background-image: radial-gradient(circle, var(--pg-neutral-300) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.dark .pg-dot-pattern {
+  background-image: radial-gradient(circle, var(--pg-neutral-700) 1px, transparent 1px);
+}
+
+/* Fade In Animations */
+.pg-fade-in {
+  animation: pg-fade-in 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes pg-fade-in {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.pg-fade-in-up {
+  animation: pg-fade-in-up 0.8s ease-out forwards;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+@keyframes pg-fade-in-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger animations */
+.pg-stagger-1 { animation-delay: 0.1s; }
+.pg-stagger-2 { animation-delay: 0.2s; }
+.pg-stagger-3 { animation-delay: 0.3s; }
+.pg-stagger-4 { animation-delay: 0.4s; }
+.pg-stagger-5 { animation-delay: 0.5s; }
+.pg-stagger-6 { animation-delay: 0.6s; }
+
+/* ============================================
+   RESPONSIVE UTILITIES
+   ============================================ */
+
+@media (max-width: 640px) {
+  .pg-mobile-padding {
+    padding-left: var(--pg-space-md);
+    padding-right: var(--pg-space-md);
+  }
+}
+
+@media (min-width: 768px) {
+  .pg-tablet-padding {
+    padding-left: var(--pg-space-xl);
+    padding-right: var(--pg-space-xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .pg-desktop-padding {
+    padding-left: var(--pg-space-2xl);
+    padding-right: var(--pg-space-2xl);
+  }
+}

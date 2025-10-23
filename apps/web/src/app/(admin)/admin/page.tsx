@@ -1,10 +1,8 @@
-import { getCurrentUser } from '@/lib/auth/rbac'
-import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
-import { 
-  Building2, 
-  Users, 
-  Heart, 
+import {
+  Building2,
+  Users,
+  Heart,
   DollarSign,
   TrendingUp,
   FileText,
@@ -13,19 +11,15 @@ import {
   RefreshCw
 } from 'lucide-react'
 import { SeedDataButton } from '@/components/admin/SeedDataButton'
+import { getCurrentUser } from '@/lib/auth/rbac'
 
 // Force dynamic rendering for admin pages
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export default async function AdminDashboard() {
-  // Get current user (layout already checked authentication)
+  // Get current user for display purposes
   const currentUser = await getCurrentUser()
-
-  // This should never happen as layout handles auth, but keep as safety check
-  if (!currentUser) {
-    redirect('/auth/login?next=/admin')
-  }
 
   // Fetch dashboard statistics
   const [
