@@ -19,8 +19,7 @@ services:
         fromDatabase:
           name: propgroup-database
           property: connectionString
-      - key: PORT
-        value: 3001
+      # PORT is automatically assigned by Render - do not override
       - key: FRONTEND_URL
         value: https://propgroup-web.vercel.app
       - key: BACKEND_URL

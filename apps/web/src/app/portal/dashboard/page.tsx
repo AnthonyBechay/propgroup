@@ -1,12 +1,11 @@
 import { getCurrentUser } from '@/lib/auth/rbac'
-import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
-import { 
-  TrendingUp, 
-  Home, 
-  Calculator, 
-  Heart, 
-  FileText, 
+import {
+  TrendingUp,
+  Home,
+  Calculator,
+  Heart,
+  FileText,
   Users,
   DollarSign,
   MapPin,
@@ -23,12 +22,8 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export default async function DashboardPage() {
-  // Check if user is authenticated
+  // Get current user (layout already handles auth)
   const currentUser = await getCurrentUser()
-  
-  if (!currentUser) {
-    redirect('/auth/login?next=/portal/dashboard')
-  }
 
   // Fetch real data from database
   const [
