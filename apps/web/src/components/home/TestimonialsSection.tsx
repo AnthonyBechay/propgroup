@@ -52,18 +52,14 @@ export function TestimonialsSection() {
   }
 
   return (
-    <section className="py-20 bg-gray-50 dark:bg-gray-900/50 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
-
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Success <span className="text-gradient">Stories</span>
+    <section className="py-16 sm:py-20 bg-gray-50 dark:from-[#0a1628] dark:to-[#0f2439] relative overflow-hidden">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-10 sm:mb-12">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white mb-3">
+            Investor <span className="bg-gradient-to-r from-cyan-600 to-blue-600 dark:from-cyan-400 dark:to-blue-500 bg-clip-text text-transparent">Success</span>
           </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Hear from investors who have achieved their financial goals with PropGroup
+          <p className="text-lg text-gray-600 dark:text-gray-400">
+            Real results from real investors
           </p>
         </div>
 

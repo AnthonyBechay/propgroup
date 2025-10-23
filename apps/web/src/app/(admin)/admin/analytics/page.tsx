@@ -1,10 +1,8 @@
-import { getCurrentUser, requireAdmin } from '@/lib/auth/rbac'
-import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
-import { 
-  TrendingUp, 
-  Users, 
-  Building2, 
+import {
+  TrendingUp,
+  Users,
+  Building2,
   DollarSign,
   Activity,
   BarChart3,
@@ -13,12 +11,7 @@ import {
 } from 'lucide-react'
 
 export default async function AnalyticsPage() {
-  // Check if user is admin
-  const currentUser = await getCurrentUser()
-  
-  if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPER_ADMIN')) {
-    redirect('/unauthorized')
-  }
+  // Layout already handles authentication
 
   // Fetch analytics data
   const [

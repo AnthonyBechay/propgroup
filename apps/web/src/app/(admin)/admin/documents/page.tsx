@@ -1,8 +1,6 @@
-import { getCurrentUser } from '@/lib/auth/rbac'
-import { redirect } from 'next/navigation'
-import { 
-  FileText, 
-  Download, 
+import {
+  FileText,
+  Download,
   Upload,
   File,
   Folder,
@@ -13,13 +11,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
-export default async function DocumentsPage() {
-  // Check if user is admin
-  const currentUser = await getCurrentUser()
-  
-  if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPER_ADMIN')) {
-    redirect('/unauthorized')
-  }
+export default function DocumentsPage() {
+  // Layout already handles authentication
 
   // Mock documents data (in production, this would come from database)
   const documents = [

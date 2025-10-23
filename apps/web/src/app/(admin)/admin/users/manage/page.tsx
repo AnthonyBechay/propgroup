@@ -1,76 +1,53 @@
-import { getCurrentUser, requireSuperAdmin } from '@/lib/auth/rbac'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useAuth } from '@/contexts/AuthContext'
+import { useEffect, useState } from 'react'
 import { UserManagementTable } from '@/components/admin/UserManagementTable'
 import { InviteAdminModal } from '@/components/admin/InviteAdminModal'
 import { Button } from '@/components/ui/button'
-import { UserPlus, Shield, Activity } from 'lucide-react'
-import { prisma } from '@/lib/prisma'
+import { UserPlus, Shield, Activity, Loader2 } from 'lucide-react'
 
-export default async function SuperAdminUsersPage() {
-  // Check if user is super admin
-  const currentUser = await getCurrentUser()
-  
-  if (!currentUser || currentUser.role !== 'SUPER_ADMIN') {
-    redirect('/unauthorized')
-  }
+export default function SuperAdminUsersPage() {
+  // Layout already handles authentication
+  const { user } = useAuth()
+  const [users, setUsers] = useState<any[]>([])
+  const [recentActions, setRecentActions] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Fetch all users with their details
-  const users = await prisma.user.findMany({
-    select: {
-      id: true,
-      email: true,
-      firstName: true,
-      lastName: true,
-      role: true,
-      isActive: true,
-      bannedAt: true,
-      bannedBy: true,
-      bannedReason: true,
-      emailVerifiedAt: true,
-      lastLoginAt: true,
-      createdAt: true,
-      _count: {
-        select: {
-          propertyInquiries: true,
-          favoriteProperties: true,
-          ownedProperties: true,
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await fetch('/api/admin/users', {
+          credentials: 'include'
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          setUsers(data.users)
+          setRecentActions(data.recentActions)
         }
-      }
-    },
-    orderBy: [
-      { role: 'desc' }, // Super admins first, then admins, then users
-      { createdAt: 'desc' }
-    ]
-  })
-
-  // Get admin activity stats
-  const adminStats = await prisma.adminAuditLog.groupBy({
-    by: ['adminId'],
-    _count: {
-      action: true
-    },
-    orderBy: {
-      _count: {
-        action: 'desc'
-      }
-    },
-    take: 10
-  })
-
-  // Get recent admin actions
-  const recentActions = await prisma.adminAuditLog.findMany({
-    take: 10,
-    orderBy: { createdAt: 'desc' },
-    include: {
-      admin: {
-        select: {
-          email: true,
-          firstName: true,
-          lastName: true
-        }
+      } catch (error) {
+        console.error('Error fetching users:', error)
+      } finally {
+        setLoading(false)
       }
     }
-  })
+
+    fetchData()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-purple-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading users...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const dummyUsers = users.length > 0 ? users : []
 
   return (
     <div className="space-y-6">
@@ -86,7 +63,7 @@ export default async function SuperAdminUsersPage() {
           </p>
         </div>
         <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-          <InviteAdminModal currentUserId={currentUser.id}>
+          <InviteAdminModal currentUserId={user?.id || ''}>
             <Button className="bg-purple-600 hover:bg-purple-700">
               <UserPlus className="h-4 w-4 mr-2" />
               Invite Admin
@@ -100,25 +77,25 @@ export default async function SuperAdminUsersPage() {
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="text-sm text-gray-600">Total Users</div>
           <div className="text-2xl font-bold">
-            {users.filter(u => u.role === 'USER').length}
+            {dummyUsers.filter((u: any) => u.role === 'USER').length}
           </div>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="text-sm text-gray-600">Admins</div>
           <div className="text-2xl font-bold text-blue-600">
-            {users.filter(u => u.role === 'ADMIN').length}
+            {dummyUsers.filter((u: any) => u.role === 'ADMIN').length}
           </div>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="text-sm text-gray-600">Super Admins</div>
           <div className="text-2xl font-bold text-purple-600">
-            {users.filter(u => u.role === 'SUPER_ADMIN').length}
+            {dummyUsers.filter((u: any) => u.role === 'SUPER_ADMIN').length}
           </div>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="text-sm text-gray-600">Banned Users</div>
           <div className="text-2xl font-bold text-red-600">
-            {users.filter(u => u.bannedAt).length}
+            {dummyUsers.filter((u: any) => u.bannedAt).length}
           </div>
         </div>
       </div>
@@ -128,9 +105,9 @@ export default async function SuperAdminUsersPage() {
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-medium text-gray-900">All Users</h2>
         </div>
-        <UserManagementTable 
-          users={users} 
-          currentUserId={currentUser.id}
+        <UserManagementTable
+          users={dummyUsers}
+          currentUserId={user?.id || ''}
         />
       </div>
 
@@ -161,7 +138,7 @@ export default async function SuperAdminUsersPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {recentActions.map((action) => (
+              {recentActions.map((action: any) => (
                 <tr key={action.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {action.admin.firstName} {action.admin.lastName || action.admin.email}

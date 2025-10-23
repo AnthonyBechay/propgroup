@@ -1,105 +1,54 @@
-import { getCurrentUser } from '@/lib/auth/rbac'
-import { prisma } from '@/lib/prisma'
-import {
-  TrendingUp,
-  Home,
-  Calculator,
-  Heart,
-  FileText,
-  Users,
-  DollarSign,
-  MapPin,
-  BarChart3,
-  Building2,
-  ArrowUpRight,
-  ArrowDownRight
-} from 'lucide-react'
-import Link from 'next/link'
+'use client'
+
+import { useAuth } from '@/contexts/AuthContext'
+import { useEffect, useState } from 'react'
 import { DashboardClient } from './DashboardClient'
+import { Loader2 } from 'lucide-react'
 
-// Force dynamic rendering
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+export default function DashboardPage() {
+  const { user } = useAuth()
+  const [dashboardData, setDashboardData] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
-export default async function DashboardPage() {
-  // Get current user (layout already handles auth)
-  const currentUser = await getCurrentUser()
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        const response = await fetch('/api/portal/dashboard', {
+          credentials: 'include'
+        })
 
-  // Fetch real data from database
-  const [
-    totalProperties,
-    totalFavorites,
-    totalInquiries,
-    recentProperties,
-    marketTrends
-  ] = await Promise.all([
-    prisma.property.count(),
-    prisma.favoriteProperty.count(),
-    prisma.propertyInquiry.count(),
-    prisma.property.findMany({
-      take: 3,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        developer: true,
-        investmentData: true
+        if (response.ok) {
+          const data = await response.json()
+          setDashboardData(data)
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error)
+      } finally {
+        setLoading(false)
       }
-    }),
-    // Calculate market trends from actual data
-    prisma.property.groupBy({
-      by: ['country'],
-      _avg: {
-        price: true
-      },
-      _count: {
-        id: true
-      }
-    })
-  ])
-
-  // Calculate portfolio stats (if user has properties)
-  const userProperties = await prisma.property.findMany({
-    where: {
-      // Add user-specific property filtering here if needed
-    },
-    include: {
-      investmentData: true
     }
-  })
 
-  const portfolioStats = {
-    totalInvestment: userProperties.reduce((sum: number, prop: any) => sum + (prop.price || 0), 0),
-    totalProperties: userProperties.length,
-    averageROI: userProperties.length > 0 
-      ? userProperties.reduce((sum: number, prop: any) => sum + (prop.investmentData?.expectedROI || 0), 0) / userProperties.length 
-      : 0,
-    monthlyIncome: userProperties.reduce((sum: number, prop: any) => sum + (prop.investmentData?.rentalYield || 0) * (prop.price || 0) / 100 / 12, 0),
-    portfolioGrowth: 0, // This would need historical data to calculate
-    savedProperties: totalFavorites
+    fetchDashboardData()
+  }, [])
+
+  if (loading || !dashboardData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    )
   }
 
-  // Format market trends
-  const formattedMarketTrends = marketTrends.map((trend: any) => ({
-    country: trend.country,
-    trend: 'stable' as const, // This would need historical data to calculate actual trends
-    value: 0, // This would need historical data to calculate actual changes
-    avgPrice: trend._avg.price || 0,
-    propertyCount: trend._count.id
-  }))
-
-  // Mock recent activity (this would need to be implemented with actual user activity tracking)
-  const recentActivity = [
-    { id: 1, type: 'inquiry', property: 'Recent Property Inquiry', date: '2 hours ago' },
-    { id: 2, type: 'favorite', property: 'Saved Property', date: '1 day ago' },
-    { id: 3, type: 'view', property: 'Viewed Property', date: '3 days ago' },
-  ]
-
   return (
-    <DashboardClient 
-      user={currentUser}
-      portfolioStats={portfolioStats}
-      recentActivity={recentActivity}
-      marketTrends={formattedMarketTrends}
-      recentProperties={recentProperties}
+    <DashboardClient
+      user={user}
+      portfolioStats={dashboardData.portfolioStats}
+      recentActivity={dashboardData.recentActivity}
+      marketTrends={dashboardData.marketTrends}
+      recentProperties={dashboardData.recentProperties}
     />
   )
 }

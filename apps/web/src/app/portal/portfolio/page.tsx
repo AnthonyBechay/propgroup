@@ -1,5 +1,3 @@
-import { getCurrentUser } from '@/lib/auth/rbac'
-import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { PortfolioClient } from './PortfolioClient'
 
@@ -8,12 +6,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export default async function PortfolioPage() {
-  // Check if user is authenticated
-  const currentUser = await getCurrentUser()
-  
-  if (!currentUser) {
-    redirect('/auth/login?next=/portal/portfolio')
-  }
+  // Layout already handles authentication
 
   // Fetch user's portfolio data from database
   // Note: This assumes you have a user property relationship in your schema

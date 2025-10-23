@@ -1,8 +1,7 @@
 import { HeroSectionNew } from '@/components/home/HeroSectionNew'
-import { FeaturesSectionNew } from '@/components/home/FeaturesSectionNew'
-import { StatsSectionNew } from '@/components/home/StatsSectionNew'
+import { FeaturesSectionSimple } from '@/components/home/FeaturesSectionSimple'
 import { TestimonialsSection } from '@/components/home/TestimonialsSection'
-import { CTASectionNew } from '@/components/home/CTASectionNew'
+import { CTASectionSimple } from '@/components/home/CTASectionSimple'
 
 export default async function Home() {
   return (
@@ -11,16 +10,13 @@ export default async function Home() {
       <HeroSectionNew />
 
       {/* Features Section */}
-      <FeaturesSectionNew />
-
-      {/* Stats Section */}
-      <StatsSectionNew />
+      <FeaturesSectionSimple />
 
       {/* Testimonials Section */}
       <TestimonialsSection />
 
       {/* CTA Section */}
-      <CTASectionNew />
+      <CTASectionSimple />
     </main>
   )
 }

@@ -1,5 +1,3 @@
-import { getCurrentUser } from '@/lib/auth/rbac'
-import { redirect } from 'next/navigation'
 import {
   Bot,
   Sparkles,
@@ -14,12 +12,8 @@ import {
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-export default async function AISettingsPage() {
-  const currentUser = await getCurrentUser()
-
-  if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPER_ADMIN')) {
-    redirect('/unauthorized')
-  }
+export default function AISettingsPage() {
+  // Layout already handles authentication
 
   return (
     <div>

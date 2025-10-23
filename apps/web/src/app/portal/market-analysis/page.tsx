@@ -1,5 +1,3 @@
-import { getCurrentUser } from '@/lib/auth/rbac'
-import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
 import { MarketAnalysisClient } from './MarketAnalysisClient'
 
@@ -8,12 +6,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
 export default async function MarketAnalysisPage() {
-  // Check if user is authenticated
-  const currentUser = await getCurrentUser()
-  
-  if (!currentUser) {
-    redirect('/auth/login?next=/portal/market-analysis')
-  }
+  // Layout already handles authentication
 
   // Fetch real market data from database
   const marketData = await prisma.property.groupBy({

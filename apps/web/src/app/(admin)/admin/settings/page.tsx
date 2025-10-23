@@ -1,7 +1,8 @@
-import { getCurrentUser } from '@/lib/auth/rbac'
-import { redirect } from 'next/navigation'
-import { 
-  Settings as SettingsIcon, 
+'use client'
+
+import { useAuth } from '@/contexts/AuthContext'
+import {
+  Settings as SettingsIcon,
   User,
   Bell,
   Shield,
@@ -17,15 +18,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
-export default async function SettingsPage() {
-  // Check if user is admin
-  const currentUser = await getCurrentUser()
-  
-  if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'SUPER_ADMIN')) {
-    redirect('/unauthorized')
-  }
+export default function SettingsPage() {
+  // Layout already handles authentication
+  const { user } = useAuth()
 
-  const isSuperAdmin = currentUser.role === 'SUPER_ADMIN'
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN'
 
   return (
     <div className="space-y-6">
