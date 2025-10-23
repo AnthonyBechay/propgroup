@@ -12,56 +12,67 @@ import {
 
 export default async function AnalyticsPage() {
   // Layout already handles authentication
+  let totalProperties = 0
+  let propertiesByCountry: any[] = []
+  let propertiesByStatus: any[] = []
+  let userGrowth: any[] = []
+  let inquiriesByMonth: any[] = []
+  let topProperties: any[] = []
 
-  // Fetch analytics data
-  const [
-    totalProperties,
-    propertiesByCountry,
-    propertiesByStatus,
-    userGrowth,
-    inquiriesByMonth,
-    topProperties
-  ] = await Promise.all([
-    prisma.property.count(),
-    prisma.property.groupBy({
-      by: ['country'],
-      _count: true,
-    }),
-    prisma.property.groupBy({
-      by: ['status'],
-      _count: true,
-    }),
-    prisma.user.findMany({
-      select: { createdAt: true },
-      orderBy: { createdAt: 'asc' },
-      take: 30
-    }),
-    prisma.propertyInquiry.findMany({
-      select: { createdAt: true },
-      where: {
-        createdAt: {
-          gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // Last 30 days
-        }
-      },
-      orderBy: { createdAt: 'asc' }
-    }),
-    prisma.property.findMany({
-      take: 5,
-      orderBy: {
-        favoriteProperties: {
-          _count: 'desc'
-        }
-      },
-      include: {
-        _count: {
-          select: {
-            favoriteProperties: true,
-            propertyInquiries: true
+  try {
+    // Fetch analytics data
+    const results = await Promise.all([
+      prisma.property.count(),
+      prisma.property.groupBy({
+        by: ['country'],
+        _count: true,
+      }),
+      prisma.property.groupBy({
+        by: ['status'],
+        _count: true,
+      }),
+      prisma.user.findMany({
+        select: { createdAt: true },
+        orderBy: { createdAt: 'asc' },
+        take: 30
+      }),
+      prisma.propertyInquiry.findMany({
+        select: { createdAt: true },
+        where: {
+          createdAt: {
+            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // Last 30 days
+          }
+        },
+        orderBy: { createdAt: 'asc' }
+      }),
+      prisma.property.findMany({
+        take: 5,
+        orderBy: {
+          favoriteProperties: {
+            _count: 'desc'
+          }
+        },
+        include: {
+          _count: {
+            select: {
+              favoriteProperties: true,
+              propertyInquiries: true
+            }
           }
         }
-      }
-    })
-  ])
+      })
+    ])
+
+    totalProperties = results[0]
+    propertiesByCountry = results[1]
+    propertiesByStatus = results[2]
+    userGrowth = results[3]
+    inquiriesByMonth = results[4]
+    topProperties = results[5]
+  } catch (error) {
+    console.error('Error fetching analytics data:', error)
+    // Use default empty values if database query fails
+  }
 
   // Calculate growth rate
   const lastMonthUsers = userGrowth.filter(u => 
@@ -77,124 +88,115 @@ export default async function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header - Updated styling */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <BarChart3 className="h-6 w-6" />
+        <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+            <BarChart3 className="h-6 w-6 text-white" />
+          </div>
           Analytics Dashboard
         </h1>
-        <p className="mt-2 text-sm text-gray-700">
+        <p className="mt-2 text-slate-600">
           Track your platform's performance and user engagement metrics.
         </p>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Building2 className="h-6 w-6 text-blue-600" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Total Properties
-                  </dt>
-                  <dd className="text-2xl font-semibold text-gray-900">
-                    {totalProperties}
-                  </dd>
-                </dl>
+      {/* Key Metrics - Updated with gradient cards */}
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="bg-white border-2 border-slate-100 overflow-hidden shadow-lg rounded-2xl hover:shadow-xl transition-all">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                <Building2 className="h-6 w-6 text-white" />
               </div>
             </div>
+            <dt className="text-sm font-medium text-slate-600 mb-1">
+              Total Properties
+            </dt>
+            <dd className="text-3xl font-black text-gray-900">
+              {totalProperties}
+            </dd>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Users className="h-6 w-6 text-green-600" />
+        <div className="bg-white border-2 border-slate-100 overflow-hidden shadow-lg rounded-2xl hover:shadow-xl transition-all">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-md">
+                <Users className="h-6 w-6 text-white" />
               </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    User Growth
-                  </dt>
-                  <dd className="text-2xl font-semibold text-gray-900">
-                    +{growthRate}%
-                  </dd>
-                </dl>
+              <div className="flex items-baseline text-sm font-bold px-3 py-1 rounded-lg bg-green-100 text-green-700">
+                +{growthRate}%
               </div>
             </div>
+            <dt className="text-sm font-medium text-slate-600 mb-1">
+              User Growth
+            </dt>
+            <dd className="text-3xl font-black text-gray-900">
+              {lastMonthUsers}
+            </dd>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Activity className="h-6 w-6 text-purple-600" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Monthly Inquiries
-                  </dt>
-                  <dd className="text-2xl font-semibold text-gray-900">
-                    {inquiriesByMonth.length}
-                  </dd>
-                </dl>
+        <div className="bg-white border-2 border-slate-100 overflow-hidden shadow-lg rounded-2xl hover:shadow-xl transition-all">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-md">
+                <Activity className="h-6 w-6 text-white" />
               </div>
             </div>
+            <dt className="text-sm font-medium text-slate-600 mb-1">
+              Monthly Inquiries
+            </dt>
+            <dd className="text-3xl font-black text-gray-900">
+              {inquiriesByMonth.length}
+            </dd>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <DollarSign className="h-6 w-6 text-yellow-600" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Avg. Engagement
-                  </dt>
-                  <dd className="text-2xl font-semibold text-gray-900">
-                    {topProperties.length > 0 
-                      ? Math.round(topProperties.reduce((acc, p) => acc + p._count.propertyInquiries, 0) / topProperties.length)
-                      : 0
-                    }
-                  </dd>
-                </dl>
+        <div className="bg-white border-2 border-slate-100 overflow-hidden shadow-lg rounded-2xl hover:shadow-xl transition-all">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-md">
+                <DollarSign className="h-6 w-6 text-white" />
               </div>
             </div>
+            <dt className="text-sm font-medium text-slate-600 mb-1">
+              Avg. Engagement
+            </dt>
+            <dd className="text-3xl font-black text-gray-900">
+              {topProperties.length > 0
+                ? Math.round(topProperties.reduce((acc, p) => acc + p._count.propertyInquiries, 0) / topProperties.length)
+                : 0
+              }
+            </dd>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Properties by Country */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-            <PieChart className="h-5 w-5" />
+        {/* Properties by Country - Updated styling */}
+        <div className="bg-white border-2 border-slate-100 shadow-lg rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
+              <PieChart className="h-5 w-5 text-white" />
+            </div>
             Properties by Country
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {propertiesByCountry.map((item) => (
-              <div key={item.country} className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">{item.country}</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full" 
-                      style={{ 
-                        width: `${(item._count / totalProperties * 100)}%` 
+              <div key={item.country} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                <span className="text-sm font-bold text-gray-900">{item.country}</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-32 bg-slate-200 rounded-full h-2.5">
+                    <div
+                      className="bg-gradient-to-r from-cyan-500 to-blue-600 h-2.5 rounded-full shadow-sm"
+                      style={{
+                        width: `${(item._count / totalProperties * 100)}%`
                       }}
                     />
                   </div>
-                  <span className="text-sm text-gray-900 font-medium w-12 text-right">
+                  <span className="text-sm text-gray-900 font-bold w-12 text-right bg-white px-2 py-1 rounded-lg shadow-sm">
                     {item._count}
                   </span>
                 </div>
@@ -203,32 +205,34 @@ export default async function AnalyticsPage() {
           </div>
         </div>
 
-        {/* Properties by Status */}
-        <div className="bg-white shadow rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-            <BarChart3 className="h-5 w-5" />
+        {/* Properties by Status - Updated styling */}
+        <div className="bg-white border-2 border-slate-100 shadow-lg rounded-2xl p-6">
+          <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+              <BarChart3 className="h-5 w-5 text-white" />
+            </div>
             Properties by Status
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {propertiesByStatus.map((item) => {
-              const statusColors = {
-                'OFF_PLAN': 'bg-yellow-600',
-                'NEW_BUILD': 'bg-green-600',
-                'RESALE': 'bg-purple-600'
+              const statusGradients = {
+                'OFF_PLAN': 'from-yellow-500 to-orange-600',
+                'NEW_BUILD': 'from-green-500 to-emerald-600',
+                'RESALE': 'from-purple-500 to-pink-600'
               }
               return (
-                <div key={item.status} className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-600">{item.status.replace('_', ' ')}</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-32 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className={`${statusColors[item.status as keyof typeof statusColors]} h-2 rounded-full`}
-                        style={{ 
-                          width: `${(item._count / totalProperties * 100)}%` 
+                <div key={item.status} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                  <span className="text-sm font-bold text-gray-900">{item.status.replace('_', ' ')}</span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-32 bg-slate-200 rounded-full h-2.5">
+                      <div
+                        className={`bg-gradient-to-r ${statusGradients[item.status as keyof typeof statusGradients]} h-2.5 rounded-full shadow-sm`}
+                        style={{
+                          width: `${(item._count / totalProperties * 100)}%`
                         }}
                       />
                     </div>
-                    <span className="text-sm text-gray-900 font-medium w-12 text-right">
+                    <span className="text-sm text-gray-900 font-bold w-12 text-right bg-white px-2 py-1 rounded-lg shadow-sm">
                       {item._count}
                     </span>
                   </div>
@@ -238,53 +242,55 @@ export default async function AnalyticsPage() {
           </div>
         </div>
 
-        {/* Top Properties */}
-        <div className="bg-white shadow rounded-lg p-6 lg:col-span-2">
-          <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
+        {/* Top Properties - Updated styling */}
+        <div className="bg-white border-2 border-slate-100 shadow-lg rounded-2xl p-6 lg:col-span-2">
+          <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
+              <TrendingUp className="h-5 w-5 text-white" />
+            </div>
             Top Performing Properties
           </h3>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
+            <table className="min-w-full divide-y-2 divide-slate-100">
+              <thead className="bg-slate-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                     Property
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                     Location
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                     Favorites
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                     Inquiries
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-4 text-left text-xs font-bold text-slate-700 uppercase tracking-wider">
                     Status
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-slate-100">
                 {topProperties.map((property) => (
-                  <tr key={property.id}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <tr key={property.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
                       {property.title}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                       {property.country}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                       {property._count.favoriteProperties}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
                       {property._count.propertyInquiries}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                        ${property.status === 'OFF_PLAN' ? 'bg-yellow-100 text-yellow-800' : 
-                          property.status === 'NEW_BUILD' ? 'bg-green-100 text-green-800' : 
-                          'bg-purple-100 text-purple-800'}`}>
+                      <span className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-bold shadow-sm
+                        ${property.status === 'OFF_PLAN' ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white' :
+                          property.status === 'NEW_BUILD' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' :
+                          'bg-gradient-to-r from-purple-500 to-pink-600 text-white'}`}>
                         {property.status.replace('_', ' ')}
                       </span>
                     </td>

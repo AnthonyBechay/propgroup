@@ -6,31 +6,42 @@ import { Plus, Building2 } from 'lucide-react'
 
 export default async function AdminPropertiesPage() {
   // Layout already handles authentication, no need to check again
-  // Fetch all properties with related data
-  const properties = await prisma.property.findMany({
-    include: {
-      developer: true,
-      investmentData: true,
-      locationGuide: true,
-      _count: {
-        select: {
-          favoriteProperties: true,
-          propertyInquiries: true
-        }
-      }
-    },
-    orderBy: { createdAt: 'desc' }
-  })
+  let properties = []
+  let developers = []
+  let locationGuides = []
 
-  // Fetch developers and location guides for the form
-  const [developers, locationGuides] = await Promise.all([
-    prisma.developer.findMany({
-      select: { id: true, name: true, country: true }
-    }),
-    prisma.locationGuide.findMany({
-      select: { id: true, title: true, country: true }
+  try {
+    // Fetch all properties with related data
+    properties = await prisma.property.findMany({
+      include: {
+        developer: true,
+        investmentData: true,
+        locationGuide: true,
+        _count: {
+          select: {
+            favoriteProperties: true,
+            propertyInquiries: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
     })
-  ])
+
+    // Fetch developers and location guides for the form
+    const results = await Promise.all([
+      prisma.developer.findMany({
+        select: { id: true, name: true, country: true }
+      }),
+      prisma.locationGuide.findMany({
+        select: { id: true, title: true, country: true }
+      })
+    ])
+    developers = results[0]
+    locationGuides = results[1]
+  } catch (error) {
+    console.error('Error fetching properties data:', error)
+    // Return empty arrays if database query fails
+  }
 
   return (
     <div>

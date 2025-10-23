@@ -31,18 +31,18 @@ export function Sidebar() {
 
   return (
     <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
-      <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 shadow-sm">
+      <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 px-6 pb-4 border-r-2 border-slate-700">
         <div className="flex h-16 shrink-0 items-center">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">A</span>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Shield className="text-white font-bold w-6 h-6" />
             </div>
             <div>
-              <span className="font-bold text-xl text-gray-900">
+              <span className="font-black text-lg text-white block leading-tight">
                 Admin Panel
               </span>
               {user?.role === 'SUPER_ADMIN' && (
-                <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold bg-gradient-to-r from-purple-500 to-pink-600 text-white shadow-md mt-0.5">
                   Super Admin
                 </span>
               )}
@@ -52,23 +52,23 @@ export function Sidebar() {
         <nav className="flex flex-1 flex-col">
           <ul role="list" className="flex flex-1 flex-col gap-y-7">
             <li>
-              <ul role="list" className="-mx-2 space-y-1">
+              <ul role="list" className="-mx-2 space-y-2">
                 {navigation.map((item) => {
-                  const isActive = pathname === item.href || 
+                  const isActive = pathname === item.href ||
                     (item.href === '/admin/users' && pathname.startsWith('/admin/users'))
                   return (
                     <li key={item.name}>
                       <Link
                         href={item.href}
-                        className={`group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 ${
+                        className={`group flex gap-x-3 rounded-xl p-3 text-sm font-bold leading-6 transition-all ${
                           isActive
-                            ? 'bg-red-50 text-red-700'
-                            : 'text-gray-700 hover:text-red-700 hover:bg-gray-50'
+                            ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg'
+                            : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
                         }`}
                       >
                         <item.icon
-                          className={`h-6 w-6 shrink-0 ${
-                            isActive ? 'text-red-700' : 'text-gray-400 group-hover:text-red-700'
+                          className={`h-5 w-5 shrink-0 ${
+                            isActive ? 'text-white' : 'text-slate-400 group-hover:text-white'
                           }`}
                           aria-hidden="true"
                         />
@@ -82,10 +82,10 @@ export function Sidebar() {
             <li className="mt-auto">
               <button
                 onClick={signOut}
-                className="group flex w-full gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-red-700"
+                className="group flex w-full gap-x-3 rounded-xl p-3 text-sm font-bold leading-6 text-slate-300 hover:bg-red-500/20 hover:text-red-400 transition-all border-2 border-slate-700 hover:border-red-500/50"
               >
                 <LogOut
-                  className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-red-700"
+                  className="h-5 w-5 shrink-0 text-slate-400 group-hover:text-red-400"
                   aria-hidden="true"
                 />
                 Sign out

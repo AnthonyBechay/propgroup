@@ -18,24 +18,29 @@ export default function AISettingsPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">AI Search Settings</h1>
-        <p className="text-gray-600">Configure and manage the AI-powered property search assistant</p>
+        <h1 className="text-3xl font-black text-gray-900 flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+            <Bot className="h-6 w-6 text-white" />
+          </div>
+          AI Search Settings
+        </h1>
+        <p className="text-slate-600 mt-1">Configure and manage the AI-powered property search assistant</p>
       </div>
 
-      {/* Overview Cards */}
+      {/* Overview Cards - Updated styling */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="bg-white border-2 border-slate-100 rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-              <MessageSquare className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+              <MessageSquare className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold text-gray-900">1,234</span>
+            <span className="text-3xl font-black text-gray-900">1,234</span>
           </div>
-          <h3 className="font-semibold text-gray-900 mb-1">AI Searches</h3>
-          <p className="text-sm text-gray-600">Total searches this month</p>
-          <div className="mt-2 flex items-center text-sm text-green-600">
+          <h3 className="font-bold text-gray-900 mb-1">AI Searches</h3>
+          <p className="text-sm text-slate-600 mb-3">Total searches this month</p>
+          <div className="flex items-center text-sm font-bold px-3 py-1 rounded-lg bg-green-100 text-green-700 w-fit">
             <TrendingUp className="w-4 h-4 mr-1" />
-            <span>+23% from last month</span>
+            <span>+23%</span>
           </div>
         </div>
 

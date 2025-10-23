@@ -20,9 +20,39 @@ export default function DashboardPage() {
         if (response.ok) {
           const data = await response.json()
           setDashboardData(data)
+        } else if (response.status === 401) {
+          console.error('Unauthorized access to portal dashboard')
+          // Set empty data to allow page to render
+          setDashboardData({
+            portfolioStats: {
+              totalInvestment: 0,
+              totalProperties: 0,
+              averageROI: 0,
+              monthlyIncome: 0,
+              portfolioGrowth: 0,
+              savedProperties: 0
+            },
+            recentActivity: [],
+            marketTrends: [],
+            recentProperties: [],
+          })
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error)
+        // Set empty data on error
+        setDashboardData({
+          portfolioStats: {
+            totalInvestment: 0,
+            totalProperties: 0,
+            averageROI: 0,
+            monthlyIncome: 0,
+            portfolioGrowth: 0,
+            savedProperties: 0
+          },
+          recentActivity: [],
+          marketTrends: [],
+          recentProperties: [],
+        })
       } finally {
         setLoading(false)
       }

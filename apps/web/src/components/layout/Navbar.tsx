@@ -242,7 +242,17 @@ export function Navbar() {
                   )}
                 </div>
 
-                {!pathname.startsWith('/portal') && (
+                {/* Admin Button for Admin/Super Admin users */}
+                {(user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') && !pathname.startsWith('/admin') && (
+                  <Link href="/admin">
+                    <Button size="sm" variant="outline" className="border-purple-600 text-purple-600 hover:bg-purple-50">
+                      <Shield className="w-4 h-4 mr-2" />
+                      Admin Panel
+                    </Button>
+                  </Link>
+                )}
+
+                {!pathname.startsWith('/portal') && !pathname.startsWith('/admin') && (
                   <Link href="/portal/dashboard">
                     <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-md hover:shadow-lg transition-all">
                       <Sparkles className="w-4 h-4 mr-2" />

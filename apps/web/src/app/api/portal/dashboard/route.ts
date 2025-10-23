@@ -9,8 +9,9 @@ export async function GET(request: NextRequest) {
     // Verify authentication
     const authResult = await verifyAuth(request)
     if (!authResult.authenticated || !authResult.user) {
+      console.log('[Portal Dashboard] Authentication failed')
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Unauthorized - Please sign in to view your dashboard' },
         { status: 401 }
       )
     }

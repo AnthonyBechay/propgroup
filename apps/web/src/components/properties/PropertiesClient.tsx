@@ -139,65 +139,82 @@ export function PropertiesClient({
   ).length
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
-      {/* Hero Section */}
-      <section className="relative py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl" />
+    <div className="min-h-screen bg-white">
+      {/* Hero Section - Matching Landing Page */}
+      <section className="relative py-16 sm:py-20 bg-gradient-to-br from-[#0a1628] via-[#0f2439] to-[#1e293b] text-white overflow-hidden">
+        {/* Simplified Background - Matching Landing Page */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div
+            className="absolute top-0 -left-40 w-[600px] h-[600px] rounded-full opacity-15 blur-[120px]"
+            style={{ background: 'radial-gradient(circle, #2563eb 0%, transparent 70%)' }}
+          />
+          <div
+            className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full opacity-15 blur-[120px]"
+            style={{ background: 'radial-gradient(circle, #8b5cf6 0%, transparent 70%)' }}
+          />
         </div>
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold mb-4">
-              <Sparkles className="w-4 h-4" />
-              CURATED PROPERTIES
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-full text-sm font-semibold mb-6">
+              <Sparkles className="w-4 h-4 text-cyan-400" />
+              <span className="text-slate-300">CURATED PROPERTIES</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Discover Premium Investment Properties
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black mb-4 sm:mb-6">
+              <span className="block text-white mb-2">
+                Premium Investment
+              </span>
+              <span className="block bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 bg-clip-text text-transparent">
+                Properties
+              </span>
             </h1>
-            <p className="text-xl text-white/90 mb-8">
+            <p className="text-lg sm:text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
               Hand-picked opportunities with verified returns and expert analysis
             </p>
-            
-            {/* Quick stats */}
-            <div className="flex flex-wrap gap-6">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-green-400" />
-                <span className="font-semibold">12.5% Avg ROI</span>
+
+            {/* Quick stats - Matching Landing Page Style */}
+            <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto">
+              <div>
+                <div className="text-3xl sm:text-4xl font-bold text-white mb-1">12.5%</div>
+                <div className="text-sm text-slate-400">Avg ROI</div>
               </div>
-              <div className="flex items-center gap-2">
-                <Globe className="w-5 h-5 text-blue-300" />
-                <span className="font-semibold">25+ Countries</span>
+              <div>
+                <div className="text-3xl sm:text-4xl font-bold text-white mb-1">25+</div>
+                <div className="text-sm text-slate-400">Countries</div>
               </div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-yellow-400" />
-                <span className="font-semibold">{filteredProperties.length} Properties</span>
+              <div>
+                <div className="text-3xl sm:text-4xl font-bold text-white mb-1">{filteredProperties.length}</div>
+                <div className="text-sm text-slate-400">Properties</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* AI Search Banner */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* AI Search Banner - Updated to match landing page style */}
         {!showAISearch && (
-          <div className="mb-6 p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl text-white">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                  <Bot className="w-6 h-6" />
+          <div className="mb-8 p-6 bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl text-white shadow-xl">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                  <Bot className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold">Try AI-Powered Search</h3>
-                  <p className="text-sm text-white/90">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-bold text-white">AI-Powered Search</h3>
+                    <span className="inline-flex items-center px-2 py-0.5 text-xs font-semibold bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full">
+                      NEW
+                    </span>
+                  </div>
+                  <p className="text-sm text-slate-300">
                     Find properties faster by describing what you want in plain English
                   </p>
                 </div>
               </div>
               <Button
                 onClick={() => setShowAISearch(true)}
-                className="bg-white text-blue-600 hover:bg-white/90"
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white rounded-xl shadow-lg transition-all flex-shrink-0"
                 size="sm"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
@@ -207,36 +224,39 @@ export function PropertiesClient({
           </div>
         )}
 
-        {/* AI Search Interface */}
+        {/* AI Search Interface - Updated styling */}
         {showAISearch && (
           <div className="mb-8 animate-in fade-in slide-in-from-top-2">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                <Bot className="w-5 h-5 text-blue-600" />
-                AI Property Search
-              </h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAISearch(false)}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                <X className="w-4 h-4" />
-              </Button>
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center">
+                    <Bot className="w-5 h-5 text-white" />
+                  </div>
+                  AI Property Search
+                </h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAISearch(false)}
+                  className="text-gray-500 hover:text-gray-900 hover:bg-slate-100"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              <AIPropertySearch variant="inline" />
             </div>
-            <AIPropertySearch variant="inline" />
           </div>
         )}
 
-        {/* Toolbar */}
+        {/* Toolbar - Updated styling to match theme */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3">
             {/* AI Search button */}
             {!showAISearch && (
               <Button
                 onClick={() => setShowAISearch(true)}
-                variant="outline"
-                className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white border-0 shadow-md"
               >
                 <Bot className="w-4 h-4 mr-2" />
                 AI Search
@@ -246,25 +266,33 @@ export function PropertiesClient({
             {/* Filter button */}
             <Button
               onClick={() => setShowFilters(!showFilters)}
-              variant={showFilters ? 'default' : 'outline'}
-              className="relative"
+              variant="outline"
+              className={`relative border-2 shadow-sm ${
+                showFilters
+                  ? 'bg-slate-900 text-white border-slate-900 hover:bg-slate-800'
+                  : 'border-slate-300 text-slate-700 hover:bg-slate-50'
+              }`}
             >
               <Filter className="w-4 h-4 mr-2" />
               Filters
               {activeFiltersCount > 0 && (
-                <span className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 w-5 h-5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-md">
                   {activeFiltersCount}
                 </span>
               )}
             </Button>
 
             {/* View mode toggle */}
-            <div className="flex items-center bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center bg-white rounded-lg shadow-sm border-2 border-slate-200">
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('grid')}
-                className="rounded-r-none"
+                className={`rounded-r-none ${
+                  viewMode === 'grid'
+                    ? 'bg-slate-900 text-white hover:bg-slate-800'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
               >
                 <Grid3x3 className="w-4 h-4" />
               </Button>
@@ -272,7 +300,11 @@ export function PropertiesClient({
                 variant={viewMode === 'map' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('map')}
-                className="rounded-l-none"
+                className={`rounded-l-none ${
+                  viewMode === 'map'
+                    ? 'bg-slate-900 text-white hover:bg-slate-800'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
               >
                 <Map className="w-4 h-4" />
               </Button>
@@ -284,7 +316,7 @@ export function PropertiesClient({
                 variant="ghost"
                 size="sm"
                 onClick={clearFilters}
-                className="text-red-600 hover:text-red-700"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
               >
                 <X className="w-4 h-4 mr-1" />
                 Clear all
@@ -293,8 +325,8 @@ export function PropertiesClient({
           </div>
 
           {/* Sort dropdown */}
-          <PropertySort 
-            value={searchParams.sort || 'newest'} 
+          <PropertySort
+            value={searchParams.sort || 'newest'}
             onChange={handleSortChange}
           />
         </div>
@@ -310,18 +342,20 @@ export function PropertiesClient({
           </div>
         )}
 
-        {/* Results summary */}
+        {/* Results summary - Updated styling */}
         {(searchParams.q || searchParams.goal || searchParams.budget) && (
-          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Search className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                <span className="font-medium text-gray-900 dark:text-white">
+          <div className="mb-6 p-5 bg-gradient-to-r from-cyan-50 to-blue-50 border-2 border-cyan-200 rounded-2xl shadow-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
+                  <Search className="w-5 h-5 text-white" />
+                </div>
+                <span className="font-bold text-gray-900">
                   Search Results
                 </span>
               </div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {filteredProperties.length} properties found
+              <span className="text-sm font-medium text-slate-700 bg-white px-4 py-2 rounded-lg shadow-sm">
+                <span className="font-bold text-blue-600">{filteredProperties.length}</span> properties found
                 {searchParams.goal && ` for ${searchParams.goal.replace('_', ' ').toLowerCase()} goal`}
                 {searchParams.budget && ` under $${parseInt(searchParams.budget).toLocaleString()}`}
               </span>
@@ -366,20 +400,21 @@ export function PropertiesClient({
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 glass-card rounded-3xl">
+            <div className="text-center py-20 bg-slate-50 border-2 border-slate-200 rounded-3xl shadow-sm">
               <div className="max-w-md mx-auto">
-                <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Search className="w-10 h-10 text-gray-400" />
+                <div className="w-20 h-20 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center mx-auto mb-6 shadow-md">
+                  <Search className="w-10 h-10 text-slate-500" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                <h3 className="text-3xl font-black text-gray-900 mb-3">
                   No properties found
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-8">
+                <p className="text-lg text-slate-600 mb-8">
                   Try adjusting your filters or search criteria to find more properties
                 </p>
                 <Button
                   onClick={clearFilters}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white rounded-xl shadow-lg px-8"
+                  size="lg"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   View All Properties
@@ -391,13 +426,13 @@ export function PropertiesClient({
           <MapView properties={filteredProperties} />
         )}
 
-        {/* Load more button */}
+        {/* Load more button - Updated styling */}
         {filteredProperties.length > 0 && filteredProperties.length % 9 === 0 && (
           <div className="text-center mt-12">
             <Button
               size="lg"
               variant="outline"
-              className="min-w-[200px]"
+              className="min-w-[200px] border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white font-semibold rounded-xl shadow-md transition-all"
             >
               Load More Properties
             </Button>

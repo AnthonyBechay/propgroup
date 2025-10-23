@@ -3,7 +3,14 @@ import { UsersManagementClient } from '@/components/admin/UsersManagementClient'
 
 export default async function AdminUsersPage() {
   // Layout already handles authentication
-  const users = await getAllUsers()
+  let users = []
+
+  try {
+    users = await getAllUsers()
+  } catch (error) {
+    console.error('Error fetching users:', error)
+    // Return empty array if fetching users fails
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

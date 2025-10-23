@@ -9,53 +9,51 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Building2, Loader2, Mail, Lock, Shield, Chrome } from 'lucide-react'
+import { Building2, Loader2, Mail, Lock, User as UserIcon, Chrome } from 'lucide-react'
 import Link from 'next/link'
 
-const loginSchema = z.object({
+const signupSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  confirmPassword: z.string().min(8, 'Password must be at least 8 characters'),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 })
 
-type LoginData = z.infer<typeof loginSchema>
+type SignupData = z.infer<typeof signupSchema>
 
-function LoginForm() {
+function SignupForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const next = searchParams.get('next') || '/'
-  const { signIn, user, loading } = useAuth()
+  const next = searchParams.get('next') || '/portal/dashboard'
+  const { signUp, user, loading } = useAuth()
 
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const form = useForm<LoginData>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<SignupData>({
+    resolver: zodResolver(signupSchema),
     defaultValues: {
       email: '',
       password: '',
+      confirmPassword: '',
+      firstName: '',
+      lastName: '',
     },
   })
 
   // Check if already logged in
   useEffect(() => {
     if (user && !loading) {
-      // Only redirect if user is active and not banned
-      if (!user.isActive || user.bannedAt) {
-        router.push('/auth/banned')
-        return
-      }
-
-      // Redirect based on role
-      if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN') {
-        router.push('/admin')
-      } else {
-        router.push(next)
-      }
+      router.push(next)
     }
   }, [user, loading, router, next])
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSignup = async () => {
     setIsGoogleLoading(true)
     setError(null)
 
@@ -71,27 +69,30 @@ function LoginForm() {
       // Redirect to Google OAuth
       window.location.href = `${apiUrl}/auth/google`
     } catch (err) {
-      console.error('Google login error:', err)
-      setError('Failed to initiate Google login')
+      console.error('Google signup error:', err)
+      setError('Failed to initiate Google signup')
       setIsGoogleLoading(false)
     }
   }
 
-  const handleLogin = async (data: LoginData) => {
+  const handleSignup = async (data: SignupData) => {
     setIsLoading(true)
     setError(null)
 
     try {
-      const { error } = await signIn(data.email, data.password)
+      const { error } = await signUp(data.email, data.password, {
+        firstName: data.firstName,
+        lastName: data.lastName,
+      })
 
       if (error) {
         setError(error)
         return
       }
 
-      // The redirect will be handled by the useEffect above
+      // Redirect will be handled by the useEffect above
     } catch (err) {
-      console.error('Login error:', err)
+      console.error('Signup error:', err)
       setError('An unexpected error occurred')
     } finally {
       setIsLoading(false)
@@ -130,19 +131,12 @@ function LoginForm() {
             </div>
 
             <h1 className="mt-4 text-3xl font-black text-gray-900">
-              Welcome Back
+              Create Account
             </h1>
 
             <p className="mt-2 text-sm text-slate-600">
-              Sign in to access your account
+              Start your investment journey today
             </p>
-
-            {next.startsWith('/admin') && (
-              <div className="mt-4 inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md">
-                <Shield className="h-4 w-4 mr-2" />
-                Admin Login Required
-              </div>
-            )}
           </div>
 
           {error && (
@@ -152,13 +146,13 @@ function LoginForm() {
             </div>
           )}
 
-          {/* Google Sign In Button */}
+          {/* Google Sign Up Button */}
           <div className="mt-6">
             <Button
               type="button"
               variant="outline"
               className="w-full border-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 rounded-xl font-bold py-6"
-              onClick={handleGoogleLogin}
+              onClick={handleGoogleSignup}
               disabled={isGoogleLoading}
             >
               {isGoogleLoading ? (
@@ -186,7 +180,53 @@ function LoginForm() {
             </div>
           </div>
 
-          <form onSubmit={form.handleSubmit(handleLogin)} className="mt-6 space-y-5">
+          <form onSubmit={form.handleSubmit(handleSignup)} className="mt-6 space-y-5">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="firstName" className="font-bold text-gray-900">First Name</Label>
+                <div className="mt-2 relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <UserIcon className="h-4 w-4 text-slate-400" />
+                  </div>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    {...form.register('firstName')}
+                    placeholder="John"
+                    className="pl-10 border-2 border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-cyan-500"
+                    autoComplete="given-name"
+                  />
+                </div>
+                {form.formState.errors.firstName && (
+                  <p className="mt-1 text-xs text-red-600 font-medium">
+                    {form.formState.errors.firstName.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="lastName" className="font-bold text-gray-900">Last Name</Label>
+                <div className="mt-2 relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <UserIcon className="h-4 w-4 text-slate-400" />
+                  </div>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    {...form.register('lastName')}
+                    placeholder="Doe"
+                    className="pl-10 border-2 border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-cyan-500"
+                    autoComplete="family-name"
+                  />
+                </div>
+                {form.formState.errors.lastName && (
+                  <p className="mt-1 text-xs text-red-600 font-medium">
+                    {form.formState.errors.lastName.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div>
               <Label htmlFor="email" className="font-bold text-gray-900">Email Address</Label>
               <div className="mt-2 relative">
@@ -197,7 +237,7 @@ function LoginForm() {
                   id="email"
                   type="email"
                   {...form.register('email')}
-                  placeholder="admin@example.com"
+                  placeholder="john@example.com"
                   className="pl-10 border-2 border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-cyan-500"
                   autoComplete="email"
                 />
@@ -219,9 +259,9 @@ function LoginForm() {
                   id="password"
                   type="password"
                   {...form.register('password')}
-                  placeholder="Enter your password"
+                  placeholder="Minimum 8 characters"
                   className="pl-10 border-2 border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-cyan-500"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                 />
               </div>
               {form.formState.errors.password && (
@@ -231,30 +271,29 @@ function LoginForm() {
               )}
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-slate-300 rounded"
+            <div>
+              <Label htmlFor="confirmPassword" className="font-bold text-gray-900">Confirm Password</Label>
+              <div className="mt-2 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-4 w-4 text-slate-400" />
+                </div>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  {...form.register('confirmPassword')}
+                  placeholder="Re-enter password"
+                  className="pl-10 border-2 border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-cyan-500"
+                  autoComplete="new-password"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-600">
-                  Remember me
-                </label>
               </div>
-
-              <div className="text-sm">
-                <Link
-                  href="/auth/reset-password"
-                  className="font-medium text-cyan-600 hover:text-cyan-700"
-                >
-                  Forgot password?
-                </Link>
-              </div>
+              {form.formState.errors.confirmPassword && (
+                <p className="mt-1 text-xs text-red-600 font-medium">
+                  {form.formState.errors.confirmPassword.message}
+                </p>
+              )}
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 pt-2">
               <Button
                 type="submit"
                 disabled={isLoading}
@@ -263,22 +302,33 @@ function LoginForm() {
                 {isLoading ? (
                   <>
                     <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    Signing In...
+                    Creating Account...
                   </>
                 ) : (
-                  'Sign In'
+                  'Create Account'
                 )}
               </Button>
+
+              <p className="text-xs text-center text-slate-500">
+                By signing up, you agree to our{' '}
+                <Link href="/terms" className="text-cyan-600 hover:text-cyan-700 font-medium">
+                  Terms of Service
+                </Link>
+                {' '}and{' '}
+                <Link href="/privacy" className="text-cyan-600 hover:text-cyan-700 font-medium">
+                  Privacy Policy
+                </Link>
+              </p>
             </div>
           </form>
 
           <div className="mt-6 text-center">
             <Link
-              href="/auth/signup"
+              href="/auth/login"
               className="text-sm text-slate-600 hover:text-gray-900 font-medium"
             >
-              Don't have an account?{' '}
-              <span className="text-cyan-600 hover:text-cyan-700 font-bold">Sign up</span>
+              Already have an account?{' '}
+              <span className="text-cyan-600 hover:text-cyan-700 font-bold">Sign in</span>
             </Link>
           </div>
         </div>
@@ -293,14 +343,14 @@ function LoginForm() {
   )
 }
 
-export default function LoginPage() {
+export default function SignupPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0a1628] via-[#0f2439] to-[#1e293b]">
         <Loader2 className="h-8 w-8 animate-spin text-cyan-400" />
       </div>
     }>
-      <LoginForm />
+      <SignupForm />
     </Suspense>
   )
 }
