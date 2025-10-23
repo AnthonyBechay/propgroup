@@ -17,7 +17,7 @@ export function HeroSectionNew() {
   if (!mounted) return null
 
   return (
-    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#0a1628] via-[#0f2439] to-[#1e293b]">
+    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#0a1628] via-[#0f2439] to-[#1e293b] w-full">
       {/* Simplified Background - No animations */}
       <div className="absolute inset-0 overflow-hidden">
         <div
@@ -31,7 +31,7 @@ export function HeroSectionNew() {
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full max-w-7xl">
         <div className="max-w-5xl mx-auto">
 
           {/* Main Headline */}
