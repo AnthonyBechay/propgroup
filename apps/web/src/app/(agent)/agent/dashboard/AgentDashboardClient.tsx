@@ -109,109 +109,102 @@ export default function AgentDashboardClient() {
   const { overview, recentInquiries, topProperties } = stats
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-          Welcome back, {user?.firstName || 'Agent'}!
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Here's your performance overview
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="pg-container max-w-7xl mx-auto py-6 sm:py-8 lg:py-12">
+        {/* Header */}
+        <div className="mb-8 sm:mb-12">
+          <h1 className="pg-text-3xl sm:pg-text-4xl lg:pg-text-5xl font-black text-gray-900 dark:text-white">
+            Welcome back, <span className="pg-gradient-text">{user?.firstName || 'Agent'}</span>!
+          </h1>
+          <p className="pg-text-lg text-gray-600 dark:text-gray-300 mt-2">
+            Here's your performance overview
+          </p>
+        </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total Properties */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Total Properties
-                </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
-                  {overview.totalProperties}
-                </p>
-                <p className="text-sm text-green-600 dark:text-green-400 mt-1 flex items-center">
-                  <ArrowUpRight className="w-4 h-4 mr-1" />
-                  {overview.activeProperties} active
-                </p>
-              </div>
-              <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-full">
+        {/* Stats Grid */}
+        <div className="pg-grid pg-grid-cols-1 md:pg-grid-cols-2 lg:pg-grid-cols-4 mb-8 sm:mb-12">
+          {/* Total Properties */}
+          <div className="pg-stat-card">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-xl shadow-md">
                 <Home className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Total Inquiries */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Total Inquiries
-                </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
-                  {overview.totalInquiries}
-                </p>
-                <p className="text-sm text-orange-600 dark:text-orange-400 mt-1 flex items-center">
-                  <Clock className="w-4 h-4 mr-1" />
-                  {overview.pendingInquiries} pending
-                </p>
+              <div className="flex items-center text-sm text-green-600 dark:text-green-400">
+                <ArrowUpRight className="w-4 h-4 mr-1" />
+                {overview.activeProperties} active
               </div>
-              <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-full">
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                Total Properties
+              </p>
+              <p className="pg-text-3xl sm:pg-text-4xl font-bold text-gray-900 dark:text-white">
+                {overview.totalProperties}
+              </p>
+            </div>
+          </div>
+
+          {/* Total Inquiries */}
+          <div className="pg-stat-card">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-xl shadow-md">
                 <Mail className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Total Views */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Total Views
-                </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
-                  {overview.totalViews.toLocaleString()}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  Across all properties
-                </p>
+              <div className="flex items-center text-sm text-orange-600 dark:text-orange-400">
+                <Clock className="w-4 h-4 mr-1" />
+                {overview.pendingInquiries} pending
               </div>
-              <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-full">
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                Total Inquiries
+              </p>
+              <p className="pg-text-3xl sm:pg-text-4xl font-bold text-gray-900 dark:text-white">
+                {overview.totalInquiries}
+              </p>
+            </div>
+          </div>
+
+          {/* Total Views */}
+          <div className="pg-stat-card">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-xl shadow-md">
                 <Eye className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Estimated Commission */}
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  Est. Commission
-                </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-2">
-                  {formatCurrency(overview.estimatedCommission)}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  {overview.soldProperties} sales @ {overview.commissionRate}%
-                </p>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                Across all properties
               </div>
-              <div className="p-3 bg-yellow-100 dark:bg-yellow-900/20 rounded-full">
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                Total Views
+              </p>
+              <p className="pg-text-3xl sm:pg-text-4xl font-bold text-gray-900 dark:text-white">
+                {overview.totalViews.toLocaleString()}
+              </p>
+            </div>
+          </div>
+
+          {/* Estimated Commission */}
+          <div className="pg-stat-card">
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 bg-yellow-100 dark:bg-yellow-900/20 rounded-xl shadow-md">
                 <DollarSign className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
               </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">
+                {overview.soldProperties} sales @ {overview.commissionRate}%
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <div>
+              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                Est. Commission
+              </p>
+              <p className="pg-text-3xl sm:pg-text-4xl font-bold text-gray-900 dark:text-white">
+                {formatCurrency(overview.estimatedCommission)}
+              </p>
+            </div>
+          </div>
+        </div>
 
       {/* Recent Activity & Top Properties */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

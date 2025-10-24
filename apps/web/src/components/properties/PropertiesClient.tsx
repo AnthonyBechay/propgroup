@@ -139,7 +139,7 @@ export function PropertiesClient({
   ).length
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-slate-900">
       {/* Hero Section - Matching Landing Page */}
       <section className="relative py-16 sm:py-20 bg-gradient-to-br from-[#0a1628] via-[#0f2439] to-[#1e293b] text-white overflow-hidden">
         {/* Simplified Background - Matching Landing Page */}
@@ -154,13 +154,13 @@ export function PropertiesClient({
           />
         </div>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="pg-container max-w-7xl mx-auto relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-full text-sm font-semibold mb-6">
               <Sparkles className="w-4 h-4 text-cyan-400" />
               <span className="text-slate-300">CURATED PROPERTIES</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-black mb-4 sm:mb-6">
+            <h1 className="pg-text-4xl sm:pg-text-5xl md:pg-text-6xl font-black mb-4 sm:mb-6">
               <span className="block text-white mb-2">
                 Premium Investment
               </span>
@@ -168,22 +168,22 @@ export function PropertiesClient({
                 Properties
               </span>
             </h1>
-            <p className="text-lg sm:text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+            <p className="pg-text-lg sm:pg-text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
               Hand-picked opportunities with verified returns and expert analysis
             </p>
 
             {/* Quick stats - Matching Landing Page Style */}
-            <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto">
+            <div className="pg-grid pg-grid-cols-3 gap-4 sm:gap-8 max-w-2xl mx-auto">
               <div>
-                <div className="text-3xl sm:text-4xl font-bold text-white mb-1">12.5%</div>
+                <div className="pg-text-3xl sm:pg-text-4xl font-bold text-white mb-1">12.5%</div>
                 <div className="text-sm text-slate-400">Avg ROI</div>
               </div>
               <div>
-                <div className="text-3xl sm:text-4xl font-bold text-white mb-1">25+</div>
+                <div className="pg-text-3xl sm:pg-text-4xl font-bold text-white mb-1">25+</div>
                 <div className="text-sm text-slate-400">Countries</div>
               </div>
               <div>
-                <div className="text-3xl sm:text-4xl font-bold text-white mb-1">{filteredProperties.length}</div>
+                <div className="pg-text-3xl sm:pg-text-4xl font-bold text-white mb-1">{filteredProperties.length}</div>
                 <div className="text-sm text-slate-400">Properties</div>
               </div>
             </div>
@@ -191,7 +191,7 @@ export function PropertiesClient({
         </div>
       </section>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="pg-container max-w-7xl mx-auto py-8 sm:py-12">
         {/* AI Search Banner - Updated to match landing page style */}
         {!showAISearch && (
           <div className="mb-8 p-6 bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl text-white shadow-xl">

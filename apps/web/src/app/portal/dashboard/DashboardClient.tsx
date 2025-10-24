@@ -53,20 +53,20 @@ export function DashboardClient({
   const [selectedPeriod, setSelectedPeriod] = useState('month')
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <div className="max-w-7xl mx-auto p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="pg-container max-w-7xl mx-auto py-6 sm:py-8 lg:py-12">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-            Welcome back, {user?.email?.split('@')[0] || 'Investor'}!
+        <div className="mb-8 sm:mb-12">
+          <h1 className="pg-text-3xl sm:pg-text-4xl lg:pg-text-5xl font-black text-gray-900 dark:text-white mb-3">
+            Welcome back, <span className="pg-gradient-text">{user?.email?.split('@')[0] || 'Investor'}</span>!
           </h1>
-          <p className="text-gray-600">
+          <p className="pg-text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
             Here's an overview of your investment portfolio and market insights
           </p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="pg-grid pg-grid-cols-1 sm:pg-grid-cols-2 lg:pg-grid-cols-4 mb-8 sm:mb-12">
           <StatCard
             icon={<DollarSign className="w-6 h-6" />}
             title="Total Investment"
@@ -87,7 +87,6 @@ export function DashboardClient({
             icon={<TrendingUp className="w-6 h-6" />}
             title="Average ROI"
             value={`${portfolioStats.averageROI.toFixed(1)}%`}
-            change="+2.3%"
             trend="up"
             color="purple"
           />
@@ -102,7 +101,7 @@ export function DashboardClient({
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="pg-grid pg-grid-cols-2 md:pg-grid-cols-4 mb-8 sm:mb-12">
           <QuickActionCard
             href="/properties"
             icon={<Home className="w-8 h-8" />}
@@ -134,130 +133,140 @@ export function DashboardClient({
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="pg-grid pg-grid-cols-1 lg:pg-grid-cols-3 mb-8 sm:mb-12">
           {/* Market Trends */}
-          <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Market Trends</h2>
-              <select 
-                value={selectedPeriod}
-                onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="px-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="week">Last Week</option>
-                <option value="month">Last Month</option>
-                <option value="year">Last Year</option>
-              </select>
+          <div className="lg:col-span-2 pg-card">
+            <div className="pg-card-header">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <h2 className="pg-text-xl font-bold text-gray-900 dark:text-white">Market Trends</h2>
+                <select 
+                  value={selectedPeriod}
+                  onChange={(e) => setSelectedPeriod(e.target.value)}
+                  className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="week">Last Week</option>
+                  <option value="month">Last Month</option>
+                  <option value="year">Last Year</option>
+                </select>
+              </div>
             </div>
+            <div className="pg-card-content">
             
-            <div className="space-y-4">
-              {marketTrends.length > 0 ? marketTrends.map((market) => (
-                <div key={market.country} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-                      <MapPin className="w-6 h-6 text-white" />
+              <div className="space-y-4">
+                {marketTrends.length > 0 ? marketTrends.map((market) => (
+                  <div key={market.country} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
+                        <MapPin className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">{market.country}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          {market.propertyCount} properties • Avg: ${(market.avgPrice / 1000).toFixed(0)}K
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{market.country}</h3>
-                      <p className="text-sm text-gray-500">
-                        {market.propertyCount} properties • Avg: ${(market.avgPrice / 1000).toFixed(0)}K
-                      </p>
+                    <div className="flex items-center space-x-2">
+                      <span className={`text-lg font-semibold ${
+                        market.trend === 'up' ? 'text-green-600 dark:text-green-400' : 
+                        market.trend === 'down' ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-400'
+                      }`}>
+                        {market.value > 0 ? '+' : ''}{market.value}%
+                      </span>
+                      {market.trend === 'up' ? (
+                        <ArrowUpRight className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      ) : market.trend === 'down' ? (
+                        <ArrowDownRight className="w-5 h-5 text-red-600 dark:text-red-400" />
+                      ) : (
+                        <span className="w-5 h-5 text-gray-400">→</span>
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <span className={`text-lg font-semibold ${
-                      market.trend === 'up' ? 'text-green-600' : 
-                      market.trend === 'down' ? 'text-red-600' : 'text-gray-600'
-                    }`}>
-                      {market.value > 0 ? '+' : ''}{market.value}%
-                    </span>
-                    {market.trend === 'up' ? (
-                      <ArrowUpRight className="w-5 h-5 text-green-600" />
-                    ) : market.trend === 'down' ? (
-                      <ArrowDownRight className="w-5 h-5 text-red-600" />
-                    ) : (
-                      <span className="w-5 h-5 text-gray-400">→</span>
-                    )}
+                )) : (
+                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    <MapPin className="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                    <p>No market data available. Use the seed button in admin to add sample data.</p>
                   </div>
-                </div>
-              )) : (
-                <div className="text-center py-8 text-gray-500">
-                  <MapPin className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>No market data available. Use the seed button in admin to add sample data.</p>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            <Link 
-              href="/portal/market-analysis" 
-              className="mt-6 inline-flex items-center text-blue-600 hover:text-blue-700 font-medium"
-            >
-              View detailed analysis
-              <ArrowUpRight className="w-4 h-4 ml-1" />
-            </Link>
+              <Link 
+                href="/portal/market-analysis" 
+                className="mt-6 inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors"
+              >
+                View detailed analysis
+                <ArrowUpRight className="w-4 h-4 ml-1" />
+              </Link>
+            </div>
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-white rounded-2xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Recent Activity</h2>
-            <div className="space-y-4">
-              {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-3">
-                  <div className={`w-2 h-2 rounded-full mt-2 ${
-                    activity.type === 'inquiry' ? 'bg-blue-500' :
-                    activity.type === 'favorite' ? 'bg-pink-500' : 'bg-gray-400'
-                  }`} />
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-900">
-                      {activity.type === 'inquiry' && 'Sent inquiry for '}
-                      {activity.type === 'favorite' && 'Saved '}
-                      {activity.type === 'view' && 'Viewed '}
-                      <span className="font-medium">{activity.property}</span>
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">{activity.date}</p>
-                  </div>
-                </div>
-              ))}
+          <div className="pg-card">
+            <div className="pg-card-header">
+              <h2 className="pg-text-xl font-bold text-gray-900 dark:text-white">Recent Activity</h2>
             </div>
-            <Link 
-              href="/portal/activity" 
-              className="mt-6 inline-flex items-center text-blue-600 hover:text-blue-700 font-medium text-sm"
-            >
-              View all activity
-              <ArrowUpRight className="w-3 h-3 ml-1" />
-            </Link>
+            <div className="pg-card-content">
+              <div className="space-y-4">
+                {recentActivity.map((activity) => (
+                  <div key={activity.id} className="flex items-start space-x-3">
+                    <div className={`w-2 h-2 rounded-full mt-2 ${
+                      activity.type === 'inquiry' ? 'bg-blue-500' :
+                      activity.type === 'favorite' ? 'bg-pink-500' : 'bg-gray-400'
+                    }`} />
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-900 dark:text-white">
+                        {activity.type === 'inquiry' && 'Sent inquiry for '}
+                        {activity.type === 'favorite' && 'Saved '}
+                        {activity.type === 'view' && 'Viewed '}
+                        <span className="font-medium">{activity.property}</span>
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{activity.date}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Link 
+                href="/portal/activity" 
+                className="mt-6 inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium text-sm transition-colors"
+              >
+                View all activity
+                <ArrowUpRight className="w-3 h-3 ml-1" />
+              </Link>
+            </div>
           </div>
         </div>
 
         {/* Portfolio Performance */}
-        <div className="mt-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-lg p-6 text-white">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Portfolio Performance</h2>
-              <p className="text-blue-100 mb-4">
-                {portfolioStats.totalProperties > 0 
-                  ? "Your investments are performing well!" 
-                  : "Start building your portfolio by exploring properties"
-                }
-              </p>
-              <div className="flex flex-wrap gap-6">
-                <div>
-                  <p className="text-sm text-blue-100">Monthly Income</p>
-                  <p className="text-2xl font-bold">${portfolioStats.monthlyIncome.toLocaleString()}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-blue-100">Portfolio Growth</p>
-                  <p className="text-2xl font-bold">+{portfolioStats.portfolioGrowth}%</p>
+        <div className="pg-premium-card bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-xl">
+          <div className="p-6 sm:p-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div className="flex-1">
+                <h2 className="pg-text-2xl sm:pg-text-3xl font-bold mb-3">Portfolio Performance</h2>
+                <p className="text-blue-100 mb-6 text-lg">
+                  {portfolioStats.totalProperties > 0 
+                    ? "Your investments are performing well!" 
+                    : "Start building your portfolio by exploring properties"
+                  }
+                </p>
+                <div className="flex flex-wrap gap-6 sm:gap-8">
+                  <div>
+                    <p className="text-sm text-blue-100 mb-1">Monthly Income</p>
+                    <p className="pg-text-2xl sm:pg-text-3xl font-bold">${portfolioStats.monthlyIncome.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-blue-100 mb-1">Portfolio Growth</p>
+                    <p className="pg-text-2xl sm:pg-text-3xl font-bold">+{portfolioStats.portfolioGrowth}%</p>
+                  </div>
                 </div>
               </div>
+              <Link 
+                href="/portal/portfolio" 
+                className="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-all transform hover:scale-105 shadow-lg inline-flex items-center"
+              >
+                View Portfolio
+                <ArrowUpRight className="w-4 h-4 ml-2" />
+              </Link>
             </div>
-            <Link 
-              href="/portal/portfolio" 
-              className="mt-4 md:mt-0 bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors inline-flex items-center"
-            >
-              View Portfolio
-              <ArrowUpRight className="w-4 h-4 ml-2" />
-            </Link>
           </div>
         </div>
       </div>
@@ -275,19 +284,19 @@ function StatCard({ icon, title, value, change, trend, color }: any) {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
+    <div className="pg-stat-card">
       <div className="flex items-center justify-between mb-4">
-        <div className={`bg-gradient-to-br ${colorClasses[color] || colorClasses.blue} p-3 rounded-lg text-white`}>
+        <div className={`bg-gradient-to-br ${colorClasses[color] || colorClasses.blue} p-3 rounded-xl text-white shadow-lg`}>
           {icon}
         </div>
-        {trend === 'up' && <ArrowUpRight className="w-5 h-5 text-green-500" />}
-        {trend === 'down' && <ArrowDownRight className="w-5 h-5 text-red-500" />}
+        {trend === 'up' && <ArrowUpRight className="w-5 h-5 text-green-500 dark:text-green-400" />}
+        {trend === 'down' && <ArrowDownRight className="w-5 h-5 text-red-500 dark:text-red-400" />}
       </div>
-      <h3 className="text-sm text-gray-600 mb-1">{title}</h3>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      <p className={`text-sm mt-2 ${
-        trend === 'up' ? 'text-green-600' : 
-        trend === 'down' ? 'text-red-600' : 'text-gray-500'
+      <h3 className="text-sm text-gray-600 dark:text-gray-400 mb-2 font-medium">{title}</h3>
+      <p className="pg-text-2xl sm:pg-text-3xl font-bold text-gray-900 dark:text-white mb-2">{value}</p>
+      <p className={`text-sm ${
+        trend === 'up' ? 'text-green-600 dark:text-green-400' : 
+        trend === 'down' ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'
       }`}>
         {change}
       </p>
@@ -307,13 +316,15 @@ function QuickActionCard({ href, icon, title, description, color }: any) {
   return (
     <Link 
       href={href}
-      className="group bg-white rounded-xl shadow-sm p-6 hover:shadow-lg transition-all transform hover:-translate-y-1"
+      className="group pg-card hover:shadow-lg transition-all transform hover:-translate-y-1"
     >
-      <div className={`bg-gradient-to-br ${colorClasses[color] || colorClasses.blue} p-4 rounded-lg text-white mb-4 group-hover:scale-110 transition-transform inline-block`}>
-        {icon}
+      <div className="pg-card-content">
+        <div className={`bg-gradient-to-br ${colorClasses[color] || colorClasses.blue} p-4 rounded-xl text-white mb-4 group-hover:scale-110 transition-transform inline-block shadow-lg`}>
+          {icon}
+        </div>
+        <h3 className="font-bold text-gray-900 dark:text-white mb-2 pg-text-lg">{title}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
       </div>
-      <h3 className="font-semibold text-gray-900 mb-1">{title}</h3>
-      <p className="text-sm text-gray-500">{description}</p>
     </Link>
   )
 }

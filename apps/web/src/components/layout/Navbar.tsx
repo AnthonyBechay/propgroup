@@ -76,7 +76,7 @@ export function Navbar() {
         ? 'bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg shadow-lg' 
         : 'bg-white dark:bg-gray-900 shadow-sm'
     } border-b border-gray-200 dark:border-gray-800`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <div className="pg-container max-w-7xl mx-auto w-full">
         <div className="flex justify-between items-center h-16 w-full">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group flex-shrink-0">

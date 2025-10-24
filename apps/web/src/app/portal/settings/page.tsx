@@ -141,28 +141,32 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
-          <p className="text-gray-600">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      <div className="pg-container max-w-7xl mx-auto py-6 sm:py-8 lg:py-12">
+        <div className="mb-8 sm:mb-12">
+          <h1 className="pg-text-3xl sm:pg-text-4xl lg:pg-text-5xl font-black text-gray-900 dark:text-white mb-3">
+            <span className="pg-gradient-text">Settings</span>
+          </h1>
+          <p className="pg-text-lg text-gray-600 dark:text-gray-300">
             Manage your account settings and preferences.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="pg-grid pg-grid-cols-1 lg:pg-grid-cols-2">
           {/* Profile Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <User className="h-5 w-5 mr-2" />
+          <div className="pg-card">
+            <div className="pg-card-header">
+              <CardTitle className="flex items-center pg-text-lg font-bold text-gray-900 dark:text-white">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                  <User className="h-5 w-5 text-white" />
+                </div>
                 Profile Information
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-gray-600 dark:text-gray-300 mt-2">
                 Update your personal information and contact details.
               </CardDescription>
-            </CardHeader>
-            <CardContent>
+            </div>
+            <div className="pg-card-content">
               <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -245,7 +249,7 @@ export default function SettingsPage() {
                   <Button
                     type="submit"
                     disabled={isUpdatingProfile}
-                    className="flex items-center"
+                    className="flex items-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl shadow-lg transition-all"
                   >
                     {isUpdatingProfile ? (
                       <>
@@ -266,21 +270,23 @@ export default function SettingsPage() {
                   </Button>
                 </div>
               </form>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Password Change */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Lock className="h-5 w-5 mr-2" />
+          <div className="pg-card">
+            <div className="pg-card-header">
+              <CardTitle className="flex items-center pg-text-lg font-bold text-gray-900 dark:text-white">
+                <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center mr-3 shadow-md">
+                  <Lock className="h-5 w-5 text-white" />
+                </div>
                 Change Password
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-gray-600 dark:text-gray-300 mt-2">
                 Update your password to keep your account secure.
               </CardDescription>
-            </CardHeader>
-            <CardContent>
+            </div>
+            <div className="pg-card-content">
               <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
                 <div>
                   <Label htmlFor="currentPassword">Current Password</Label>
@@ -337,7 +343,7 @@ export default function SettingsPage() {
                   <Button
                     type="submit"
                     disabled={isUpdatingPassword}
-                    className="flex items-center"
+                    className="flex items-center bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-xl shadow-lg transition-all"
                   >
                     {isUpdatingPassword ? (
                       <>
@@ -358,8 +364,8 @@ export default function SettingsPage() {
                   </Button>
                 </div>
               </form>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>
