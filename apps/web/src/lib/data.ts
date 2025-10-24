@@ -61,7 +61,7 @@ export const getPropertyById = unstable_cache(
   ['property-by-id'],
   {
     revalidate: 300, // 5 minutes
-    tags: [(id: string) => CACHE_TAGS.property(id)],
+    tags: [CACHE_TAGS.property('property')],
   }
 )
 
@@ -229,7 +229,7 @@ export const getUserFavorites = unstable_cache(
   ['user-favorites'],
   {
     revalidate: 60, // 1 minute
-    tags: [(userId: string) => CACHE_TAGS.favorites(userId)],
+    tags: [CACHE_TAGS.favorites('user')],
   }
 )
 
@@ -361,6 +361,9 @@ export async function getSimilarProperties(
 
 // Performance monitoring helper
 export async function getDatabaseMetrics() {
-  const metrics = await prisma.$metrics.json()
-  return metrics
+  // Note: $metrics is not available in the current Prisma version
+  // This is a placeholder for future implementation
+  return {
+    message: 'Database metrics not available in current Prisma version'
+  }
 }

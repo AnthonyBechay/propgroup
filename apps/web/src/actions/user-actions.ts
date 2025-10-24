@@ -4,6 +4,7 @@ import { apiClient } from '@/lib/api/client'
 import { getCurrentUser, isSuperAdmin, logAdminAction } from '@/lib/auth/rbac'
 import { revalidatePath } from 'next/cache'
 import { UserRole } from '@/lib/auth/rbac'
+import { ApiResponse, User } from '@/lib/types/api'
 
 export async function updateUserRole(userId: string, newRole: UserRole) {
   const currentUser = await getCurrentUser()
@@ -18,7 +19,7 @@ export async function updateUserRole(userId: string, newRole: UserRole) {
   
   try {
     // Update the user's role using the API client
-    const response = await apiClient.updateUserRole(userId, newRole)
+    const response = await apiClient.updateUserRole(userId, newRole) as ApiResponse<User>
     
     if (response.success) {
       revalidatePath('/admin/users/manage')
@@ -45,7 +46,7 @@ export async function banUser(userId: string, reason: string) {
   
   try {
     // Ban the user using the API client
-    const response = await apiClient.banUser(userId, reason)
+    const response = await apiClient.banUser(userId, reason) as ApiResponse<User>
     
     if (response.success) {
       revalidatePath('/admin/users')
@@ -69,7 +70,7 @@ export async function unbanUser(userId: string) {
   
   try {
     // Unban the user using the API client
-    const response = await apiClient.unbanUser(userId)
+    const response = await apiClient.unbanUser(userId) as ApiResponse<User>
     
     if (response.success) {
       revalidatePath('/admin/users')
@@ -97,7 +98,7 @@ export async function deleteUser(userId: string) {
   
   try {
     // Delete the user using the API client
-    const response = await apiClient.deleteUser(userId)
+    const response = await apiClient.deleteUser(userId) as ApiResponse
     
     if (response.success) {
       revalidatePath('/admin/users')
@@ -121,7 +122,7 @@ export async function inviteAdmin(email: string, role: 'ADMIN' | 'SUPER_ADMIN') 
   
   try {
     // Invite admin using the API client
-    const response = await apiClient.inviteAdmin(email, role)
+    const response = await apiClient.inviteAdmin(email, role) as ApiResponse<User>
     
     if (response.success) {
       revalidatePath('/admin/users/manage')

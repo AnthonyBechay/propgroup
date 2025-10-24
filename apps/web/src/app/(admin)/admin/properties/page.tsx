@@ -3,12 +3,13 @@ import { PropertyTable } from '@/components/admin/PropertyTable'
 import { CreatePropertyModal } from '@/components/admin/CreatePropertyModal'
 import { Button } from '@/components/ui/button'
 import { Plus, Building2 } from 'lucide-react'
+import { Property } from '@/lib/types/api'
 
 export default async function AdminPropertiesPage() {
   // Layout already handles authentication, no need to check again
-  let properties = []
-  let developers = []
-  let locationGuides = []
+  let properties: any[] = []
+  let developers: any[] = []
+  let locationGuides: any[] = []
 
   try {
     // Fetch all properties with related data

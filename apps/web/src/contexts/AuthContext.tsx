@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { apiClient } from '@/lib/api/client'
+import { ApiResponse, User } from '@/lib/types/api'
 
 export interface AuthUser {
   id: string
@@ -42,9 +43,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Get initial user session
     const getInitialUser = async () => {
       try {
-        const response = await apiClient.getCurrentUser()
+        const response = await apiClient.getCurrentUser() as ApiResponse<User>
         if (response.success) {
-          setUser(response.user)
+          setUser(response.data)
           setError(null)
         } else {
           setUser(null)
@@ -67,10 +68,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true)
       setError(null)
       
-      const response = await apiClient.login(email, password)
+      const response = await apiClient.login(email, password) as ApiResponse<User>
       
       if (response.success) {
-        setUser(response.user)
+        setUser(response.data)
         return { error: null }
       } else {
         setError(response.message || 'Login failed')
@@ -98,10 +99,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         phone: userData?.phone,
         country: userData?.country,
         investmentGoals: userData?.investmentGoals
-      })
+      }) as ApiResponse<User>
       
       if (response.success) {
-        setUser(response.user)
+        setUser(response.data)
         return { error: null }
       } else {
         setError(response.message || 'Registration failed')
@@ -140,10 +141,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         phone: data.phone,
         country: data.country,
         investmentGoals: data.investmentGoals
-      })
+      }) as ApiResponse<User>
       
       if (response.success) {
-        setUser(response.user)
+        setUser(response.data)
         return { error: null }
       } else {
         setError(response.message || 'Profile update failed')
@@ -166,7 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await apiClient.changePassword({
         currentPassword,
         newPassword
-      })
+      }) as ApiResponse
       
       if (response.success) {
         return { error: null }
@@ -185,9 +186,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const response = await apiClient.getCurrentUser()
+      const response = await apiClient.getCurrentUser() as ApiResponse<User>
       if (response.success) {
-        setUser(response.user)
+        setUser(response.data)
         setError(null)
       } else {
         setUser(null)

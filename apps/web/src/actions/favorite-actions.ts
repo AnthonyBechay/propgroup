@@ -3,6 +3,7 @@
 import { apiClient } from '@/lib/api/client'
 import { getCurrentUser } from '@/lib/auth/rbac'
 import { revalidatePath } from 'next/cache'
+import { ApiResponse } from '@/lib/types/api'
 
 export async function toggleFavorite(propertyId: string) {
   try {
@@ -13,11 +14,11 @@ export async function toggleFavorite(propertyId: string) {
     }
 
     // Check current favorite status
-    const statusResponse = await apiClient.checkFavorite(propertyId)
+    const statusResponse = await apiClient.checkFavorite(propertyId) as ApiResponse<{ isFavorited: boolean }>
     
-    if (statusResponse.isFavorited) {
+    if (statusResponse.data?.isFavorited) {
       // Remove favorite
-      const response = await apiClient.removeFavorite(propertyId)
+      const response = await apiClient.removeFavorite(propertyId) as ApiResponse
       
       if (response.success) {
         revalidatePath('/portal/favorites')
@@ -27,7 +28,7 @@ export async function toggleFavorite(propertyId: string) {
       }
     } else {
       // Add favorite
-      const response = await apiClient.addFavorite(propertyId)
+      const response = await apiClient.addFavorite(propertyId) as ApiResponse
       
       if (response.success) {
         revalidatePath('/portal/favorites')
@@ -50,8 +51,8 @@ export async function getFavoriteStatus(propertyId: string) {
       return { isFavorited: false }
     }
 
-    const response = await apiClient.checkFavorite(propertyId)
-    return { isFavorited: response.isFavorited }
+    const response = await apiClient.checkFavorite(propertyId) as ApiResponse<{ isFavorited: boolean }>
+    return { isFavorited: response.data?.isFavorited || false }
   } catch (error) {
     console.error('Error checking favorite status:', error)
     return { isFavorited: false }
@@ -66,12 +67,12 @@ export async function getUserFavorites() {
       return { success: false, error: 'You must be logged in to view favorites' }
     }
 
-    const response = await apiClient.getFavorites()
+    const response = await apiClient.getFavorites() as ApiResponse<{ property: any }[]>
     
     if (response.success) {
       return { 
         success: true, 
-        favorites: response.data.map((f: any) => f.property) 
+        favorites: response.data?.map((f: any) => f.property) || [] 
       }
     } else {
       return { success: false, error: response.message || 'Failed to fetch favorites' }

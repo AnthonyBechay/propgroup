@@ -393,7 +393,7 @@ export function PropertiesClient({
                       rentalYield: property.investmentData?.rentalYield,
                       capitalGrowth: property.investmentData?.capitalGrowth,
                     }}
-                    isFavorited={property.favoriteProperties?.length > 0}
+                    isFavorited={property.favoriteProperties?.length ? property.favoriteProperties.length > 0 : false}
                     featured={index < 3}
                   />
                 </div>

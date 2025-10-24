@@ -3,6 +3,7 @@
 import { apiClient } from '@/lib/api/client'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { ApiResponse, Property } from '@/lib/types/api'
 
 const propertySchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -42,7 +43,7 @@ export async function createProperty(data: z.infer<typeof propertySchema>) {
     const validatedData = propertySchema.parse(data)
 
     // Create the property using the API client
-    const response = await apiClient.createProperty(validatedData)
+    const response = await apiClient.createProperty(validatedData) as ApiResponse<Property>
 
     if (response.success) {
       // Revalidate the properties page
@@ -64,7 +65,7 @@ export async function updateProperty(id: string, data: Partial<z.infer<typeof pr
     const validatedData = propertySchema.partial().parse(data)
 
     // Update the property using the API client
-    const response = await apiClient.updateProperty(id, validatedData)
+    const response = await apiClient.updateProperty(id, validatedData) as ApiResponse<Property>
 
     if (response.success) {
       revalidatePath('/admin/properties')
@@ -84,7 +85,7 @@ export async function updateProperty(id: string, data: Partial<z.infer<typeof pr
 export async function deleteProperty(id: string) {
   try {
     // Delete the property using the API client
-    const response = await apiClient.deleteProperty(id)
+    const response = await apiClient.deleteProperty(id) as ApiResponse
 
     if (response.success) {
       revalidatePath('/admin/properties')

@@ -451,7 +451,7 @@ export function PortfolioClient({ initialPortfolio }: PortfolioClientProps) {
 
 // Summary Card Component
 function SummaryCard({ icon, title, value, subtitle, color, trend }: any) {
-  const colorClasses = {
+  const colorClasses: Record<string, string> = {
     blue: 'from-blue-500 to-blue-600',
     green: 'from-green-500 to-green-600',
     purple: 'from-purple-500 to-purple-600',
@@ -461,7 +461,7 @@ function SummaryCard({ icon, title, value, subtitle, color, trend }: any) {
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between mb-4">
-        <div className={`bg-gradient-to-br ${colorClasses[color]} p-3 rounded-lg text-white`}>
+        <div className={`bg-gradient-to-br ${colorClasses[color] || colorClasses.blue} p-3 rounded-lg text-white`}>
           {icon}
         </div>
         {trend !== undefined && (

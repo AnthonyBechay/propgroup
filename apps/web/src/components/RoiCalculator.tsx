@@ -17,15 +17,16 @@ type CalculatorFormData = {
   downPaymentPercent: number
   interestRate: number
   loanTermYears: number
+  propertyPrice: number
 }
 
 export function RoiCalculator({ propertyPrice, estimatedRent }: RoiCalculatorProps) {
   const { register, control, formState: { errors } } = useForm<CalculatorFormData>({
-    resolver: zodResolver(investmentCalculatorSchema),
     defaultValues: {
       downPaymentPercent: 20,
       interestRate: 4.5,
       loanTermYears: 30,
+      propertyPrice: propertyPrice,
     },
   })
 

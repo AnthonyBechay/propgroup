@@ -3,6 +3,7 @@
 import { apiClient } from '@/lib/api/client'
 import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
+import { ApiResponse, OwnedProperty } from '@/lib/types/api'
 
 const ownedPropertySchema = z.object({
   userId: z.string().cuid('Invalid user ID'),
@@ -25,11 +26,11 @@ export async function addOwnedProperty(data: z.infer<typeof ownedPropertySchema>
       customName: validatedData.customName,
       purchasePrice: validatedData.purchasePrice,
       purchaseDate: validatedData.purchaseDate,
-      initialMortgage: validatedData.initialMortgage,
-      currentRent: validatedData.currentRent,
-      notes: validatedData.notes,
-      propertyId: validatedData.propertyId,
-    })
+      initialMortgage: validatedData.initialMortgage ?? undefined,
+      currentRent: validatedData.currentRent ?? undefined,
+      notes: validatedData.notes ?? undefined,
+      propertyId: validatedData.propertyId ?? undefined,
+    }) as ApiResponse<OwnedProperty>
 
     if (response.success) {
       // Revalidate the portfolio page
@@ -53,11 +54,11 @@ export async function updateOwnedProperty(id: string, data: Partial<z.infer<type
       customName: validatedData.customName,
       purchasePrice: validatedData.purchasePrice,
       purchaseDate: validatedData.purchaseDate,
-      initialMortgage: validatedData.initialMortgage,
-      currentRent: validatedData.currentRent,
-      notes: validatedData.notes,
-      propertyId: validatedData.propertyId,
-    })
+      initialMortgage: validatedData.initialMortgage ?? undefined,
+      currentRent: validatedData.currentRent ?? undefined,
+      notes: validatedData.notes ?? undefined,
+      propertyId: validatedData.propertyId ?? undefined,
+    }) as ApiResponse<OwnedProperty>
 
     if (response.success) {
       revalidatePath('/portal/portfolio')
@@ -74,7 +75,7 @@ export async function updateOwnedProperty(id: string, data: Partial<z.infer<type
 export async function deleteOwnedProperty(id: string) {
   try {
     // Delete the owned property using the API client
-    const response = await apiClient.removeFromPortfolio(id)
+    const response = await apiClient.removeFromPortfolio(id) as ApiResponse
 
     if (response.success) {
       revalidatePath('/portal/portfolio')

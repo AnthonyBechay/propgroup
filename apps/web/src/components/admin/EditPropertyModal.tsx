@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { Property } from '@/lib/types/api'
 import {
   Dialog,
   DialogContent,
@@ -60,32 +61,6 @@ const propertySchema = z.object({
 })
 
 type PropertyFormData = z.infer<typeof propertySchema>
-
-type Property = {
-  id: string
-  title: string
-  description: string
-  price: number
-  currency: string
-  bedrooms: number
-  bathrooms: number
-  area: number
-  country: string
-  status: string
-  isGoldenVisaEligible: boolean
-  developerId?: string | null
-  locationGuideId?: string | null
-  images?: string[]
-  investmentData?: {
-    expectedROI?: number
-    rentalYield?: number
-    capitalGrowth?: number
-    minInvestment?: number
-    maxInvestment?: number
-    paymentPlan?: string
-    completionDate?: string
-  } | null
-}
 
 type EditPropertyModalProps = {
   property: Property | null

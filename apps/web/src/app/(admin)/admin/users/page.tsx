@@ -1,9 +1,10 @@
 import { getAllUsers } from '@/lib/admin/user-management'
 import { UsersManagementClient } from '@/components/admin/UsersManagementClient'
+import { User } from '@/lib/types/api'
 
 export default async function AdminUsersPage() {
   // Layout already handles authentication
-  let users = []
+  let users: any[] = []
 
   try {
     users = await getAllUsers()
