@@ -117,11 +117,23 @@ class ApiClient {
     page?: number;
     limit?: number;
     country?: string;
+    city?: string;
+    propertyType?: string;
     status?: string;
+    availabilityStatus?: string;
+    visibility?: string;
     minPrice?: number;
     maxPrice?: number;
     bedrooms?: number;
+    minBedrooms?: number;
+    maxBedrooms?: number;
+    isGoldenVisaEligible?: boolean;
+    featured?: boolean;
+    hasPool?: boolean;
+    furnishingStatus?: string;
     search?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
   }) {
     const searchParams = new URLSearchParams();
     if (params) {
@@ -131,7 +143,7 @@ class ApiClient {
         }
       });
     }
-    
+
     const queryString = searchParams.toString();
     return this.request(`/properties${queryString ? `?${queryString}` : ''}`);
   }
@@ -355,6 +367,96 @@ class ApiClient {
 
   async getSystemHealth() {
     return this.request('/admin/health');
+  }
+
+  // AI Search endpoints
+  async aiSearch(query: string, context?: { userId?: string; previousSearches?: string[] }) {
+    return this.request('/ai-search', {
+      method: 'POST',
+      body: JSON.stringify({ query, context }),
+    });
+  }
+
+  async getAISearchSuggestions() {
+    return this.request('/ai-search/suggestions');
+  }
+
+  // Agent endpoints
+  async getAgentDashboardStats() {
+    return this.request('/agent/dashboard/stats');
+  }
+
+  async getAgentProperties(params?: {
+    page?: number;
+    limit?: number;
+    status?: string;
+    availabilityStatus?: string;
+    search?: string;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, value.toString());
+        }
+      });
+    }
+
+    const queryString = searchParams.toString();
+    return this.request(`/agent/properties${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getAgentInquiries(params?: {
+    page?: number;
+    limit?: number;
+    propertyId?: string;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, value.toString());
+        }
+      });
+    }
+
+    const queryString = searchParams.toString();
+    return this.request(`/agent/inquiries${queryString ? `?${queryString}` : ''}`);
+  }
+
+  async getAgentProfile() {
+    return this.request('/agent/profile');
+  }
+
+  async updateAgentProfile(data: {
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    agentLicenseNumber?: string;
+    agentCompany?: string;
+    agentBio?: string;
+    agentCommissionRate?: number;
+  }) {
+    return this.request('/agent/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updatePropertyStatus(propertyId: string, availabilityStatus: string) {
+    return this.request(`/agent/properties/${propertyId}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ availabilityStatus }),
+    });
+  }
+
+  async getAgentAnalytics(period?: number) {
+    const searchParams = new URLSearchParams();
+    if (period) {
+      searchParams.append('period', period.toString());
+    }
+    const queryString = searchParams.toString();
+    return this.request(`/agent/analytics${queryString ? `?${queryString}` : ''}`);
   }
 }
 

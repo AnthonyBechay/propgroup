@@ -85,7 +85,11 @@ router.post('/register', async (req, res) => {
         country: true,
         role: true,
         investmentGoals: true,
+        membershipTier: true,
+        membershipStartDate: true,
+        membershipEndDate: true,
         isActive: true,
+        emailVerifiedAt: true,
         createdAt: true
       }
     });
@@ -224,7 +228,11 @@ router.put('/profile', authenticateToken, async (req, res) => {
         country: true,
         role: true,
         investmentGoals: true,
+        membershipTier: true,
+        membershipStartDate: true,
+        membershipEndDate: true,
         isActive: true,
+        emailVerifiedAt: true,
         createdAt: true,
         updatedAt: true
       }

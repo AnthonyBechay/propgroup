@@ -25,7 +25,9 @@
       "Bash(npx next build)",
       "Bash(pnpm build:*)",
       "Bash(npx prisma format:*)",
-      "Bash(npx prisma validate:*)"
+      "Bash(npx prisma validate:*)",
+      "Bash(pnpm db:generate:*)",
+      "Bash(pnpm db:seed:*)"
     ],
     "deny": [],
     "ask": []

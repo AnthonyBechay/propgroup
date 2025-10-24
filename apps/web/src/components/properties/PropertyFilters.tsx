@@ -31,23 +31,22 @@ interface PropertyFiltersProps {
 }
 
 const countries = [
-  { value: 'uae', label: 'United Arab Emirates', flag: '🇦🇪' },
-  { value: 'usa', label: 'United States', flag: '🇺🇸' },
-  { value: 'uk', label: 'United Kingdom', flag: '🇬🇧' },
-  { value: 'spain', label: 'Spain', flag: '🇪🇸' },
-  { value: 'portugal', label: 'Portugal', flag: '🇵🇹' },
-  { value: 'greece', label: 'Greece', flag: '🇬🇷' },
-  { value: 'canada', label: 'Canada', flag: '🇨🇦' },
-  { value: 'australia', label: 'Australia', flag: '🇦🇺' },
+  { value: 'GEORGIA', label: 'Georgia', flag: '🇬🇪' },
+  { value: 'CYPRUS', label: 'Cyprus', flag: '🇨🇾' },
+  { value: 'GREECE', label: 'Greece', flag: '🇬🇷' },
+  { value: 'LEBANON', label: 'Lebanon', flag: '🇱🇧' },
 ]
 
 const propertyTypes = [
-  { value: 'apartment', label: 'Apartment', icon: '🏢' },
-  { value: 'villa', label: 'Villa', icon: '🏡' },
-  { value: 'penthouse', label: 'Penthouse', icon: '🏙️' },
-  { value: 'townhouse', label: 'Townhouse', icon: '🏘️' },
-  { value: 'commercial', label: 'Commercial', icon: '🏪' },
-  { value: 'land', label: 'Land', icon: '🏞️' },
+  { value: 'APARTMENT', label: 'Apartment', icon: '🏢' },
+  { value: 'VILLA', label: 'Villa', icon: '🏡' },
+  { value: 'PENTHOUSE', label: 'Penthouse', icon: '🏙️' },
+  { value: 'TOWNHOUSE', label: 'Townhouse', icon: '🏘️' },
+  { value: 'STUDIO', label: 'Studio', icon: '🏠' },
+  { value: 'DUPLEX', label: 'Duplex', icon: '🏘️' },
+  { value: 'COMMERCIAL', label: 'Commercial', icon: '🏪' },
+  { value: 'OFFICE', label: 'Office', icon: '🏢' },
+  { value: 'LAND', label: 'Land', icon: '🏞️' },
 ]
 
 const statusOptions = [
@@ -135,8 +134,8 @@ export function PropertyFilters({ filters, onChange, onClose }: PropertyFiltersP
             Property Type
           </Label>
           <Select
-            value={localFilters.type}
-            onValueChange={(value) => handleFilterChange('type', value)}
+            value={localFilters.propertyType}
+            onValueChange={(value) => handleFilterChange('propertyType', value)}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select type" />
@@ -258,8 +257,8 @@ export function PropertyFilters({ filters, onChange, onClose }: PropertyFiltersP
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
-                checked={localFilters.goldenVisa === 'true'}
-                onChange={(e) => handleFilterChange('goldenVisa', e.target.checked ? 'true' : '')}
+                checked={localFilters.isGoldenVisaEligible === 'true'}
+                onChange={(e) => handleFilterChange('isGoldenVisaEligible', e.target.checked ? 'true' : '')}
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span className="text-sm text-gray-700 dark:text-gray-300">

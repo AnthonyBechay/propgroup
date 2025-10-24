@@ -29,6 +29,9 @@ export const authenticateToken = async (req, res, next) => {
         phone: true,
         country: true,
         investmentGoals: true,
+        membershipTier: true,
+        membershipStartDate: true,
+        membershipEndDate: true,
         createdAt: true,
         updatedAt: true
       }

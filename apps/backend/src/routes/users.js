@@ -7,7 +7,7 @@ const router = express.Router();
 
 // Validation schemas
 const updateRoleSchema = z.object({
-  role: z.enum(['USER', 'ADMIN', 'SUPER_ADMIN'])
+  role: z.enum(['USER', 'AGENT', 'ADMIN', 'SUPER_ADMIN'])
 });
 
 const banUserSchema = z.object({
@@ -16,7 +16,7 @@ const banUserSchema = z.object({
 
 const inviteAdminSchema = z.object({
   email: z.string().email('Invalid email address'),
-  role: z.enum(['ADMIN', 'SUPER_ADMIN'])
+  role: z.enum(['AGENT', 'ADMIN', 'SUPER_ADMIN'])
 });
 
 // Get all users (admin only)
@@ -47,6 +47,9 @@ router.get('/', authenticateToken, requireAdmin, async (req, res) => {
           phone: true,
           country: true,
           role: true,
+          membershipTier: true,
+          membershipStartDate: true,
+          membershipEndDate: true,
           isActive: true,
           bannedAt: true,
           bannedReason: true,
@@ -103,6 +106,9 @@ router.get('/:id', authenticateToken, requireAdmin, async (req, res) => {
         country: true,
         role: true,
         investmentGoals: true,
+        membershipTier: true,
+        membershipStartDate: true,
+        membershipEndDate: true,
         isActive: true,
         bannedAt: true,
         bannedBy: true,
