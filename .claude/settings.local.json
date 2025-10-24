@@ -27,7 +27,8 @@
       "Bash(npx prisma format:*)",
       "Bash(npx prisma validate:*)",
       "Bash(pnpm db:generate:*)",
-      "Bash(pnpm db:seed:*)"
+      "Bash(pnpm db:seed:*)",
+      "Bash(node --check:*)"
     ],
     "deny": [],
     "ask": []
