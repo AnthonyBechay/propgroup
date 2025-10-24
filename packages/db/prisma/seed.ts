@@ -1025,8 +1025,10 @@ Perfect for families or as a premium rental property.`,
   // ============================================
   console.log('\n🏷️  Creating tags...')
   const tags = await Promise.all([
-    prisma.tag.create({
-      data: {
+    prisma.tag.upsert({
+      where: { name: 'Beachfront' },
+      update: {},
+      create: {
         name: 'Beachfront',
         slug: 'beachfront',
         description: 'Properties with direct beach access',
@@ -1035,8 +1037,10 @@ Perfect for families or as a premium rental property.`,
         icon: 'beach',
       },
     }),
-    prisma.tag.create({
-      data: {
+    prisma.tag.upsert({
+      where: { name: 'Golden Visa' },
+      update: {},
+      create: {
         name: 'Golden Visa',
         slug: 'golden-visa',
         description: 'Eligible for Golden Visa programs',
@@ -1045,8 +1049,10 @@ Perfect for families or as a premium rental property.`,
         icon: 'visa',
       },
     }),
-    prisma.tag.create({
-      data: {
+    prisma.tag.upsert({
+      where: { name: 'High ROI' },
+      update: {},
+      create: {
         name: 'High ROI',
         slug: 'high-roi',
         description: 'Properties with exceptional return on investment',
@@ -1055,8 +1061,10 @@ Perfect for families or as a premium rental property.`,
         icon: 'trending-up',
       },
     }),
-    prisma.tag.create({
-      data: {
+    prisma.tag.upsert({
+      where: { name: 'New Build' },
+      update: {},
+      create: {
         name: 'New Build',
         slug: 'new-build',
         description: 'Brand new construction',
@@ -1065,8 +1073,10 @@ Perfect for families or as a premium rental property.`,
         icon: 'home',
       },
     }),
-    prisma.tag.create({
-      data: {
+    prisma.tag.upsert({
+      where: { name: 'Sea View' },
+      update: {},
+      create: {
         name: 'Sea View',
         slug: 'sea-view',
         description: 'Properties with sea views',
