@@ -9,6 +9,7 @@ const propertySchema = z.object({
   description: z.string().min(10, 'Description must be at least 10 characters'),
   price: z.number().min(0, 'Price must be positive'),
   currency: z.string().min(3, 'Currency is required'),
+  propertyType: z.enum(['APARTMENT', 'VILLA', 'TOWNHOUSE', 'PENTHOUSE', 'STUDIO', 'DUPLEX', 'LAND', 'COMMERCIAL', 'OFFICE']),
   bedrooms: z.number().min(0, 'Bedrooms must be non-negative'),
   bathrooms: z.number().min(0, 'Bathrooms must be non-negative'),
   area: z.number().min(0, 'Area must be positive'),
@@ -25,6 +26,14 @@ const propertySchema = z.object({
   maxInvestment: z.number().optional(),
   paymentPlan: z.string().optional(),
   completionDate: z.string().optional(),
+  // Additional fields
+  city: z.string().optional(),
+  district: z.string().optional(),
+  address: z.string().optional(),
+  images: z.array(z.string()).optional(),
+  location: z.string().optional(),
+  amenities: z.string().optional(),
+  nearbyFacilities: z.string().optional(),
 })
 
 export async function createProperty(data: z.infer<typeof propertySchema>) {

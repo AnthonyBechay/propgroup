@@ -38,6 +38,7 @@ const propertySchema = z.object({
   description: z.string().min(10, 'Description must be at least 10 characters'),
   price: z.number().min(0, 'Price must be positive'),
   currency: z.string().min(3, 'Currency is required'),
+  propertyType: z.enum(['APARTMENT', 'VILLA', 'TOWNHOUSE', 'PENTHOUSE', 'STUDIO', 'DUPLEX', 'LAND', 'COMMERCIAL', 'OFFICE']),
   bedrooms: z.number().min(0, 'Bedrooms must be non-negative'),
   bathrooms: z.number().min(0, 'Bathrooms must be non-negative'),
   area: z.number().min(0, 'Area must be positive'),
@@ -55,7 +56,9 @@ const propertySchema = z.object({
   paymentPlan: z.string().optional(),
   completionDate: z.string().optional(),
   // Additional details
-  propertyType: z.string().optional(),
+  city: z.string().optional(),
+  district: z.string().optional(),
+  address: z.string().optional(),
   location: z.string().optional(),
   amenities: z.string().optional(),
   nearbyFacilities: z.string().optional(),
@@ -98,6 +101,7 @@ export function CreatePropertyModal({
       description: '',
       price: 0,
       currency: 'USD',
+      propertyType: 'APARTMENT',
       bedrooms: 0,
       bathrooms: 0,
       area: 0,
@@ -111,7 +115,9 @@ export function CreatePropertyModal({
       maxInvestment: undefined,
       paymentPlan: '',
       completionDate: '',
-      propertyType: '',
+      city: '',
+      district: '',
+      address: '',
       location: '',
       amenities: '',
       nearbyFacilities: '',
@@ -190,10 +196,25 @@ export function CreatePropertyModal({
                   name="propertyType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Property Type</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Apartment, Villa, Penthouse" {...field} />
-                      </FormControl>
+                      <FormLabel>Property Type *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select property type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="APARTMENT">Apartment</SelectItem>
+                          <SelectItem value="VILLA">Villa</SelectItem>
+                          <SelectItem value="TOWNHOUSE">Townhouse</SelectItem>
+                          <SelectItem value="PENTHOUSE">Penthouse</SelectItem>
+                          <SelectItem value="STUDIO">Studio</SelectItem>
+                          <SelectItem value="DUPLEX">Duplex</SelectItem>
+                          <SelectItem value="LAND">Land</SelectItem>
+                          <SelectItem value="COMMERCIAL">Commercial</SelectItem>
+                          <SelectItem value="OFFICE">Office</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
