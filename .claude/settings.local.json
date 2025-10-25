@@ -31,7 +31,8 @@
       "Bash(node --check:*)",
       "Bash(npm run lint)",
       "Bash(npx prettier:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

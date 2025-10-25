@@ -95,7 +95,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-1">
+          <div className="hidden lg:flex items-center space-x-1 flex-1 overflow-x-auto overflow-y-hidden px-4 mx-4 scrollbar-hide" style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}>
             <NavLink href="/properties" icon={<Building2 className="w-4 h-4" />} isActive={isActive('/properties')}>
               Properties
             </NavLink>
@@ -111,11 +111,11 @@ export function Navbar() {
 
             {/* Portal Dropdown for logged in users */}
             {user && (
-              <div className="relative">
+              <div className="relative flex-shrink-0">
                 <button
                   onClick={() => setIsPortalDropdownOpen(!isPortalDropdownOpen)}
                   onBlur={() => setTimeout(() => setIsPortalDropdownOpen(false), 200)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-1 ${
+                  className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-1 whitespace-nowrap ${
                     pathname.startsWith('/portal')
                       ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 text-blue-700 dark:text-blue-400'
                       : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -127,7 +127,7 @@ export function Navbar() {
                     isPortalDropdownOpen ? 'rotate-180' : ''
                   }`} />
                 </button>
-                
+
                 {isPortalDropdownOpen && (
                   <div className="absolute top-full left-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 py-2 animate-in fade-in slide-in-from-top-2">
                     {portalLinks.map((link, index) => (
@@ -157,7 +157,7 @@ export function Navbar() {
                 )}
               </div>
             )}
-            
+
             <NavLink href="/about" icon={<Info className="w-4 h-4" />} isActive={isActive('/about')}>
               About
             </NavLink>
@@ -393,7 +393,7 @@ function NavLink({ href, icon, children, isActive }: any) {
   return (
     <Link
       href={href}
-      className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 ${
+      className={`px-4 py-2 rounded-lg font-medium transition-all flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${
         isActive
           ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 text-blue-700 dark:text-blue-400'
           : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800'
