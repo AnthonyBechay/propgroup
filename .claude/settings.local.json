@@ -28,7 +28,10 @@
       "Bash(npx prisma validate:*)",
       "Bash(pnpm db:generate:*)",
       "Bash(pnpm db:seed:*)",
-      "Bash(node --check:*)"
+      "Bash(node --check:*)",
+      "Bash(npm run lint)",
+      "Bash(npx prettier:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []
