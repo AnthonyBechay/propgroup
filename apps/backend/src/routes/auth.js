@@ -101,7 +101,7 @@ router.post('/register', async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'User registered successfully',
-      user
+      data: user
     });
 
   } catch (error) {
@@ -152,7 +152,7 @@ router.post('/login', async (req, res, next) => {
       res.json({
         success: true,
         message: 'Login successful',
-        user: userWithoutPassword
+        data: userWithoutPassword
       });
     })(req, res, next);
 
@@ -178,7 +178,7 @@ router.get('/me', authenticateToken, async (req, res) => {
   try {
     res.json({
       success: true,
-      user: req.user
+      data: req.user
     });
   } catch (error) {
     console.error('Get current user error:', error);
@@ -241,7 +241,7 @@ router.put('/profile', authenticateToken, async (req, res) => {
     res.json({
       success: true,
       message: 'Profile updated successfully',
-      user: updatedUser
+      data: updatedUser
     });
 
   } catch (error) {
